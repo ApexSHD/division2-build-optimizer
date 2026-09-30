@@ -33,13 +33,14 @@ async function loadJson(url) {
         const raw = localStorage.getItem('div2_admin_db');
         if (raw) {
             const o = JSON.parse(raw);
-            if (Array.isArray(o.weapons)) weaponsData.weapons = o.weapons;
+            if (Array.isArray(o.weapons) && o.weapons.length > 0) weaponsData.weapons = o.weapons;
             if (o.gear) {
-                if (o.gear.named_item_configs) NAMED_ITEM_CONFIGS = o.gear.named_item_configs;
-                if (o.gear.gear_db) GEAR_DB = o.gear.gear_db;
-                if (o.gear.green_set_info) GREEN_SET_INFO = o.gear.green_set_info;
+                const hasKeys = obj => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+                if (hasKeys(o.gear.named_item_configs)) NAMED_ITEM_CONFIGS = o.gear.named_item_configs;
+                if (hasKeys(o.gear.gear_db)) GEAR_DB = o.gear.gear_db;
+                if (hasKeys(o.gear.green_set_info)) GREEN_SET_INFO = o.gear.green_set_info;
             }
-            if (o.mods && o.mods.slots) MOD_CATALOG = o.mods.slots;
+            if (o.mods && o.mods.slots && typeof o.mods.slots === 'object' && Object.keys(o.mods.slots).length > 0) MOD_CATALOG = o.mods.slots;
         }
     } catch (e) { console.warn('Lokale DB-Overrides konnten nicht geladen werden:', e); }
 

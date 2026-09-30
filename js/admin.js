@@ -86,6 +86,9 @@ function getChk(id) {
 
 // ---------- Persistenz ----------
 function persistAdminDb() {
+    // Nie leere Datenbestaende persistieren (Schutz vor kaputtem Zustand)
+    if (!Array.isArray(weaponsData.weapons) || weaponsData.weapons.length === 0) return;
+    if (!GEAR_DB || typeof GEAR_DB !== 'object' || Object.keys(GEAR_DB).length === 0) return;
     const o = getAdminOverrides();
     o.weapons = weaponsData.weapons;
     o.gear = { named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO };
@@ -105,6 +108,8 @@ function refreshAfterDbChange(msg) {
 
 // ---------- Tabellen-Rendering ----------
 function renderAdminTables() {
+    populateWeaponTypeFilter();
+    populateGearSlotFilter();
     renderWeaponsAdmin();
     renderGearAdmin();
     renderModsAdmin();
@@ -117,12 +122,74 @@ function actionBtns(onEdit, onDel, editTitle, delTitle) {
     </div>`;
 }
 
+function adminWeaponRarity(w) {
+    return w.is_exotic ? 'exotic' : (w.is_named ? 'named' : 'highend');
+}
+
+function fillSelectOptions(id, options, keepValue) {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const cur = keepValue ? sel.value : null;
+    sel.innerHTML = options.map(o => `<option value="${esc(o[0])}">${esc(o[1])}</option>`).join('');
+    if (keepValue && cur && [...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+
+const ADMIN_RARITY_LABELS = { highend: 'High-End', named: 'Named', exotic: 'Exotisch' };
+const ADMIN_GEAR_CLASS_LABELS = { named: 'Named', exotic: 'Exotisch', brand: 'Brand-Set', gearset: 'Gear-Set' };
+
+function populateWeaponTypeFilter() {
+    const types = [...new Set(weaponsData.weapons.map(w => w.type).filter(Boolean))].sort();
+    fillSelectOptions('adminWeaponTypeFilter', [['', 'Alle Gattungen'], ...types.map(t => [t, t])], true);
+    populateWeaponRarityFilter();
+}
+
+function populateWeaponRarityFilter() {
+    const tf = getVal('adminWeaponTypeFilter') || '';
+    const pool = weaponsData.weapons.filter(w => !tf || w.type === tf);
+    const rars = [...new Set(pool.map(adminWeaponRarity))].sort();
+    fillSelectOptions('adminWeaponRarityFilter', [['', 'Alle Arten'], ...rars.map(r => [r, ADMIN_RARITY_LABELS[r] || r])], true);
+}
+
+function populateGearSlotFilter() {
+    const slots = [...new Set(Object.values(GEAR_DB).map(g => g.slot).filter(Boolean))].sort();
+    fillSelectOptions('adminGearSlotFilter', [['', 'Alle Slots'], ...slots.map(s => [s, s])], true);
+    populateGearClassFilter();
+}
+
+function gearClassOf(g) {
+    if (g.cls && ADMIN_GEAR_CLASS_LABELS[g.cls]) return g.cls;
+    if (g.cls) return g.cls;
+    if (g.brand) return 'brand';
+    if (g.set || g.gearset) return 'gearset';
+    return g.cls || 'named';
+}
+
+function populateGearClassFilter() {
+    const sf = getVal('adminGearSlotFilter') || '';
+    const pool = Object.values(GEAR_DB).filter(g => !sf || g.slot === sf);
+    const cls = [...new Set(pool.map(gearClassOf))].sort();
+    fillSelectOptions('adminGearClassFilter', [['', 'Alle Klassen'], ...cls.map(c => [c, ADMIN_GEAR_CLASS_LABELS[c] || c])], true);
+    populateGearBrandFilter();
+}
+
+function populateGearBrandFilter() {
+    const sf = getVal('adminGearSlotFilter') || '';
+    const cf = getVal('adminGearClassFilter') || '';
+    const pool = Object.values(GEAR_DB).filter(g => (!sf || g.slot === sf) && (!cf || gearClassOf(g) === cf));
+    const brands = [...new Set(pool.map(g => g.brand || '').filter(b => b !== undefined))].sort();
+    const opts = [['', 'Alle Marken/Sets'], ...brands.map(b => [b, b || '— (keine Marke)'])];
+    fillSelectOptions('adminGearBrandFilter', opts, true);
+}
+
 function renderWeaponsAdmin() {
     const el = document.getElementById('adminWeaponTable');
     if (!el) return;
     const filter = (getVal('adminWeaponFilter') || '').toLowerCase();
+    const tf = getVal('adminWeaponTypeFilter') || '';
+    const rf = getVal('adminWeaponRarityFilter') || '';
     const list = weaponsData.weapons
         .map((w, i) => ({ w, i }))
+        .filter(x => (!tf || x.w.type === tf) && (!rf || adminWeaponRarity(x.w) === rf))
         .filter(x => !filter || (x.w.name || '').toLowerCase().includes(filter) || (x.w.type || '').toLowerCase().includes(filter));
     document.getElementById('adminWeaponCount').textContent = weaponsData.weapons.length;
     const rows = list.slice(0, 200).map(x => {
@@ -148,8 +215,12 @@ function renderGearAdmin() {
     const el = document.getElementById('adminGearTable');
     if (!el) return;
     const filter = (getVal('adminGearFilter') || '').toLowerCase();
+    const sf = getVal('adminGearSlotFilter') || '';
+    const cf = getVal('adminGearClassFilter') || '';
+    const bf = getVal('adminGearBrandFilter') || '';
     const entries = Object.entries(GEAR_DB)
         .map(([name, g], i) => ({ name, g, i }))
+        .filter(x => (!sf || x.g.slot === sf) && (!cf || gearClassOf(x.g) === cf) && (!bf || (x.g.brand || '') === bf))
         .filter(x => !filter || x.name.toLowerCase().includes(filter) || (x.g.slot || '').toLowerCase().includes(filter));
     document.getElementById('adminGearCount').textContent = Object.keys(GEAR_DB).length;
     const rows = entries.map(x => `<tr class="border-t border-gray-800">
