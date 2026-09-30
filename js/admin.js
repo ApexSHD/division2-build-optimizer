@@ -194,6 +194,10 @@ function renderWeaponsAdmin() {
         .filter(x => (!tf || x.w.type === tf) && (!rf || adminWeaponRarity(x.w) === rf))
         .filter(x => !filter || (x.w.name || '').toLowerCase().includes(filter) || (x.w.type || '').toLowerCase().includes(filter));
     document.getElementById('adminWeaponCount').textContent = weaponsData.weapons.length;
+    if (!tf) {
+        el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst eine Waffengattung auswählen.</p>';
+        return;
+    }
     const rows = list.slice(0, 200).map(x => {
         const w = x.w;
         const rarity = w.is_exotic ? 'exotic' : (w.is_named ? 'named' : (w.rarity || 'standard'));
@@ -225,6 +229,10 @@ function renderGearAdmin() {
         .filter(x => (!sf || x.g.slot === sf) && (!cf || gearClassOf(x.g) === cf) && (!bf || (x.g.brand || '') === bf))
         .filter(x => !filter || x.name.toLowerCase().includes(filter) || (x.g.slot || '').toLowerCase().includes(filter));
     document.getElementById('adminGearCount').textContent = Object.keys(GEAR_DB).length;
+    if (!sf) {
+        el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst einen Slot auswählen.</p>';
+        return;
+    }
     const rows = entries.map(x => `<tr class="border-t border-gray-800">
         <td class="py-2 px-3 text-sm">${esc(x.name)}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(x.g.slot)}</td>
