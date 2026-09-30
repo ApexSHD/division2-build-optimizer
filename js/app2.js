@@ -2019,7 +2019,7 @@ function loadSavedWeaponDb() {
 }
 
 // Lade die Waffen-Daten, fülle die Drop-down-Listen und die Talente, sobald die Seite geladen ist
-window.onload = function() {
+function initPage() {
     loadSavedWeaponDb();
     populateWeaponTypeDropdown();
     populateTalentDropdown();
@@ -2045,4 +2045,7 @@ window.onload = function() {
     if (typeof toggleAutoMods === 'function') toggleAutoMods();
     // Manuellen Spiel-Build (Einstellungen) initial mit Inventar füllen
     if (typeof populateManualBuildSelects === 'function') populateManualBuildSelects();
-};
+}
+if (document.readyState === 'complete') initPage();
+else window.addEventListener('load', initPage);
+

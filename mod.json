@@ -233,6 +233,17 @@
                     "val": 5
                 },
                 "penalty": null
+            },
+            {
+                "name": "GR9 Built-in Scope (8x)",
+                "slotTypes": [
+                    "Long/Short Optics Rail"
+                ],
+                "bonus": {
+                    "type": "chc",
+                    "val": 5
+                },
+                "penalty": null
             }
         ],
         "magazine": [
