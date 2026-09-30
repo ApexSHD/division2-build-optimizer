@@ -1,0 +1,76 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        .div-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .div-accent { color: #ff6600; }
+        .bg-div-accent { background-color: #ff6600; }
+        .btn-primary {
+            background-color: #ff6600;
+            color: #000000;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #e65c00;
+            box-shadow: 0 0 12px rgba(255,102,0,0.4);
+        }
+        .btn-secondary {
+            background-color: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #444444;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #3e3e3e;
+            border-color: #ff6600;
+        }
+        input, select {
+            background-color: #2a2a2a !important;
+            color: #ffffff !important;
+            border: 1px solid #444444 !important;
+        }
+        input:focus, select:focus {
+            border-color: #ff6600 !important;
+            outline: none !important;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #181818; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff6600; }
+
+        .tab-btn {
+            background-color: #2a2a2a;
+            border: 1px solid #444444;
+            border-bottom: none;
+            margin-bottom: -1px;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background-color: #1e1e1e;
+            border-color: #ff6600;
+            color: #ff6600;
+            font-weight: 700;
+        }
+        .tab-btn:hover:not(.active) {
+            background-color: #2e2e2e;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .stack-chart-wrap { background: rgba(9,9,11,.75); border: 1px solid #333; border-radius: 12px; padding: 16px; }
+        .stack-chart { width: 100%; height: 300px; display: block; }
+        .stack-chart-grid { stroke: #333; stroke-width: 1; }
+        .stack-chart-axis { stroke: #555; stroke-width: 1.2; }
+        .stack-chart-line { fill: none; stroke: #ff6600; stroke-width: 3; vector-effect: non-scaling-stroke; }
+        .stack-chart-area { fill: rgba(255,102,0,.10); }
+        .stack-chart-point { fill: #ff6600; stroke: #121212; stroke-width: 2; }
+        .stack-chart-label { fill: #9ca3af; font-size: 11px; font-family: Inter, sans-serif; }
+        .stack-chart-value { fill: #f3f4f6; font-size: 11px; font-weight: 700; font-family: Inter, sans-serif; }
+        .comparison-card { transition: transform 0.2s ease; }
+        .comparison-card:hover { transform: translateY(-2px); }
