@@ -16,4 +16,14 @@ Tailwind CSS - Styling and modern UI components
 JavaScript (ES6+) - Core logic, calculations, and interactivity
 
 📦 Getting Started (Local Development)
-If you want to run or modify this project locally, simply clone the repository and open the index.html file in your favorite web browser:
+## Running Locally
+
+The app loads its data (`weapons.json`, `talent.json`, `talents-display.json`, `mod.json`, `gear.json`) via `fetch()`, so it must be served over HTTP (opening `index.html` directly via `file://` will not work).
+
+Quick start with Python:
+
+```bash
+python3 -m http.server 8000
+```
+
+Then open http://localhost:8000 in your browser. Any other static file server works as well.
