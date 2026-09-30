@@ -97,6 +97,52 @@
                 wd: 20, rof: 20, conditional: true, note: 'Annahme: Buff-Gruppe aktiv'
             }
         };
+        // Rendert die dynamische Exoten-Perk-Liste im Optimierungs-Tab:
+        // nur Exoten, die (a) modelliert sind und (b) im Inventar liegen.
+        // Coyote's Mask bekommt die Distanz-Zone, Stack-Perks einen eigenen
+        // Auslastungs-Slider (Standard: wie Set-Stacks), bedingte Perks
+        // zeigen ihre Annahme.
+        function renderExoticPerkList() {
+            const wrap = document.getElementById('exoticPerkListWrap');
+            if (!wrap) return;
+            const active = !!(document.getElementById('exoticPerksActive')?.checked);
+            wrap.style.display = active ? '' : 'none';
+            if (!active) return;
+            const present = new Set(gearInventory.map(i => i.setName).filter(n => EXOTIC_GEAR_PERKS[n]));
+            if (present.size === 0) {
+                wrap.innerHTML = '<p class="text-xs text-gray-400">Keine unterstützten Exoten im Gear-Inventar — lege z.B. Coyote\'s Mask oder Memento an, um deren Perks einzurechnen.</p>';
+                return;
+            }
+            let html = '<p class="text-[11px] font-semibold uppercase text-gray-400">Unterstützte Exoten im Inventar (' + present.size + ')</p>';
+            present.forEach(name => {
+                const def = EXOTIC_GEAR_PERKS[name];
+                html += '<div class="p-2 rounded-lg bg-zinc-900/80 border border-gray-800 space-y-1">';
+                html += '<div class="flex items-center justify-between"><span class="text-sm font-semibold text-gray-200">' + escapeHtml(name) + '</span><span class="text-[10px] text-div-accent">' + escapeHtml(def.perk.split('(')[0].trim()) + '</span></div>';
+                if (def.byDistance) {
+                    const cur = document.getElementById('coyoteDistance')?.value || 'mid';
+                    html += '<select id="coyoteDistance" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="w-full p-2 rounded-lg text-xs bg-zinc-800 border border-gray-700">';
+                    html += '<option value="near"' + (cur === 'near' ? ' selected' : '') + '>0–15m: +25% CHD</option>';
+                    html += '<option value="mid"' + (cur === 'mid' ? ' selected' : '') + '>15–25m: +10% CHC &amp; +10% CHD</option>';
+                    html += '<option value="far"' + (cur === 'far' ? ' selected' : '') + '>25m+: +25% CHC</option>';
+                    html += '</select>';
+                } else if (def.perStackWd) {
+                    const inp = document.getElementById('exoticStackUtil_' + slugify(name))?.value;
+                    const val = (inp !== undefined && inp !== '') ? inp : '100';
+                    html += '<div class="flex items-center gap-2 text-xs text-gray-300">';
+                    html += '<input type="range" min="0" max="100" step="5" value="' + val + '" id="exoticStackUtil_' + slugify(name) + '" oninput="document.getElementById(\'exoticStackUtilVal_' + slugify(name) + '\').textContent = this.value + \'%\'; if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="flex-1 accent-orange-500">';
+                    html += '<span id="exoticStackUtilVal_' + slugify(name) + '" class="font-mono text-amber-400 w-10 text-right">' + val + '%</span>';
+                    html += '</div>';
+                    html += '<p class="text-[10px] text-gray-500">Stacks: max. ' + def.maxStacks + ' × +' + formatGermanNumber(def.perStackWd) + '% WD — ' + escapeHtml(def.note) + '</p>';
+                } else {
+                    html += '<p class="text-[10px] text-gray-500">' + escapeHtml(def.note) + '</p>';
+                }
+                html += '</div>';
+            });
+            wrap.innerHTML = html;
+        }
+        function slugify(s) {
+            return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        }
         function isExoticGearName(name) {
             const e = GEAR_DB[name];
             return !!e && e.cls === 'exotic';
@@ -3874,6 +3920,7 @@
         }
 
         function renderGearInventory() {
+            if (typeof renderExoticPerkList === 'function') renderExoticPerkList();
             updateGearSetFilterOptions();
             updateGearModAdvice();
             const slotFilter = document.getElementById('gearSlotFilter')?.value || '';
@@ -4282,13 +4329,22 @@
             cache.exoticPerks = [];
             const exoticPerksOn = !!(settings && settings.exoticPerksActive);
             if (exoticPerksOn) {
-                let utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
-                if (isNaN(utilization) || utilization < 0) utilization = 100;
-                if (utilization > 100) utilization = 100;
                 const coyoteZone = (document.getElementById('coyoteDistance')?.value) || 'mid';
                 build.forEach(item => {
                     const def = EXOTIC_GEAR_PERKS[item.setName];
                     if (!def) return;
+                    let utilization = 100;
+                    if (def.perStackWd) {
+                        const slider = document.getElementById('exoticStackUtil_' + slugify(item.setName));
+                        if (slider && slider.value !== '' && !isNaN(parseLocalizedFloat(slider.value))) {
+                            utilization = parseLocalizedFloat(slider.value);
+                        } else {
+                            const global = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
+                            utilization = isNaN(global) ? 100 : global;
+                        }
+                        if (isNaN(utilization) || utilization < 0) utilization = 100;
+                        if (utilization > 100) utilization = 100;
+                    }
                     if (def.byDistance) {
                         const zone = def.byDistance[coyoteZone] || def.byDistance.mid;
                         d.chc += zone.chc; d.chd += zone.chd;
