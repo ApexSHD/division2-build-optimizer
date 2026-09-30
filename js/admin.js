@@ -91,7 +91,7 @@ function persistAdminDb() {
     if (!GEAR_DB || typeof GEAR_DB !== 'object' || Object.keys(GEAR_DB).length === 0) return;
     const o = getAdminOverrides();
     o.weapons = weaponsData.weapons;
-    o.gear = { named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO };
+    o.gear = { named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO, brand_set_info: BRAND_SET_INFO };
     o.mods = { slots: MOD_CATALOG };
     saveAdminOverrides(o);
 }
@@ -112,6 +112,8 @@ function renderAdminTables() {
     populateGearSlotFilter();
     renderWeaponsAdmin();
     renderGearAdmin();
+    renderBrandsAdmin();
+    renderGreensAdmin();
     renderModsAdmin();
 }
 
@@ -411,6 +413,146 @@ function deleteGearEntry(idx) {
     refreshAfterDbChange('Gear gelöscht.');
 }
 
+// ---------- Brand-Sets & Gear-Sets (gruen) ----------
+const ADMIN_BRAND_GROUPS = { dps: 'DPS', utility: 'Utility & Defense' };
+
+function renderBrandsAdmin() {
+    const el = document.getElementById('adminBrandTable');
+    if (!el) return;
+    const filter = (getVal('adminBrandFilter') || '').toLowerCase();
+    const gf = getVal('adminBrandGroupFilter') || '';
+    const entries = Object.entries(BRAND_SET_INFO)
+        .filter(([k, b]) => (!gf || b.group === gf) && (!filter || k.toLowerCase().includes(filter) || (b.name || '').toLowerCase().includes(filter)));
+    const groupSel = document.getElementById('adminBrandGroupFilter');
+    if (groupSel && groupSel.options.length <= 1) {
+        const groups = [...new Set(Object.values(BRAND_SET_INFO).map(b => b.group).filter(Boolean))];
+        fillSelectOptions('adminBrandGroupFilter', [['', 'Alle Gruppen'], ...groups.map(g => [g, ADMIN_BRAND_GROUPS[g] || g])], true);
+    }
+    document.getElementById('adminBrandCount').textContent = Object.keys(BRAND_SET_INFO).length;
+    const rows = entries.map(([key, b]) => `<tr class="border-t border-gray-800">
+        <td class="py-2 px-3 text-sm font-semibold">${esc(key)}</td>
+        <td class="py-2 px-3 text-sm text-gray-400">${esc(b.name)}</td>
+        <td class="py-2 px-3 text-sm">${esc(ADMIN_BRAND_GROUPS[b.group] || b.group || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-400">${esc(b.weapon_hint || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(b.wd_bonus || '')}">${esc(b.wd_bonus || '—')}</td>
+        <td class="py-2 px-3">${actionBtns(`openBrandForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteBrandEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
+    </tr>`).join('');
+    el.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="text-xs uppercase text-gray-500">
+            <th class="py-2 px-3">Schl\u00fcssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Waffenbonus</th><th class="py-2 px-3">Aktionen</th>
+        </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+}
+
+function openBrandForm(key) {
+    const isNew = key == null || key === 'null';
+    const b = isNew ? {} : (BRAND_SET_INFO[key] || {});
+    openAdminModal(isNew ? 'Neues Brand-Set anlegen' : 'Brand-Set bearbeiten: ' + key);
+    document.getElementById('adminModalBody').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${modalInput('abKey', 'Schl\u00fcssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
+            ${modalInput('abName', 'Vollst\u00e4ndiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
+            ${modalInput('abGroup', 'Gruppe', b.group || 'dps', { type: 'select', options: [['dps', 'DPS'], ['utility', 'Utility & Defense']] })}
+            ${modalInput('abWeaponHint', 'Waffen-Hint (optional)', b.weapon_hint || '', { placeholder: 'z.B. AR' })}
+        </div>
+        ${modalInput('abWdBonus', 'Waffenbonus (Beschreibung, optional)', b.wd_bonus || '', { placeholder: 'z.B. 1p: +12% AR-Schaden' })}
+        ${modalInput('abFragments', 'Match-Fragmente (Komma-getrennt, optional)', (b.fragments || []).join(', '), { placeholder: 'z.B. fenris, ferocious calm' })}
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+            <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
+            <button onclick="saveBrandForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+        </div>`;
+}
+
+function saveBrandForm(key) {
+    const newKey = getVal('abKey').trim();
+    const name = getVal('abName').trim();
+    if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
+    const entry = { name, group: getVal('abGroup') };
+    const wh = getVal('abWeaponHint').trim(); if (wh) entry.weapon_hint = wh;
+    const wb = getVal('abWdBonus').trim(); if (wb) entry.wd_bonus = wb;
+    const fr = getVal('abFragments').split(',').map(x => x.trim()).filter(Boolean);
+    if (fr.length) entry.fragments = fr;
+    const oldKey = (key && key !== 'null') ? key : null;
+    if (oldKey && oldKey !== newKey) {
+        const newObj = {};
+        for (const k of Object.keys(BRAND_SET_INFO)) newObj[k === oldKey ? newKey : k] = (k === oldKey) ? entry : BRAND_SET_INFO[k];
+        BRAND_SET_INFO = newObj;
+    } else {
+        BRAND_SET_INFO[newKey] = entry;
+    }
+    closeAdminModal();
+    refreshAfterDbChange(oldKey ? 'Brand-Set aktualisiert.' : 'Brand-Set hinzugef\u00fcgt.');
+}
+
+function deleteBrandEntry(key) {
+    if (!BRAND_SET_INFO[key] || !confirm(`Brand-Set "${key}" wirklich l\u00f6schen?`)) return;
+    delete BRAND_SET_INFO[key];
+    refreshAfterDbChange('Brand-Set gel\u00f6scht.');
+}
+
+function renderGreensAdmin() {
+    const el = document.getElementById('adminGreenTable');
+    if (!el) return;
+    const filter = (getVal('adminGreenFilter') || '').toLowerCase();
+    const entries = Object.entries(GREEN_SET_INFO)
+        .filter(([k, g]) => !filter || k.toLowerCase().includes(filter) || (g.name || '').toLowerCase().includes(filter));
+    document.getElementById('adminGreenCount').textContent = Object.keys(GREEN_SET_INFO).length;
+    const rows = entries.map(([key, g]) => `<tr class="border-t border-gray-800">
+        <td class="py-2 px-3 text-sm font-semibold">${esc(key)}</td>
+        <td class="py-2 px-3 text-sm text-gray-400">${esc(g.name)}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n2 || '')}">${esc(g.n2 || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n3 || '')}">${esc(g.n3 || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n4 || '')}">${esc(g.n4 || '—')}</td>
+        <td class="py-2 px-3">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
+    </tr>`).join('');
+    el.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="text-xs uppercase text-gray-500">
+            <th class="py-2 px-3">Schl\u00fcssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Aktionen</th>
+        </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+}
+
+function openGreenForm(key) {
+    const isNew = key == null || key === 'null';
+    const g = isNew ? {} : (GREEN_SET_INFO[key] || {});
+    openAdminModal(isNew ? 'Neues Gear-Set anlegen' : 'Gear-Set bearbeiten: ' + key);
+    document.getElementById('adminModalBody').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${modalInput('ag2Key', 'Schl\u00fcssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. striker' })}
+            ${modalInput('ag2Name', 'Vollst\u00e4ndiger Name', g.name || '', { required: true, placeholder: "z.B. Striker's Battlegear" })}
+        </div>
+        ${modalInput('ag2N2', '2p-Bonus', g.n2 || '')}
+        ${modalInput('ag2N3', '3p-Bonus', g.n3 || '')}
+        ${modalInput('ag2N4', '4p-Bonus (Chest/Backpack-Talent)', g.n4 || '', { type: 'textarea', rows: 2 })}
+        ${modalInput('ag2Modeled', 'Modellierung-Hinweis (optional)', g.modeled || '', { placeholder: 'z.B. 3p numerisch (Feuerrate)' })}
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+            <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
+            <button onclick="saveGreenForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+        </div>`;
+}
+
+function saveGreenForm(key) {
+    const newKey = getVal('ag2Key').trim();
+    const name = getVal('ag2Name').trim();
+    if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
+    const entry = { name, n2: getVal('ag2N2') || '', n3: getVal('ag2N3') || '', n4: getVal('ag2N4') || '' };
+    const md = getVal('ag2Modeled').trim(); if (md) entry.modeled = md;
+    const oldKey = (key && key !== 'null') ? key : null;
+    if (oldKey && oldKey !== newKey) {
+        const newObj = {};
+        for (const k of Object.keys(GREEN_SET_INFO)) newObj[k === oldKey ? newKey : k] = (k === oldKey) ? entry : GREEN_SET_INFO[k];
+        GREEN_SET_INFO = newObj;
+    } else {
+        GREEN_SET_INFO[newKey] = entry;
+    }
+    closeAdminModal();
+    refreshAfterDbChange(oldKey ? 'Gear-Set aktualisiert.' : 'Gear-Set hinzugef\u00fcgt.');
+}
+
+function deleteGreenEntry(key) {
+    if (!GREEN_SET_INFO[key] || !confirm(`Gear-Set "${key}" wirklich l\u00f6schen?`)) return;
+    delete GREEN_SET_INFO[key];
+    refreshAfterDbChange('Gear-Set gel\u00f6scht.');
+}
+
 // ---------- Mod-Formular ----------
 const ADMIN_MOD_ATTRS = ['chc', 'chd', 'hsd', 'wd', 'rof', 'reloadSpeed', 'handling', 'accuracy', 'stability', 'range', 'swapSpeed', 'capacity'];
 
@@ -478,7 +620,7 @@ function downloadJson(filename, data) {
 
 function exportDb(which) {
     if (which === 'weapons') downloadJson('weapons.json', { weapons: weaponsData.weapons, _meta: { version: 'user-export', source: 'Build-Optimizer Verwaltung' } });
-    else if (which === 'gear') downloadJson('gear.json', { version: 'gear_v1-user', source: 'Build-Optimizer Verwaltung', named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO });
+    else if (which === 'gear') downloadJson('gear.json', { version: 'gear_v1-user', source: 'Build-Optimizer Verwaltung', named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO, brand_set_info: BRAND_SET_INFO });
     else if (which === 'mods') downloadJson('mod.json', { version: 'mods_v1-user', source: 'Build-Optimizer Verwaltung', slots: MOD_CATALOG });
     adminToast('Export gestartet.');
 }
