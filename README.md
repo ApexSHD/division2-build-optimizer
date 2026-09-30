@@ -1,19 +1,19 @@
-The Division 2 - Build Optimizer
-A web-based build optimization tool designed for Tom Clancy's The Division 2. This application helps agents calculate, analyze, and fine-tune their gear stats, attributes, and talents to maximize efficiency and damage output in-game.
+# Tom Clancy's The Division 2 - Build Optimizer
 
-✨ Features
-Stat Calculation: Easily input and evaluate gear pieces, weapons, and brand/gear sets.
+⚠️ **Project Status: Alpha (In Development)** – *This tool is currently under active development, incomplete, and not final. Features, stats, and calculations are subject to change.*
 
-Responsive Design: Built with a modern, clean UI utilizing Tailwind CSS for seamless usage on desktop and mobile.
+A fast, web-based build optimization tool designed for **Tom Clancy's The Division 2** to help agents calculate and fine-tune their gear stats.
 
-Interactive Interface: Fast and lightweight client-side logic powered by JavaScript.
+## ✨ Features & Tech Stack
+- **Stat Calculation & Theorycrafting:** Evaluates gear pieces and bonuses using JavaScript (ES6+) and modular JSON databases (`gear.json`, `mod.json`, `talent.json`, `weapons.json`).
+- **Interface:** Built with HTML5 and Tailwind CSS for a responsive, modern gaming UI.
 
-Built With
-HTML5 - Structure and layout
+## 📦 Getting Started
+Clone the repository and open `index.html` in any modern web browser to run this client-side application:
+```bash
+git clone https://github.com
+cd division2-build-optimizer
+```
 
-Tailwind CSS - Styling and modern UI components
-
-JavaScript (ES6+) - Core logic, calculations, and interactivity
-
-📦 Getting Started (Local Development)
-If you want to run or modify this project locally, simply clone the repository and open the index.html file in your favorite web browser:
+## 🤖 AI Notice
+*This project documentation (README) was generated and structured with the assistance of an **Artificial Intelligence (AI)**.*
