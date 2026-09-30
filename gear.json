@@ -1483,7 +1483,7 @@
       "group": "dps",
       "n2": "+30% MMR- & +30% Gewehr-Schaden",
       "n3": "+30% Kopfschuss-Schaden & +30% Waffenhandhabung",
-      "n4": "Dead Man's Hand (Karten-Kombo)",
+      "n4": "Dead Man's Hand: Karte pro Treffer mit Rifle/MMR umdrehen; nach 5 Karten nächster Schuss +75% Schaden — Vierling 4 Schüsse, Full House 3, Aces & Eights 2 (Kopfschuss: Extra-Karte). Rucksack 'Ace in the Sleeve': +1 verstärkter Schuss; Weste 'No Limit': +75% -> +100%",
       "modeled": "2p numerisch (nur bei MMR/Rifle als Zielwaffe)"
     },
     "breakingpoint": {
@@ -1491,7 +1491,7 @@
       "group": "dps",
       "n2": "+30% MMR- & +30% Gewehr-Schaden",
       "n3": "+30% Kopfschuss-Schaden & +30% Waffenhandhabung",
-      "n4": "On Point (Reload-Stacks)",
+      "n4": "On Point: Treffer mit Rifle/MMR geben 1 Stack (max. Magazingröße); Nachladen: +2% Waffenhandhabung & +4% WD pro Stack für 20 s. Rucksack 'Point of Honor': +4% -> +9% WD; Weste 'Point of No Return': Timer 20 s -> 40 s",
       "modeled": "2p numerisch (nur bei MMR/Rifle als Zielwaffe)"
     },
     "tipofthespear": {
@@ -1523,7 +1523,7 @@
       "group": "dps",
       "n2": "+10% Waffenschaden (global)",
       "n3": "+30% Waffenhandhabung",
-      "n4": "Camaraderie (Team-Kill-Stacks)",
+      "n4": "Camaraderie: Beschossene Gegner 10 s markiert; bei Kill 1 Stack +3% WD & +3% CHD pro beitragendem Verbündetem/Fertigkeit (max. 35, Decay alle 10 s; max. 4 Marken). Rucksack 'One for All': +3% -> +6% WD; Weste 'All for One': 4 -> 8 Marken",
       "modeled": "2p numerisch (globaler WD-Bonus)"
     },
     "corestrength": {
@@ -1531,7 +1531,7 @@
       "group": "dps",
       "n2": "+10% Waffenhandhabung",
       "n3": "+5% WD / +5% Rüstung / +5% Skill-Effizienz",
-      "n4": "Core Exercise (Core-Attribut-Mix)",
+      "n4": "Core Exercise: Je Kern auf den Teilen 40% der Boni der anderen beiden Kerne (Skill-Stufen zählen als 15% Skill-Effizienz); alle Teile außer Rucksack haben zufällige Kerne. Rucksack 'Outer Core': 3 Kern-Attribute; Weste 'Inner Core': 40% -> 75%",
       "modeled": "3p numerisch (nur der WD-Anteil, +5%)"
     },
     "future": {
@@ -1603,7 +1603,7 @@
       "group": "armour",
       "n2": "+30% Gefahrenschutz",
       "n3": "+40% Fertigkeiten-Reparatur",
-      "n4": "Charging/Charged",
+      "n4": "Charging/Charged: pro Sekunde außerhalb der Deckung im Kampf +5% reduzierter eingehender Fertigkeits-Schaden (max. 50%); voll aufgeladen: Immunität gegen Bewegungs-Debuffs + Teilen mit Verbündeten für 10 s. Rucksack 'Safe Charging': 10%/s; Weste 'Overcharging': max. 70%",
       "modeled": "nur Teile-Zähler (Tank-Set)"
     },
     "ortizexuro": {
@@ -1619,7 +1619,7 @@
       "group": "armour",
       "n2": "+70% Leben",
       "n3": "+15% Gesamtrüstung",
-      "n4": "Stoic",
+      "n4": "Stoic: +4% Schadensresistenz pro Gegner, der dich ins Ziel nimmt (max. 8 Stacks; Bonus x1,X je Gruppenmitglied). Rucksack 'Polyethylene Plating': +4% -> +5%; Weste 'Deceit': Gegner auf deine Köder zählen mit",
       "modeled": "nur Teile-Zähler (Tank-Set)"
     },
     "refactor": {
