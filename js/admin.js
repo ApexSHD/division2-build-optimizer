@@ -1,0 +1,456 @@
+// ===== VERWALTUNG: CRUD für Waffen-, Gear- und Mod-Datenbanken =====
+// Alle Änderungen werden in localStorage gespeichert (div2_admin_db) und beim
+// Start von boot.js auf die per fetch() geladenen Original-Daten angewendet.
+
+const ADMIN_LS_KEY = 'div2_admin_db';
+
+function getAdminOverrides() {
+    try { return JSON.parse(localStorage.getItem(ADMIN_LS_KEY)) || {}; } catch (e) { return {}; }
+}
+function saveAdminOverrides(o) {
+    try { localStorage.setItem(ADMIN_LS_KEY, JSON.stringify(o)); } catch (e) {}
+}
+function adminHasOverrides() {
+    return Object.keys(getAdminOverrides()).length > 0;
+}
+
+// Wendet gespeicherte Overrides auf die globalen Datenobjekte an.
+// Aufgerufen aus boot.js nach dem Laden der Original-JSONs.
+function applyAdminOverrides() {
+    const o = getAdminOverrides();
+    if (o.weapons && Array.isArray(o.weapons)) weaponsData.weapons = o.weapons;
+    if (o.gear) {
+        if (o.gear.named_item_configs) NAMED_ITEM_CONFIGS = o.gear.named_item_configs;
+        if (o.gear.gear_db) GEAR_DB = o.gear.gear_db;
+        if (o.gear.green_set_info) GREEN_SET_INFO = o.gear.green_set_info;
+    }
+    if (o.mods && o.mods.slots) MOD_CATALOG = o.mods.slots;
+}
+
+// ---------- Helpers ----------
+function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function adminToast(msg, type) { if (typeof showToast === 'function') showToast(msg, type || 'success'); }
+
+function openAdminModal(title) {
+    document.getElementById('adminModalTitle').textContent = title;
+    document.getElementById('adminModal').classList.remove('hidden');
+}
+function closeAdminModal() {
+    document.getElementById('adminModal').classList.add('hidden');
+    document.getElementById('adminModalBody').innerHTML = '';
+}
+
+function modalInput(id, label, value, opts) {
+    opts = opts || {};
+    const val = esc(value == null ? '' : value);
+    const type = opts.type || 'text';
+    const step = opts.step ? ` step="${opts.step}"` : '';
+    const ph = opts.placeholder ? ` placeholder="${esc(opts.placeholder)}"` : '';
+    const req = opts.required ? ' required' : '';
+    const hint = opts.hint ? `<p class="text-xs text-gray-500">${esc(opts.hint)}</p>` : '';
+    const min = opts.min != null ? ` min="${opts.min}"` : '';
+    const max = opts.max != null ? ` max="${opts.max}"` : '';
+    if (opts.type === 'number') {
+        return `<div><label class="block text-xs font-semibold uppercase text-gray-400 mb-1">${esc(label)}</label>
+        <input type="number" id="${id}" value="${val}"${step}${ph}${req}${min}${max} class="w-full p-2.5 rounded-lg text-sm">${hint}</div>`;
+    }
+    if (opts.type === 'textarea') {
+        return `<div><label class="block text-xs font-semibold uppercase text-gray-400 mb-1">${esc(label)}</label>
+        <textarea id="${id}" rows="${opts.rows||2}" class="w-full p-2.5 rounded-lg text-sm">${val}</textarea>${hint}</div>`;
+    }
+    if (opts.type === 'select') {
+        const optsHtml = opts.options.map(o => {
+            const [v, l] = Array.isArray(o) ? o : [o, o];
+            const sel = String(v) === String(value) ? ' selected' : '';
+            return `<option value="${esc(v)}"${sel}>${esc(l)}</option>`;
+        }).join('');
+        return `<div><label class="block text-xs font-semibold uppercase text-gray-400 mb-1">${esc(label)}</label>
+        <select id="${id}" class="w-full p-2.5 rounded-lg text-sm">${optsHtml}</select>${hint}</div>`;
+    }
+    return `<div><label class="block text-xs font-semibold uppercase text-gray-400 mb-1">${esc(label)}</label>
+    <input type="text" id="${id}" value="${val}"${ph}${req} class="w-full p-2.5 rounded-lg text-sm">${hint}</div>`;
+}
+
+function getVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+}
+function getNum(id) {
+    const el = document.getElementById(id);
+    return el && el.value !== '' ? parseFloat(el.value) : null;
+}
+function getChk(id) {
+    const el = document.getElementById(id);
+    return !!(el && el.checked);
+}
+
+// ---------- Persistenz ----------
+function persistAdminDb() {
+    const o = getAdminOverrides();
+    o.weapons = weaponsData.weapons;
+    o.gear = { named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO };
+    o.mods = { slots: MOD_CATALOG };
+    saveAdminOverrides(o);
+}
+
+function refreshAfterDbChange(msg) {
+    persistAdminDb();
+    // App-Drop-downs aktualisieren (wenn bereits initialisiert)
+    try { if (typeof populateWeaponTypeDropdown === 'function') populateWeaponTypeDropdown(); } catch (e) {}
+    try { if (typeof updateGearDbOptions === 'function') updateGearDbOptions(); } catch (e) {}
+    try { if (typeof populateModSelects === 'function') populateModSelects(getVal('weaponName'), getVal('weaponType')); } catch (e) {}
+    renderAdminTables();
+    adminToast(msg);
+}
+
+// ---------- Tabellen-Rendering ----------
+function renderAdminTables() {
+    renderWeaponsAdmin();
+    renderGearAdmin();
+    renderModsAdmin();
+}
+
+function actionBtns(onEdit, onDel, editTitle, delTitle) {
+    return `<div class="flex gap-1">
+        <button onclick="${onEdit}" title="${editTitle}" class="btn-secondary px-2 py-1 rounded text-xs">✏️</button>
+        <button onclick="${onDel}" title="${delTitle}" class="btn-secondary px-2 py-1 rounded text-xs text-red-400 hover:text-red-300">🗑️</button>
+    </div>`;
+}
+
+function renderWeaponsAdmin() {
+    const el = document.getElementById('adminWeaponTable');
+    if (!el) return;
+    const filter = (getVal('adminWeaponFilter') || '').toLowerCase();
+    const list = weaponsData.weapons
+        .map((w, i) => ({ w, i }))
+        .filter(x => !filter || (x.w.name || '').toLowerCase().includes(filter) || (x.w.type || '').toLowerCase().includes(filter));
+    document.getElementById('adminWeaponCount').textContent = weaponsData.weapons.length;
+    const rows = list.slice(0, 200).map(x => {
+        const w = x.w;
+        const rarity = w.is_exotic ? 'exotic' : (w.is_named ? 'named' : (w.rarity || 'standard'));
+        const dmg = w.stats && w.stats['Level 40 Damage'] != null ? w.stats['Level 40 Damage'] : '—';
+        return `<tr class="border-t border-gray-800">
+            <td class="py-2 px-3 text-sm">${esc(w.name)}</td>
+            <td class="py-2 px-3 text-sm text-gray-400">${esc(w.type)}</td>
+            <td class="py-2 px-3 text-sm">${esc(rarity)}</td>
+            <td class="py-2 px-3 text-sm text-gray-400">${esc(dmg)}</td>
+            <td class="py-2 px-3">${actionBtns(`openWeaponForm(${x.i})`, `deleteWeaponEntry(${x.i})`, 'Bearbeiten', 'Löschen')}</td>
+        </tr>`;
+    }).join('');
+    el.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="text-xs uppercase text-gray-500">
+            <th class="py-2 px-3">Name</th><th class="py-2 px-3">Typ</th><th class="py-2 px-3">Rarity</th><th class="py-2 px-3">L40-Schaden</th><th class="py-2 px-3">Aktionen</th>
+        </tr></thead><tbody>${rows || '<tr><td colspan="5" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>
+        ${list.length > 200 ? `<p class="text-xs text-gray-500 mt-2">Zeige 200 von ${list.length} – bitte Suche benutzen.</p>` : ''}`;
+}
+
+function renderGearAdmin() {
+    const el = document.getElementById('adminGearTable');
+    if (!el) return;
+    const filter = (getVal('adminGearFilter') || '').toLowerCase();
+    const entries = Object.entries(GEAR_DB)
+        .map(([name, g], i) => ({ name, g, i }))
+        .filter(x => !filter || x.name.toLowerCase().includes(filter) || (x.g.slot || '').toLowerCase().includes(filter));
+    document.getElementById('adminGearCount').textContent = Object.keys(GEAR_DB).length;
+    const rows = entries.map(x => `<tr class="border-t border-gray-800">
+        <td class="py-2 px-3 text-sm">${esc(x.name)}</td>
+        <td class="py-2 px-3 text-sm text-gray-400">${esc(x.g.slot)}</td>
+        <td class="py-2 px-3 text-sm">${x.g.cls === 'exotic' ? 'Exotic' : 'Named'}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(x.g.perk)}">${esc(x.g.perk)}</td>
+        <td class="py-2 px-3">${actionBtns(`openGearForm(${x.i})`, `deleteGearEntry(${x.i})`, 'Bearbeiten', 'Löschen')}</td>
+    </tr>`).join('');
+    el.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="text-xs uppercase text-gray-500">
+            <th class="py-2 px-3">Name</th><th class="py-2 px-3">Slot</th><th class="py-2 px-3">Klasse</th><th class="py-2 px-3">Perk</th><th class="py-2 px-3">Aktionen</th>
+        </tr></thead><tbody>${rows || '<tr><td colspan="5" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+}
+
+const ADMIN_MOD_SLOTS = [
+    ['optic', 'Optik'], ['muzzle', 'Mündung'], ['underbarrel', 'Unterlauf'], ['magazine', 'Magazin']
+];
+
+function renderModsAdmin() {
+    const el = document.getElementById('adminModTable');
+    if (!el) return;
+    const slot = getVal('adminModSlot') || 'optic';
+    const mods = MOD_CATALOG[slot] || [];
+    document.getElementById('adminModCount').textContent = mods.length;
+    const rows = mods.map((m, i) => {
+        const b = m.bonus ? `+${m.bonus.val} ${m.bonus.type}` : '—';
+        const p = m.penalty ? `${m.penalty.val} ${m.penalty.type}` : '—';
+        return `<tr class="border-t border-gray-800">
+            <td class="py-2 px-3 text-sm">${esc(m.name)}</td>
+            <td class="py-2 px-3 text-sm text-gray-400">${esc((m.slotTypes || []).join(', '))}</td>
+            <td class="py-2 px-3 text-sm text-emerald-400">${esc(b)}</td>
+            <td class="py-2 px-3 text-sm text-red-400">${esc(p)}</td>
+            <td class="py-2 px-3">${actionBtns(`openModForm('${slot}', ${i})`, `deleteModEntry('${slot}', ${i})`, 'Bearbeiten', 'Löschen')}</td>
+        </tr>`;
+    }).join('');
+    el.innerHTML = `<table class="w-full text-left">
+        <thead><tr class="text-xs uppercase text-gray-500">
+            <th class="py-2 px-3">Mod</th><th class="py-2 px-3">Slot-Typen</th><th class="py-2 px-3">Bonus</th><th class="py-2 px-3">Malus</th><th class="py-2 px-3">Aktionen</th>
+        </tr></thead><tbody>${rows || '<tr><td colspan="5" class="py-4 text-center text-gray-500">Keine Mods</td></tr>'}</tbody></table>`;
+}
+
+// ---------- Waffen-Formular ----------
+const ADMIN_WEAPON_TYPES = ['AR', 'LMG', 'MP', 'Rifle', 'Shotgun', 'MMR', 'Pistol'];
+
+function openWeaponForm(idx) {
+    const w = idx != null ? weaponsData.weapons[idx] : {};
+    openAdminModal(idx != null ? 'Waffe bearbeiten: ' + (w.name || '') : 'Neue Waffe anlegen');
+    const body = document.getElementById('adminModalBody');
+    body.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${modalInput('afName', 'Name', w.name, { required: true, placeholder: 'z.B. St. Elmo\'s Engine' })}
+            ${modalInput('afType', 'Typ', w.type || 'AR', { type: 'select', options: ADMIN_WEAPON_TYPES })}
+            ${modalInput('afRarity', 'Seltenheit', w.rarity || 'standard', { type: 'select', options: [['standard','Standard'], ['named','Named'], ['exotic','Exotic']] })}
+        </div>
+        <p class="text-xs font-bold uppercase text-gray-400">Werte (Level 40)</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            ${modalInput('afDmg', 'Basis-Schaden', w.stats && w.stats['Level 40 Damage'], { type: 'number' })}
+            ${modalInput('afRpm', 'RPM', w.stats && w.stats['RPM'], { type: 'number' })}
+            ${modalInput('afMag', 'Magazingröße', w.stats && w.stats['Base Mag Size'], { type: 'number' })}
+            ${modalInput('afReload', 'Leer-Nachladen (s)', w.stats && w.stats['Empty Reload (secs)'], { type: 'number', step: '0.01' })}
+        </div>
+        ${modalInput('afNote', 'Notiz', w.note)}
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+            <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
+            <button onclick="saveWeaponForm(${idx})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+        </div>`;
+}
+
+function saveWeaponForm(idx) {
+    const name = getVal('afName').trim();
+    if (!name) { adminToast('Bitte einen Namen angeben.', 'error'); return; }
+    const entry = {
+        name,
+        type: getVal('afType'),
+        rarity: getVal('afRarity'),
+        is_exotic: getVal('afRarity') === 'exotic',
+        is_named: getVal('afRarity') === 'named',
+        replica: false,
+        source: 'user',
+        table_name: name,
+        note: getVal('afNote') || '',
+        stats: {}
+    };
+    if (idx != null) {
+        const old = weaponsData.weapons[idx];
+        Object.assign(entry.stats, old.stats || {});
+        if (old.exotic) entry.exotic = old.exotic;
+        if (old.named) entry.named = old.named;
+    }
+    const dmg = getNum('afDmg'), rpm = getNum('afRpm'), mag = getNum('afMag'), rel = getNum('afReload');
+    if (dmg != null) entry.stats['Level 40 Damage'] = dmg;
+    if (rpm != null) entry.stats['RPM'] = rpm;
+    if (mag != null) entry.stats['Base Mag Size'] = mag;
+    if (rel != null) entry.stats['Empty Reload (secs)'] = rel;
+
+    if (idx != null) weaponsData.weapons[idx] = entry;
+    else weaponsData.weapons.push(entry);
+    closeAdminModal();
+    refreshAfterDbChange(idx != null ? 'Waffe aktualisiert.' : 'Waffe hinzugefügt.');
+}
+
+function deleteWeaponEntry(idx) {
+    const w = weaponsData.weapons[idx];
+    if (!w || !confirm(`Waffe "${w.name}" wirklich löschen?`)) return;
+    weaponsData.weapons.splice(idx, 1);
+    refreshAfterDbChange('Waffe gelöscht.');
+}
+
+// ---------- Gear-Formular ----------
+const ADMIN_GEAR_SLOTS = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
+const ADMIN_GEAR_CORES = [['wd', 'Waffen-Schaden'], ['armour', 'Rüstung'], ['skill', 'Fertigkeit'], ['any', 'Beliebig']];
+
+function parseFixedAttr(strVal) {
+    const out = [];
+    const re = /([a-z]+)\s*[:=]\s*(-?\d+(?:[.,]\d+)?)/gi;
+    let m;
+    while ((m = re.exec(strVal))) {
+        out.push([m[1].toLowerCase(), parseFloat(m[2].replace(',', '.'))]);
+    }
+    return out;
+}
+function fixedAttrToStr(fixed) {
+    return (fixed || []).map(p => `${p[0]}:${p[1]}`).join(', ');
+}
+
+function openGearForm(idx) {
+    const names = Object.keys(GEAR_DB);
+    const name = idx != null ? names[idx] : '';
+    const g = idx != null ? GEAR_DB[name] : {};
+    openAdminModal(idx != null ? 'Gear bearbeiten: ' + name : 'Neues Gear anlegen');
+    const body = document.getElementById('adminModalBody');
+    body.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${modalInput('agName', 'Name', name, { required: true, placeholder: 'z.B. Coyote\'s Mask' })}
+            ${modalInput('agSlot', 'Slot', g.slot || 'Maske', { type: 'select', options: ADMIN_GEAR_SLOTS })}
+            ${modalInput('agBrand', 'Brand (bei Named)', g.brand || '')}
+            ${modalInput('agCls', 'Klasse', g.cls || 'named', { type: 'select', options: [['named', 'Named'], ['exotic', 'Exotic']] })}
+            ${modalInput('agCore', 'Kern-Attribut', g.core || 'wd', { type: 'select', options: ADMIN_GEAR_CORES })}
+            ${modalInput('agProto', 'Prototyp (x1,5 God-Roll)', !!g.proto, { type: 'select', options: [['false', 'Nein'], ['true', 'Ja']] })}
+            ${modalInput('agFree', 'Freie Minor-Attribute', g.free != null ? g.free : 1, { type: 'number', min: 0, max: 2 })}
+            ${modalInput('agMods', 'Mod-Slots', g.mods != null ? g.mods : 0, { type: 'number', min: 0, max: 2 })}
+        </div>
+        ${modalInput('agFixed', 'Fixe Attribute (Format: chc:6, chd:12 – leer = keine)', fixedAttrToStr(g.fixed), { placeholder: 'z.B. chc:6, chd:12' })}
+        ${modalInput('agPerk', 'Perk / Talent (Beschreibung)', g.perk, { type: 'textarea', rows: 3 })}
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+            <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
+            <button onclick="saveGearForm(${idx})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+        </div>`;
+}
+
+function saveGearForm(idx) {
+    const name = getVal('agName').trim();
+    if (!name) { adminToast('Bitte einen Namen angeben.', 'error'); return; }
+    const fixedStr = getVal('agFixed');
+    const entry = {
+        slot: getVal('agSlot'),
+        brand: getVal('agBrand') || '',
+        cls: getVal('agCls'),
+        proto: getVal('agProto') === 'true',
+        core: getVal('agCore'),
+        fixed: fixedStr.trim() ? parseFixedAttr(fixedStr) : [],
+        free: getNum('agFree') || 0,
+        mods: getNum('agMods') || 0,
+        perk: getVal('agPerk') || ''
+    };
+    const names = Object.keys(GEAR_DB);
+    const oldKey = idx != null ? names[idx] : null;
+    if (oldKey && oldKey !== name) {
+        // Umbenennung: Reihenfolge erhalten
+        const newObj = {};
+        for (const k of names) newObj[k === oldKey ? name : k] = (k === oldKey) ? entry : GEAR_DB[k];
+        GEAR_DB = newObj;
+    } else if (oldKey) {
+        GEAR_DB[oldKey] = entry;
+    } else {
+        GEAR_DB[name] = entry;
+    }
+    closeAdminModal();
+    refreshAfterDbChange(idx != null ? 'Gear aktualisiert.' : 'Gear hinzugefügt.');
+}
+
+function deleteGearEntry(idx) {
+    const names = Object.keys(GEAR_DB);
+    const name = names[idx];
+    if (!name || !confirm(`Gear "${name}" wirklich löschen?`)) return;
+    delete GEAR_DB[name];
+    refreshAfterDbChange('Gear gelöscht.');
+}
+
+// ---------- Mod-Formular ----------
+const ADMIN_MOD_ATTRS = ['chc', 'chd', 'hsd', 'wd', 'rof', 'reloadSpeed', 'handling', 'accuracy', 'stability', 'range', 'swapSpeed', 'capacity'];
+
+function openModForm(slot, idx) {
+    const mods = MOD_CATALOG[slot] || [];
+    const m = idx != null ? mods[idx] : {};
+    openAdminModal(idx != null ? 'Mod bearbeiten: ' + (m.name || '') : 'Neuen Mod anlegen (' + slot + ')');
+    const body = document.getElementById('adminModalBody');
+    body.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${modalInput('amName', 'Name', m.name, { required: true, placeholder: 'z.B. Streamlined Iron Sights' })}
+            ${modalInput('amSlotTypes', 'Slot-Typen (Komma-getrennt)', (m.slotTypes || []).join(', '), { placeholder: 'z.B. Iron Sights Slot' })}
+        </div>
+        <p class="text-xs font-bold uppercase text-gray-400">Bonus</p>
+        <div class="grid grid-cols-2 gap-3">
+            ${modalInput('amBonusType', 'Attribut', m.bonus && m.bonus.type, { type: 'select', options: [['', '— keiner —']].concat(ADMIN_MOD_ATTRS.map(a => [a, a])) })}
+            ${modalInput('amBonusVal', 'Wert', m.bonus && m.bonus.val, { type: 'number', step: '0.1' })}
+        </div>
+        <p class="text-xs font-bold uppercase text-gray-400">Malus (optional)</p>
+        <div class="grid grid-cols-2 gap-3">
+            ${modalInput('amPenaltyType', 'Attribut', m.penalty && m.penalty.type, { type: 'select', options: [['', '— keiner —']].concat(ADMIN_MOD_ATTRS.map(a => [a, a])) })}
+            ${modalInput('amPenaltyVal', 'Wert', m.penalty && m.penalty.val, { type: 'number', step: '0.1' })}
+        </div>
+        <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
+            <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
+            <button onclick="saveModForm('${slot}', ${idx})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+        </div>`;
+}
+
+function saveModForm(slot, idx) {
+    const name = getVal('amName').trim();
+    if (!name) { adminToast('Bitte einen Namen angeben.', 'error'); return; }
+    const bType = getVal('amBonusType'), bVal = getNum('amBonusVal');
+    const pType = getVal('amPenaltyType'), pVal = getNum('amPenaltyVal');
+    const entry = {
+        name,
+        slotTypes: getVal('amSlotTypes').split(',').map(s => s.trim()).filter(Boolean),
+        bonus: bType ? { type: bType, val: bVal || 0 } : null,
+        penalty: pType ? { type: pType, val: pVal || 0 } : null
+    };
+    if (!MOD_CATALOG[slot]) MOD_CATALOG[slot] = [];
+    if (idx != null) MOD_CATALOG[slot][idx] = entry;
+    else MOD_CATALOG[slot].push(entry);
+    closeAdminModal();
+    refreshAfterDbChange(idx != null ? 'Mod aktualisiert.' : 'Mod hinzugefügt.');
+}
+
+function deleteModEntry(slot, idx) {
+    const m = (MOD_CATALOG[slot] || [])[idx];
+    if (!m || !confirm(`Mod "${m.name}" wirklich löschen?`)) return;
+    MOD_CATALOG[slot].splice(idx, 1);
+    refreshAfterDbChange('Mod gelöscht.');
+}
+
+// ---------- Export / Import / Reset ----------
+function downloadJson(filename, data) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportDb(which) {
+    if (which === 'weapons') downloadJson('weapons.json', { weapons: weaponsData.weapons, _meta: { version: 'user-export', source: 'Build-Optimizer Verwaltung' } });
+    else if (which === 'gear') downloadJson('gear.json', { version: 'gear_v1-user', source: 'Build-Optimizer Verwaltung', named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO });
+    else if (which === 'mods') downloadJson('mod.json', { version: 'mods_v1-user', source: 'Build-Optimizer Verwaltung', slots: MOD_CATALOG });
+    adminToast('Export gestartet.');
+}
+
+function importDb(event, which) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const parsed = JSON.parse(e.target.result);
+            if (which === 'weapons') {
+                const list = Array.isArray(parsed) ? parsed : parsed.weapons;
+                if (!Array.isArray(list) || !list.length) throw new Error('Kein "weapons"-Array gefunden.');
+                weaponsData.weapons = list;
+            } else if (which === 'gear') {
+                if (parsed.gear_db) GEAR_DB = parsed.gear_db;
+                if (parsed.named_item_configs) NAMED_ITEM_CONFIGS = parsed.named_item_configs;
+                if (parsed.green_set_info) GREEN_SET_INFO = parsed.green_set_info;
+                if (!parsed.gear_db) throw new Error('Kein "gear_db"-Objekt gefunden.');
+            } else if (which === 'mods') {
+                if (!parsed.slots) throw new Error('Kein "slots"-Objekt gefunden.');
+                MOD_CATALOG = parsed.slots;
+            }
+            refreshAfterDbChange('Import erfolgreich.');
+        } catch (err) {
+            adminToast('Import fehlgeschlagen: ' + err.message, 'error');
+        } finally {
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+function resetDb() {
+    if (!confirm('Alle lokalen Änderungen an Waffen/Gear/Mods verwerfen und auf die Original-Datenbanken zurücksetzen?')) return;
+    try { localStorage.removeItem(ADMIN_LS_KEY); } catch (e) {}
+    location.reload();
+}
+
+// Tabellen neu rendern, sobald der Verwaltungs-Tab geöffnet wird
+const _origSwitchTab = switchTab;
+switchTab = function(name) {
+    _origSwitchTab(name);
+    if (name === 'admin') renderAdminTables();
+};

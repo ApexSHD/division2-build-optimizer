@@ -66,6 +66,9 @@
             <button id="tabSettings" class="tab-btn px-4 py-2 text-sm font-bold" onclick="switchTab('settings')">
                 ⚙️ Einstellungen
             </button>
+            <button id="tabAdmin" class="tab-btn px-4 py-2 text-sm font-bold" onclick="switchTab('admin')">
+                🗂️ Verwaltung
+            </button>
             <button id="tabCompare" class="tab-btn px-4 py-2 text-sm font-bold" onclick="switchTab('compare')">
                 ⚖️ Vergleich (<span id="comparisonCount">0</span>)
             </button>
@@ -894,6 +897,80 @@
         </div>
 
         <!-- Vergleichsansicht -->
+        <div id="contentAdmin" class="tab-content space-y-6">
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <h2 class="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
+                    <span class="text-div-accent">🗂️</span> Datenbank-Verwaltung
+                </h2>
+                <p class="text-sm text-gray-400">Hier kannst du Waffen, Ausrüstung und Mods pflegen: neue Einträge anlegen, bestehende bearbeiten oder falsche löschen. Änderungen werden im Browser gespeichert und können als JSON-Datei exportiert werden.</p>
+            </div>
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">🔫 Waffen-Datenbank (<span id="adminWeaponCount">0</span>)</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <input type="text" id="adminWeaponFilter" oninput="renderAdminTables()" placeholder="🔍 Waffe suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <button onclick="openWeaponForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neue Waffe</button>
+                    </div>
+                </div>
+                <div id="adminWeaponTable" class="overflow-x-auto"></div>
+            </div>
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">🎽 Gear-Datenbank (<span id="adminGearCount">0</span>)</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <input type="text" id="adminGearFilter" oninput="renderAdminTables()" placeholder="🔍 Gear suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <button onclick="openGearForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear</button>
+                    </div>
+                </div>
+                <div id="adminGearTable" class="overflow-x-auto"></div>
+            </div>
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">🔧 Mod-Katalog (<span id="adminModCount">0</span>)</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <select id="adminModSlot" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm">
+                            <option value="optic">Optik</option>
+                            <option value="muzzle">Mündung</option>
+                            <option value="underbarrel">Unterlauf</option>
+                            <option value="magazine">Magazin</option>
+                        </select>
+                        <button onclick="openModForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neuer Mod</button>
+                    </div>
+                </div>
+                <div id="adminModTable" class="overflow-x-auto"></div>
+            </div>
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
+                    <span class="text-div-accent">💾</span> Daten sichern &amp; zurücksetzen
+                </h3>
+                <p class="text-xs text-gray-500">Export erzeugt JSON-Dateien im Format der Repository-Datenbanken – diese können direkt ins Projekt übernommen oder später wieder importiert werden.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold uppercase text-gray-400">Export</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="exportDb('weapons')" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold">⬇️ weapons.json</button>
+                            <button onclick="exportDb('gear')" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold">⬇️ gear.json</button>
+                            <button onclick="exportDb('mods')" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold">⬇️ mod.json</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-xs font-bold uppercase text-gray-400">Import / Zurücksetzen</p>
+                        <div class="flex gap-2 flex-wrap">
+                            <label class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer">⬆️ Waffen importieren
+                                <input type="file" accept=".json,application/json" onchange="importDb(event, 'weapons')" class="hidden">
+                            </label>
+                            <label class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer">⬆️ Gear importieren
+                                <input type="file" accept=".json,application/json" onchange="importDb(event, 'gear')" class="hidden">
+                            </label>
+                            <label class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer">⬆️ Mods importieren
+                                <input type="file" accept=".json,application/json" onchange="importDb(event, 'mods')" class="hidden">
+                            </label>
+                            <button onclick="resetDb()" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold text-red-400 hover:text-red-300 hover:border-red-500">↺ Alle auf Original zurücksetzen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="contentCompare" class="tab-content space-y-6">
             <div class="div-card p-6 rounded-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-3 border-b border-gray-800 pb-3">
@@ -918,6 +995,15 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
+        <div class="div-card rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 id="adminModalTitle" class="text-lg font-bold text-white"></h3>
+                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div id="adminModalBody" class="space-y-3"></div>
         </div>
     </div>
     <script src="js/boot.js"></script>
