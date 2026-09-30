@@ -1459,7 +1459,7 @@
       "group": "dps",
       "n2": "+15% CHC",
       "n3": "+20% CHD",
-      "n4": "Hostile Negotiations (Markierungs-Schadensübertragung)",
+      "n4": "Crowd Control: Kritische Treffer markieren Gegner 20s (max. 3); kritischer Treffer auf markiertes Ziel: alle anderen markierten Gegner erhalten 60% des Schadens; stirbt ein Markierter: +10% CHD pro Stack (max. 10, bis Kampfende). Rucksack 'Critical Measures': 60% -> 112%; Weste 'Target Rich Environment': 3 -> 5 Marken. Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "voll (2p/3p numerisch)"
     },
     "umbra": {
@@ -1579,7 +1579,7 @@
       "group": "skill",
       "n2": "+15% Statuseffekte",
       "n3": "+30% Nachladegeschwindigkeit",
-      "n4": "Rules of Engagement (Hohlspitz-Munition)",
+      "n4": "Rules of Engagement: Schüsse auf statusbeeinflusste Gegner markieren sie (10s); Kill eines Markierten: volles Magazin Hohlspitz-Munition (Team: halbes Magazin). Hohlspitz: +40% Waffenschaden & Bluten bei Treffer. Rucksack 'Trauma Specialist': +50% Blutdauer & +100% Blutschaden; Weste 'Parabellum Rounds': +40% -> +60% (nur selbst). Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "4p numerisch (Kill-getriggerte WD-Verstärkung)"
     },
     "truepatriot": {
@@ -1611,7 +1611,7 @@
       "group": "skill",
       "n2": "+20% Brenndauer & +15% Fertigkeits-Leben",
       "n3": "+40% Brandschaden",
-      "n4": "Incinerator Turret Prototyp",
+      "n4": "Ortiz Incinerator Turret Prototype: Waffenturm dreht 360°, eigene Feuer-Immunität, Explosion bei Deaktivierung. Rucksack 'Heatstroke': +40% verstärkter Schaden an brennenden Zielen & +25% Reichweite; Weste 'Chain Combustion': Brand springt im 10m-Radius über. Alle Teile haben standardmäßig Fertigkeitsstufe als Kern",
       "modeled": "nur Teile-Zähler (Brand-Status-Set)"
     },
     "aegis": {
@@ -1635,7 +1635,7 @@
       "group": "skill",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+60% Fertigkeiten-Reparatur & +40% Explosionsresistenz",
-      "n4": "Huddle",
+      "n4": "Huddle: +1 Fertigkeitsstufe je Verbündetem im Radius von Hive/Smart Cover; bei Stufe 6 + 4s Verbündetem: Overcharge 15s (CD 40s). Mortars/Gegner-Skills im Radius werden zerstört (CD 10s, je Verbündetem 20% schneller). Rucksack 'Smart Cooperation': Zerstörungs-CD 10s -> 1s; Weste 'Hivemind': Overcharge-CD 40s -> 25s. Alle Teile haben standardmäßig Fertigkeitsstufe als Kern",
       "modeled": "nur Teile-Zähler (Skill-Set)"
     },
     "ortizreficere": {
@@ -1643,7 +1643,7 @@
       "group": "skill",
       "n2": "+8% Fertigkeitseffizienz",
       "n3": "+60% Fertigkeiten-Reparatur",
-      "n4": "Rapid Application Nanite Prototyp",
+      "n4": "Ortiz Rapid Application Nanite Prototype: Heil-Fertigkeiten -90% Dauer & Reichweite, dafür +150% Heil-Effizienz; Heilen eines Verbündeten: +30% Gefahrenschutz für 10s (CD 10s/Verbündetem). Rucksack 'Improved Dampeners': -90% -> -25%; Weste 'Overcharged Nanites': +150% -> +200%. Alle Teile haben standardmäßig Fertigkeitsstufe als Kern",
       "modeled": "nur Teile-Zähler (Heal-Set)"
     },
     "emberengine": {
