@@ -1435,7 +1435,7 @@
       "group": "dps",
       "n2": "+15% Waffenhandhabung",
       "n3": "+15% Feuerrate",
-      "n4": "Striker's Gamble (Stack-Schaden bis 0,65%/Treffer, max. 100 Stacks)",
+      "n4": "Striker's Gamble: Waffentreffer erhöhen den Gesamtwaffenschaden um 0,65% pro Stack (max. 100); 1 Stack/s Verlust bei 0-50, 2 Stacks/s bei 51-100. Rucksack 'Risk Management': 0,65% -> 0,9% pro Stack; Weste 'Press the Advantage': max. 100 -> 200 Stacks (3 Stacks/s Verlust bei 101-200). Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "3p numerisch (Feuerrate)"
     },
     "heartbreaker": {
@@ -1467,7 +1467,7 @@
       "group": "dps",
       "n2": "+15% CHC",
       "n3": "+30% Nachladegeschwindigkeit",
-      "n4": "From the Shadows / Into the Light (Deckungs-Stacks)",
+      "n4": "From the Shadows / Into the Light: In Deckung +10 Stacks/s (max. 50), je Stack +1,2% kritischer Trefferschaden & +0,4% Feuerrate (nicht beim Schießen aus der Deckung); außer Gefecht +10 Stacks/s (max. 50), je Stack +0,8% Rüstungs-Regeneration, Verbrauch 10 Stacks/s in Deckung. Rucksack 'Into the Light': max. 50 -> 100 Stacks, +10 -> +20/s; Weste 'From the Shadows': max. 50 -> 100 Stacks, +10 -> +20/s. Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "2p numerisch (CHC)"
     },
     "hotshot": {
@@ -1499,7 +1499,7 @@
       "group": "dps",
       "n2": "+20% Signaturwaffen-Schaden",
       "n3": "+10% Waffenschaden (global)",
-      "n4": "Aggressive Recon",
+      "n4": "Aggressive Recon: Kill mit Signaturwaffe gewährt +15% Signaturwaffen-Schaden für 10s und +25% Nachladegeschwindigkeit für den nächsten Reload (nicht stapelbar); Signaturwaffen-Munition regeneriert automatisch alle 60s. Rucksack 'Signature Moves': +50% Waffenschaden für 15s nach vollständiger Munitionsleerung & doppelte Munitions-Regeneration; Weste 'Specialized Destruction': +15% -> +30% & jeder 3. Signaturwaffen-Kill erzeugt Munition. Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "3p numerisch (globaler WD-Bonus)"
     },
     "virtuoso": {
@@ -1507,7 +1507,7 @@
       "group": "dps",
       "n2": "+15% Waffenhandhabung & +15% Magazingröße",
       "n3": "+15% Waffenschaden (global)",
-      "n4": "Symphony",
+      "n4": "Symphony: Kill jenseits 25m: +40% Waffenschaden (Shotguns/SMGs/Pistolen), +20% (ARs/LMGs), +25% Bonus-Rüstung für 15s; Kill innerhalb 25m: +40% Waffenschaden (Marksman Rifles/Rifles), +20% (ARs/LMGs), +30% Kopfschussschaden für 15s; abwechselnde Kills beider Distanzen bauen Stacks auf — bei 4 Stacks gelten alle Boni verdoppelt und gleichzeitig für 15s. Rucksack 'Accelerando': 4 -> 3 Stacks; Weste 'Fortissimo': Waffenschaden-Boni verdoppelt. Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "3p numerisch (globaler WD-Bonus)"
     },
     "tippingscales": {
@@ -1515,7 +1515,7 @@
       "group": "dps",
       "n2": "+30% Magazingröße",
       "n3": "+30% LMG-Schaden",
-      "n4": "Throttle Control (Stack-Handhabung/CHD)",
+      "n4": "Throttle Control: Schießen baut Stacks auf (max. 50); je Stack +0,5% Waffenhandhabung & +5% kritischer Trefferschaden; 6 Stacks/s Verlust beim Nicht-Schießen (kein Verlust bei unterdrückten Gegnern). Rucksack 'Snowball': +5% -> +8% CHD pro Stack; Weste 'Sustainability': max. 50 -> 75 Stacks. Alle Teile haben standardmäßig Waffenschaden als Kern",
       "modeled": "3p numerisch (nur bei LMG als Zielwaffe)"
     },
     "concentratedcompany": {
@@ -1563,7 +1563,7 @@
       "group": "skill",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+15% Fertigkeiten-Dauer",
-      "n4": "Tend and Befriend",
+      "n4": "Tend and Befriend: Interaktion mit platzierten Fertigkeiten (Einsetzen/Ziel ändern/Heilen) gewährt der Fertigkeit +25% Fertigkeitsschaden für 10s (nicht erneuerbar). Rucksack 'Complete Uptime': Abbrechen setzt den Cooldown zurück; Weste 'Best Buds': +25% -> +50%. Alle Teile haben standardmäßig Fertigkeitsstufe als Kern",
       "modeled": "nur Teile-Zähler (Skill-Set)"
     },
     "hardwired": {
@@ -1587,7 +1587,7 @@
       "group": "armour",
       "n2": "+15% Waffenhandhabung",
       "n3": "+30% Magazingröße",
-      "n4": "Red, White and Blue",
+      "n4": "Red, White and Blue: Beschossene Gegner erhalten rotierende Debuffs (Wechsel alle 2s): Rot = +15% erlittener Schaden, Weiß = Beschuss repariert 2% Rüstung/s des Angreifers, Blau = -10% verursachter Schaden des Gegners; stirbt ein Gegner unter allen drei Debuffs: 5m-Explosion mit Schaden entsprechend seinem Gesamt-HP+Rüstung (bei Named reduziert). Rucksack 'Patriotic Boost': Rot 15% -> 30%, Weiß 2% -> 5%, Blau 10% -> 20%; Weste 'Waving the Flag': Rotationswechsel 2s -> 1s. Alle Teile haben standardmäßig Rüstung als Kern",
       "modeled": "nur Teile-Zähler (Support-Set)"
     },
     "systemcorruption": {
@@ -1595,7 +1595,7 @@
       "group": "armour",
       "n2": "+15% Rüstung bei Kill",
       "n3": "+40% Disrupt- & +40% Pulse-Resistenz",
-      "n4": "Hackstep Protocol",
+      "n4": "Hackstep Protocol: Ersetzt Rüstungskits durch eine sofortige, unbegrenzte Fähigkeit (CD 20s): repariert 20% Rüstung, gewährt 50% Bonus-Rüstung und versteckt dein Namensschild 5s; +1% Waffenschaden je 5% Bonus-Rüstung (max. 20%). Rucksack 'Multithreaded Execution': 50% -> 100% Bonus-Rüstung; Weste 'Compiler Optimization': CD 20s -> 15s. Teile haben je Slot Rüstung oder Waffenschaden als Kern",
       "modeled": "nur Teile-Zähler (Tank/Utility-Set)"
     },
     "cavalier": {
@@ -1627,7 +1627,7 @@
       "group": "skill",
       "n2": "+15% Statuseffekte",
       "n3": "+25% Fertigkeitsschaden",
-      "n4": "Return to Sender",
+      "n4": "Return to Sender: Erhaltene Reparatur = 10% des Schadens deiner Fertigkeiten; Verbündete erhalten 20%. Weste 'Increased Interest': 10% -> 25% (selbst) & 20% -> 35% (Verbündete); Rucksack 'Over-engineered': Bei voller Rüstung wird Reparatur in Bonus-Rüstung umgewandelt (bis 80% der Gesamt-Rüstung, nur selbst). Teile haben je Slot Rüstung oder Fertigkeitsstufe als Kern",
       "modeled": "nur Teile-Zähler (Skill/Status-Set)"
     },
     "measuredassembly": {
