@@ -1536,7 +1536,7 @@
     },
     "future": {
       "name": "Future Initiative",
-      "group": "support",
+      "group": "skill",
       "n2": "+30% Fertigkeiten-Reparatur",
       "n3": "+15% Fertigkeiten-Tempo & +30% Fertigkeiten-Dauer",
       "n4": "Ground Control",
@@ -1544,7 +1544,7 @@
     },
     "eclipse": {
       "name": "Eclipse Protocol",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Statuseffekte",
       "n3": "+15% Fertigkeiten-Tempo & +30% Gefahrenschutz",
       "n4": "Indirect Transmission",
@@ -1552,7 +1552,7 @@
     },
     "foundry": {
       "name": "Foundry Bulwark",
-      "group": "support",
+      "group": "armour",
       "n2": "+10% Gesamtrüstung",
       "n3": "+1% Rüstungsregen & +50% Schild-HP",
       "n4": "Makeshift Repairs",
@@ -1560,7 +1560,7 @@
     },
     "rigger": {
       "name": "Rigger",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+15% Fertigkeiten-Dauer",
       "n4": "Tend and Befriend",
@@ -1568,7 +1568,7 @@
     },
     "hardwired": {
       "name": "Hard Wired",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+15% Fertigkeitsschaden & +30% Fertigkeiten-Reparatur",
       "n4": "Feedback Loop",
@@ -1576,7 +1576,7 @@
     },
     "ongoing": {
       "name": "Ongoing Directive",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Statuseffekte",
       "n3": "+30% Nachladegeschwindigkeit",
       "n4": "Rules of Engagement (Hohlspitz-Munition)",
@@ -1584,7 +1584,7 @@
     },
     "truepatriot": {
       "name": "True Patriot",
-      "group": "support",
+      "group": "armour",
       "n2": "+15% Waffenhandhabung",
       "n3": "+30% Magazingröße",
       "n4": "Red, White and Blue",
@@ -1592,7 +1592,7 @@
     },
     "systemcorruption": {
       "name": "System Corruption",
-      "group": "support",
+      "group": "armour",
       "n2": "+15% Rüstung bei Kill",
       "n3": "+40% Disrupt- & +40% Pulse-Resistenz",
       "n4": "Hackstep Protocol",
@@ -1600,7 +1600,7 @@
     },
     "cavalier": {
       "name": "Cavalier",
-      "group": "support",
+      "group": "armour",
       "n2": "+30% Gefahrenschutz",
       "n3": "+40% Fertigkeiten-Reparatur",
       "n4": "Charging/Charged",
@@ -1608,7 +1608,7 @@
     },
     "ortizexuro": {
       "name": "Ortiz: Exuro",
-      "group": "support",
+      "group": "skill",
       "n2": "+20% Brenndauer & +15% Fertigkeits-Leben",
       "n3": "+40% Brandschaden",
       "n4": "Incinerator Turret Prototyp",
@@ -1616,7 +1616,7 @@
     },
     "aegis": {
       "name": "Aegis",
-      "group": "support",
+      "group": "armour",
       "n2": "+70% Leben",
       "n3": "+15% Gesamtrüstung",
       "n4": "Stoic",
@@ -1624,7 +1624,7 @@
     },
     "refactor": {
       "name": "Refactor",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Statuseffekte",
       "n3": "+25% Fertigkeitsschaden",
       "n4": "Return to Sender",
@@ -1632,7 +1632,7 @@
     },
     "measuredassembly": {
       "name": "Measured Assembly",
-      "group": "support",
+      "group": "skill",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+60% Fertigkeiten-Reparatur & +40% Explosionsresistenz",
       "n4": "Huddle",
@@ -1640,7 +1640,7 @@
     },
     "ortizreficere": {
       "name": "Ortiz: Reficere",
-      "group": "support",
+      "group": "skill",
       "n2": "+8% Fertigkeitseffizienz",
       "n3": "+60% Fertigkeiten-Reparatur",
       "n4": "Rapid Application Nanite Prototyp",
@@ -1648,7 +1648,7 @@
     },
     "emberengine": {
       "name": "Ember Engine",
-      "group": "support",
+      "group": "skill",
       "n2": "+8% Fertigkeitseffizienz",
       "n3": "+30% Statuseffekte",
       "n4": "Spontaneous Combustion",
