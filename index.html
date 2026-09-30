@@ -781,17 +781,10 @@
                             <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
                         </div>
                         <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="exoticPerksActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); document.getElementById('coyoteDistanceWrap').style.display = this.checked ? '' : 'none';" class="rounded accent-orange-500 w-4 h-4">
+                            <input type="checkbox" id="exoticPerksActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderExoticPerkList();" class="rounded accent-orange-500 w-4 h-4">
                             <span>Exotische Gear-Perks einrechnen <span class="text-gray-400 text-xs">(z.B. Catharsis, Memento, Coyote's Mask)</span></span>
                         </label>
-                        <div id="coyoteDistanceWrap" style="display:none">
-                            <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Coyote's Mask: Distanz-Zone</label>
-                            <select id="coyoteDistance" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="w-full p-2.5 rounded-lg text-sm">
-                                <option value="near">0–15m (+25% CHD)</option>
-                                <option value="mid" selected>15–25m (+10% CHC &amp; +10% CHD)</option>
-                                <option value="far">25m+ (+25% CHC)</option>
-                            </select>
-                        </div>
+                        <div id="exoticPerkListWrap" style="display:none" class="space-y-2"></div>
                         <p class="text-xs text-gray-400">Rechnet die Perks numerisch erfassbarer Exoten ein (Catharsis, Memento, Catalyst, Sawyer's, Harrier Pride, Bloody Knuckles, Beacon, Investor, Blacklisters, Overdogs, Centurion Scabbard, Coyote's Mask). Stack-basierte Perks nutzen die Stack-Auslastung der Set-Stacks. Situative Perks gelten als aktiv. Utility-Perks (Heilung, Support) bleiben unberücksichtigt.</p>
                     </div>
 
