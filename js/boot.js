@@ -28,7 +28,23 @@ async function loadJson(url) {
     GREEN_SET_INFO = results[4].green_set_info;
 
     // App-Skripte erst nach den Daten laden
-    for (const src of ['js/app.js', 'js/app2.js']) {
+    // Lokale Verwaltungs-Overrides (Verwaltungs-Tab) anwenden, falls vorhanden
+    try {
+        const raw = localStorage.getItem('div2_admin_db');
+        if (raw) {
+            const o = JSON.parse(raw);
+            if (Array.isArray(o.weapons)) weaponsData.weapons = o.weapons;
+            if (o.gear) {
+                if (o.gear.named_item_configs) NAMED_ITEM_CONFIGS = o.gear.named_item_configs;
+                if (o.gear.gear_db) GEAR_DB = o.gear.gear_db;
+                if (o.gear.green_set_info) GREEN_SET_INFO = o.gear.green_set_info;
+            }
+            if (o.mods && o.mods.slots) MOD_CATALOG = o.mods.slots;
+        }
+    } catch (e) { console.warn('Lokale DB-Overrides konnten nicht geladen werden:', e); }
+
+    // app.js vor app2.js laden (Reihenfolge wie bisher); admin.js kann parallel
+    for (const src of ['js/app.js', 'js/app2.js', 'js/admin.js']) {
         await new Promise((resolve, reject) => {
             const s = document.createElement('script');
             s.src = src;
