@@ -434,16 +434,20 @@ function renderBrandsAdmin() {
     const groupSel = document.getElementById('adminBrandGroupFilter');
     if (groupSel && groupSel.options.length <= 1) {
         const groups = [...new Set(Object.values(BRAND_SET_INFO).map(b => b.group).filter(Boolean))];
-        fillSelectOptions('adminBrandGroupFilter', [['', 'Alle Gruppen'], ...groups.map(g => [g, ADMIN_BRAND_GROUPS[g] || g])], true);
+        fillSelectOptions('adminBrandGroupFilter', [['', 'Gruppe wählen…'], ...groups.map(g => [g, ADMIN_BRAND_GROUPS[g] || g])], true);
     }
     document.getElementById('adminBrandCount').textContent = Object.keys(BRAND_SET_INFO).length;
+    if (!gf) {
+        el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst eine Gruppe auswählen.</p>';
+        return;
+    }
     const rows = entries.map(([key, b]) => `<tr class="border-t border-gray-800">
         <td class="py-2 px-3 text-sm font-semibold">${esc(key)}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(b.name)}</td>
         <td class="py-2 px-3 text-sm">${esc(ADMIN_BRAND_GROUPS[b.group] || b.group || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(b.weapon_hint || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(b.wd_bonus || '')}">${esc(b.wd_bonus || '—')}</td>
-        <td class="py-2 px-3">${actionBtns(`openBrandForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteBrandEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
+        <td class="py-2 px-3">${actionBtns(`openBrandForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteBrandEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
@@ -510,7 +514,7 @@ function renderGreensAdmin() {
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n2 || '')}">${esc(g.n2 || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n3 || '')}">${esc(g.n3 || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n4 || '')}">${esc(g.n4 || '—')}</td>
-        <td class="py-2 px-3">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
+        <td class="py-2 px-3">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
