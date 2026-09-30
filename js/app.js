@@ -33,6 +33,70 @@
 
 
         // Exotische Ausrüstung: fixe Werte – KEIN Prototyp-Bonus möglich. Erkenntnis aus GEAR_DB.
+        // ===== Exotische Gear-Perks (Klasse 1+2): numerisch modellierbar =====
+        // Annahmen wie bei bedingten Talenten: volle Stacks / Bedingung erfüllt,
+        // wenn "Exoten-Perks aktiv" angeschaltet ist. Stack-Auslastung nutzt das
+        // gleiche Feld wie die Set-Stacks (stackUtilization). Utility-Perks
+        // (Heilung, Team-Support, Granaten etc.) sind bewusst nicht enthalten.
+        const EXOTIC_GEAR_PERKS = {
+            "Coyote's Mask": {
+                label: "Coyote's Mask", perk: 'Distanz-Bonus',
+                byDistance: {
+                    near:   { wd: 0, chc: 0, chd: 25, note: '0–15m: +25% CHD' },
+                    mid:    { wd: 0, chc: 10, chd: 10, note: '15–25m: +10% CHC & +10% CHD' },
+                    far:    { wd: 0, chc: 25, chd: 0, note: '25m+: +25% CHC' }
+                }
+            },
+            'Catharsis': {
+                label: 'Catharsis', perk: '30 Stacks à +1,5% WD durch erlittenen Schaden',
+                perStackWd: 1.5, maxStacks: 30,
+                note: 'Annahme: volle Stacks (Stack-Auslastung gilt)'
+            },
+            'Memento': {
+                label: 'Memento', perk: 'Kill Confirmed: 30 Stacks à +1% WD',
+                perStackWd: 1, maxStacks: 30,
+                note: 'Annahme: volle Trophäen-Stacks (Stack-Auslastung gilt)'
+            },
+            'Catalyst': {
+                label: 'Catalyst', perk: 'Catalysis: max. 12 Stacks à +2% WD & +2% Status',
+                perStackWd: 2, maxStacks: 12,
+                note: 'Annahme: volle Stacks (Stack-Auslastung gilt)'
+            },
+            "Sawyer's Kneepads": {
+                label: "Sawyer's Kneepads", perk: 'Stand Your Ground: +3% WD je Sekunde Stillstand, max. 10',
+                perStackWd: 3, maxStacks: 10,
+                note: 'Annahme: 10s Stillstand = volle Stacks (Stack-Auslastung gilt)'
+            },
+            'Harrier Pride': {
+                label: 'Harrier Pride', perk: 'Red/Blue Stacks à 0,5% WD',
+                perStackWd: 0.5, maxStacks: 100,
+                note: 'Annahme: 100 Gesamt-Stacks (Red+Blue, Stack-Auslastung gilt)'
+            },
+            'Bloody Knuckles': {
+                label: 'Bloody Knuckles', perk: 'Over the Top: +25% WD für 20s nach Granaten-/Nahkampf-Treffer',
+                wd: 25, conditional: true, note: 'Annahme: Buff aktiv'
+            },
+            'Beacon': {
+                label: 'Beacon', perk: 'Bond: +30% CHD mit Verbündeten in 10m',
+                chd: 30, conditional: true, note: 'Annahme: Verbündeter in 10m'
+            },
+            'Investor': {
+                label: 'Investor', perk: 'Bonus je rotem Nicht-Kern-Attribut: +10% CHD',
+                chdPerRedAttr: 10, note: '+10% CHD je rotem Nicht-Kern-Attribut des Builds'
+            },
+            'Blacklisters': {
+                label: 'Blacklisters', perk: 'Ostracize: markierter Gegner erhält +20% Verstärker von dir',
+                amp: 20, conditional: true, note: 'Annahme: Ziel markiert'
+            },
+            'Overdogs': {
+                label: 'Overdogs', perk: 'Weakest Link: +30% Verstärker gegen niederrangige Gegner',
+                amp: 30, conditional: true, note: 'Annahme: niederrangiges Ziel'
+            },
+            'Centurion Scabbard': {
+                label: 'Centurion Scabbard', perk: 'Counter: Waffenwechsel-Boni (+20% RoF/WD-Gruppe, 12s)',
+                wd: 20, rof: 20, conditional: true, note: 'Annahme: Buff-Gruppe aktiv'
+            }
+        };
         function isExoticGearName(name) {
             const e = GEAR_DB[name];
             return !!e && e.cls === 'exotic';
@@ -4211,6 +4275,55 @@
             if (provCount >= 2) { d.chc += 8; cache.boni.push("Providence Defense 2p (+8% CHC)"); }
             if (provCount >= 3) { d.chd += 13; cache.boni.push("Providence Defense 3p (+13% CHD)"); }
 
+            // ===== Exotische Gear-Perks (Klasse 1+2) =====
+            // Nur aktiv, wenn "Exoten-Perks aktiv" in den Einstellungen an ist
+            // (analog "Bedingte Talente aktiv"). Coyote's Mask nutzt die
+            // eingestellte Distanz-Zone, Stack-Perks die Stack-Auslastung.
+            cache.exoticPerks = [];
+            const exoticPerksOn = !!(settings && settings.exoticPerksActive);
+            if (exoticPerksOn) {
+                let utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
+                if (isNaN(utilization) || utilization < 0) utilization = 100;
+                if (utilization > 100) utilization = 100;
+                const coyoteZone = (document.getElementById('coyoteDistance')?.value) || 'mid';
+                build.forEach(item => {
+                    const def = EXOTIC_GEAR_PERKS[item.setName];
+                    if (!def) return;
+                    if (def.byDistance) {
+                        const zone = def.byDistance[coyoteZone] || def.byDistance.mid;
+                        d.chc += zone.chc; d.chd += zone.chd;
+                        cache.boni.push(`${def.label}: ${zone.note} (Distanz-Zone "${coyoteZone}")`);
+                        cache.exoticPerks.push({ name: def.label, chc: zone.chc, chd: zone.chd });
+                    } else if (def.perStackWd) {
+                        const stacks = Math.round(def.maxStacks * (utilization / 100));
+                        const wd = stacks * def.perStackWd;
+                        if (wd > 0) {
+                            d.wd += wd;
+                            cache.boni.push(`${def.label}: ${stacks}/${def.maxStacks} Stacks à +${formatGermanNumber(def.perStackWd)}% WD = +${formatGermanNumber(wd)}% WD — ${def.note}`);
+                            cache.exoticPerks.push({ name: def.label, wd: wd });
+                        }
+                    } else if (def.chdPerRedAttr) {
+                        const redCount = build.reduce((n, i) => n + (Array.isArray(i.attrs)
+                            ? i.attrs.filter(a => a.type === 'chc' || a.type === 'chd' || a.type === 'wd').length
+                            : ((i.chc || 0) > 0 ? 1 : 0) + ((i.chd || 0) > 0 ? 1 : 0)), 0);
+                        const chd = redCount * def.chdPerRedAttr;
+                        if (chd > 0) {
+                            d.chd += chd;
+                            cache.boni.push(`${def.label}: ${redCount} rote Nicht-Kern-Attribute × +${def.chdPerRedAttr}% CHD = +${formatGermanNumber(chd)}% CHD`);
+                            cache.exoticPerks.push({ name: def.label, chd: chd });
+                        }
+                    } else if (def.wd || def.chd || def.amp || def.rof) {
+                        d.wd += def.wd || 0; d.chd += def.chd || 0; d.amp += def.amp || 0; d.rof += def.rof || 0;
+                        const parts = [];
+                        if (def.wd) parts.push(`+${def.wd}% WD`);
+                        if (def.chd) parts.push(`+${def.chd}% CHD`);
+                        if (def.amp) parts.push(`+${def.amp}% verstärkter Schaden`);
+                        if (def.rof) parts.push(`+${def.rof}% RPM`);
+                        cache.boni.push(`${def.label}: ${parts.join(' & ')} — ${def.note}`);
+                        cache.exoticPerks.push({ name: def.label, wd: def.wd || 0, chd: def.chd || 0, amp: def.amp || 0, rof: def.rof || 0 });
+                    }
+                });
+            }
             // Named Items (markenbasiert)
             const hasPicaros = getBrandCount(build, 'Picaro\'s Holster') > 0;
             const hasCoyote = getBrandCount(build, 'Coyote\'s Mask') > 0;
@@ -4881,7 +4994,8 @@ function prefilterItemScore(item, targetWeaponType) {
                 targetGreenSet: document.getElementById('targetGreenSet').value,
                 forceChest: document.getElementById('forceChest').checked,
                 forceBackpack: document.getElementById('forceBackpack').checked,
-                talentsActive: document.getElementById('talentsActive')?.checked || false
+                talentsActive: document.getElementById('talentsActive')?.checked || false,
+                exoticPerksActive: document.getElementById('exoticPerksActive')?.checked || false
             };
 
             // Spinner sofort anzeigen (mit kleinem Delay, damit das UI ihn
