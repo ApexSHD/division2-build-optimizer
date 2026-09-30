@@ -908,7 +908,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🔫 Waffen-Datenbank (<span id="adminWeaponCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
-                        <input type="text" id="adminWeaponFilter" oninput="renderAdminTables()" placeholder="🔍 Waffe suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <select id="adminWeaponTypeFilter" onchange="populateWeaponRarityFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gattungen</option></select> <select id="adminWeaponRarityFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Arten</option></select> <input type="text" id="adminWeaponFilter" oninput="renderAdminTables()" placeholder="🔍 Waffe suchen…" class="p-2 rounded-lg text-sm w-48">
                         <button onclick="openWeaponForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neue Waffe</button>
                     </div>
                 </div>
@@ -918,7 +918,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🎽 Gear-Datenbank (<span id="adminGearCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
-                        <input type="text" id="adminGearFilter" oninput="renderAdminTables()" placeholder="🔍 Gear suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <select id="adminGearSlotFilter" onchange="populateGearClassFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Slots</option></select> <select id="adminGearClassFilter" onchange="populateGearBrandFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Klassen</option></select> <select id="adminGearBrandFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Marken/Sets</option></select> <input type="text" id="adminGearFilter" oninput="renderAdminTables()" placeholder="🔍 Gear suchen…" class="p-2 rounded-lg text-sm w-48">
                         <button onclick="openGearForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear</button>
                     </div>
                 </div>
