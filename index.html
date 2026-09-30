@@ -925,6 +925,27 @@
                 <div id="adminGearTable" class="overflow-x-auto"></div>
             </div>
             <div class="div-card p-6 rounded-xl space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">🎽 Brand-Sets (<span id="adminBrandCount">0</span>)</h3>
+                        <div class="flex gap-2 flex-wrap items-center">
+                            <select id="adminBrandGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gruppen</option></select>
+                            <input type="text" id="adminBrandFilter" oninput="renderAdminTables()" placeholder="🔍 Marke suchen…" class="p-2 rounded-lg text-sm w-40">
+                            <button onclick="openBrandForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Brand-Set</button>
+                        </div>
+                    </div>
+                    <div id="adminBrandTable" class="overflow-x-auto"></div>
+                </div>
+                <div class="div-card p-6 rounded-xl space-y-4">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">🧹 Gear-Sets (<span id="adminGreenCount">0</span>)</h3>
+                        <div class="flex gap-2 flex-wrap items-center">
+                            <input type="text" id="adminGreenFilter" oninput="renderAdminTables()" placeholder="🔍 Set suchen…" class="p-2 rounded-lg text-sm w-40">
+                            <button onclick="openGreenForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear-Set</button>
+                        </div>
+                    </div>
+                    <div id="adminGreenTable" class="overflow-x-auto"></div>
+                </div>
+                <div class="div-card p-6 rounded-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🔧 Mod-Katalog (<span id="adminModCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
