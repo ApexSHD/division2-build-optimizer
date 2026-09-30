@@ -1626,5 +1626,168 @@
       "n4": "Spontaneous Combustion",
       "modeled": "nur Teile-Zähler (Status/Brand-Set)"
     }
+  },
+  "brand_set_info": {
+    "fenris": {
+      "name": "Fenris Group AB",
+      "group": "dps",
+      "weapon_hint": "AR",
+      "wd_bonus": "1p: +12% AR-Schaden",
+      "fragments": [
+        "fenris",
+        "ferocious calm"
+      ]
+    },
+    "ceska": {
+      "name": "Česká Výroba S.R.O.",
+      "group": "dps",
+      "weapon_hint": "Shotgun",
+      "fragments": [
+        "ceska",
+        "devil"
+      ]
+    },
+    "grupo": {
+      "name": "Grupo Shadow S.A.",
+      "group": "dps",
+      "fragments": [
+        "grupo",
+        "door-kicker"
+      ]
+    },
+    "walker": {
+      "name": "Walker, Harris & Co.",
+      "group": "dps",
+      "wd_bonus": "1p: +6% Waffenschaden",
+      "fragments": [
+        "walker",
+        "matador",
+        "chainkiller"
+      ]
+    },
+    "petrov": {
+      "name": "Petrov Defense Group",
+      "group": "dps",
+      "weapon_hint": "LMG",
+      "wd_bonus": "1p: +12% LMG-Schaden",
+      "fragments": [
+        "petrov",
+        "contractor's gloves",
+        "vedmedytsya"
+      ]
+    },
+    "sokolov": {
+      "name": "Sokolov Concern",
+      "group": "dps",
+      "weapon_hint": "MP",
+      "wd_bonus": "1p: +12% MP-Schaden",
+      "fragments": [
+        "sokolov",
+        "firm handshake"
+      ]
+    },
+    "overlord": {
+      "name": "Overlord Armaments",
+      "group": "dps",
+      "weapon_hint": "Rifle",
+      "wd_bonus": "1p: +12% Rifle-Schaden",
+      "fragments": [
+        "overlord",
+        "fox's prayer"
+      ]
+    },
+    "airaldi": {
+      "name": "Airaldi Holdings",
+      "group": "dps",
+      "weapon_hint": "MMR",
+      "wd_bonus": "1p: +12% MMR-Schaden",
+      "fragments": [
+        "airaldi",
+        "pristine example"
+      ]
+    },
+    "providence": {
+      "name": "Providence Defense",
+      "group": "dps",
+      "fragments": [
+        "providence",
+        "the gift",
+        "the sacrifice"
+      ]
+    },
+    "unitalloys": {
+      "name": "Unit Alloys",
+      "group": "dps",
+      "weapon_hint": "AR",
+      "wd_bonus": "2p: +24% AR-Schaden",
+      "fragments": [
+        "unit"
+      ]
+    },
+    "douglas": {
+      "name": "Douglas & Harding",
+      "group": "dps",
+      "fragments": [
+        "douglas & harding"
+      ]
+    },
+    "brazos": {
+      "name": "Brazos de Arcabuz",
+      "group": "utility"
+    },
+    "belstone": {
+      "name": "Belstone Armory",
+      "group": "utility",
+      "fragments": [
+        "belstone"
+      ]
+    },
+    "badger": {
+      "name": "Badger Tuff",
+      "group": "utility",
+      "weapon_hint": "Shotgun",
+      "wd_bonus": "1p: +12% Shotgun-Schaden",
+      "fragments": [
+        "badger",
+        "zero f"
+      ]
+    },
+    "electrique": {
+      "name": "Electrique",
+      "group": "utility"
+    },
+    "empress": {
+      "name": "Empress International",
+      "group": "utility"
+    },
+    "habsburg": {
+      "name": "Habsburg Guard",
+      "group": "utility",
+      "weapon_hint": "MMR",
+      "wd_bonus": "2p: +24% MMR-Schaden",
+      "fragments": [
+        "habsburg",
+        "courier"
+      ]
+    },
+    "lengmo": {
+      "name": "Lengmo",
+      "group": "utility"
+    },
+    "palisade": {
+      "name": "Palisade Steelworks",
+      "group": "utility"
+    },
+    "gila": {
+      "name": "Gila Guard",
+      "group": "utility",
+      "fragments": [
+        "gila"
+      ]
+    },
+    "5.11 tactical": {
+      "name": "5.11 Tactical",
+      "group": "utility"
+    }
   }
 }
