@@ -144,6 +144,7 @@
                 name: "Throttle Control",
                 shortName: "Tipping Scales",
                 perStackChd: 5,
+                perStackWh: 0.5,
                 maxStacks: 50,
                 condition: "Schießen baut Stacks auf (max. 50); +0,5% Waffenhandhabung & +5% CHD pro Stack; ohne Schießen -6 Stacks/s (kein Verlust bei Suppression)",
                 sourceNote: "Grundtalent ohne Weste-/Rucksack-Talent",
@@ -165,11 +166,11 @@
             huntersfury: {
                 name: "Apex Predator",
                 shortName: "Hunter's Fury",
-                flatWd: 20,
+                flatAmp: 20,
                 perStackWd: 5,
                 maxStacks: 5,
-                condition: "Gegner im 15m-Radius erhalten Debuff: +20% WD gegen sie. Kill eines debufften Gegners: +5% WD für 10s (max. 5 Stacks = +25%). Weste: Dauer 10s → 30s · Rucksack: Desorient-Radius 5m → 10m — beides ohne numerischen Schadenseffekt",
-                sourceNote: "Grundtalent: +20% Basis-Verstärkung, Kill-Stacks kommen situativ dazu",
+                condition: "Gegner im 15m-Radius erhalten Debuff: +20% verstärkter Schaden gegen sie. Kill eines debufften Gegners: +5% WD für 10s (max. 5 Stacks = +25%). Weste: Dauer 10s → 30s · Rucksack: Desorient-Radius 5m → 10m — beides ohne numerischen Schadenseffekt",
+                sourceNote: "Grundtalent: +20% Basis-Verstärkung (multiplikative Gruppe), Kill-Stacks kommen situativ dazu",
                 killBased: true,
                 chestTalent: { label: "Endless Hunger (Weste)", note: "nur Stack-Dauer 10s → 30s — keine Auswirkung auf die Schadenshöhe" },
                 backpackTalent: { label: "Overwhelming Force (Rucksack)", note: "nur Desorient-Radius 5m → 10m — keine Auswirkung auf den Waffenschaden" }
@@ -177,13 +178,57 @@
             ongoing: {
                 name: "Rules of Engagement",
                 shortName: "Ongoing Directive",
-                flatWd: 40,
+                flatAmp: 40,
                 maxStacks: 1,
                 killBased: true,
-                condition: "Treffer auf statusbetroffene Gegner markieren sie (10s). Kill eines markierten Gegners: volles Magazin Hohlspitz-Munition (+40% WD-Verstärkung + Blutung) für die aktive Waffe, halbes Magazin fürs Team",
-                sourceNote: "Grundtalent: +40% Verstärkung, solange Hohlspitz-Munition aktiv (kill-abhängig)",
-                chestTalent: { label: "Parabellum Rounds (Weste)", flatWd: 60, note: "+60% statt +40% (nicht für Team-Mitglieder)" },
+                condition: "Treffer auf statusbetroffene Gegner markieren sie (10s). Kill eines markierten Gegners: volles Magazin Hohlspitz-Munition (+40% verstärkter Schaden + Blutung) für die aktive Waffe, halbes Magazin fürs Team",
+                sourceNote: "Grundtalent: +40% verstärkter Schaden (multiplikative Gruppe), solange Hohlspitz-Munition aktiv (kill-abhängig)",
+                chestTalent: { label: "Parabellum Rounds (Weste)", flatAmp: 60, note: "+60% statt +40% (nicht für Team-Mitglieder)" },
                 backpackTalent: { label: "Trauma Specialist (Rucksack)", note: "Blutungs-Dauer +50% & Blutungs-Schaden +100% — keine Auswirkung auf den Waffenschaden" }
+            },
+            acesandeights: {
+                name: "Dead Man's Hand",
+                shortName: "Aces & Eights",
+                flatAmp: 75,
+                maxStacks: 1,
+                condition: "Karten umdrehen mit Rifle/MMR; nach 5 Karten: nächster Schuss +75% verstärkter Schaden — Four of a Kind 4 Schüsse, Full House 3, Aces & Eights 2; Kopfschuss dreht zusätzliche Karte",
+                sourceNote: "Grundtalent: +75% verstärkter Schaden auf die verstärkten Schüsse",
+                chestTalent: { label: "No Limit (Weste)", flatAmp: 100, note: "+75% → +100% verstärkter Schaden" },
+                backpackTalent: { label: "Ace in the Sleeve (Rucksack)", note: "1 zusätzlicher verstärkter Schuss — keine Auswirkung auf die Schadenshöhe" }
+            },
+            hotshot: {
+                name: "Headache",
+                shortName: "Hotshot",
+                flatAmp: 80,
+                maxStacks: 1,
+                condition: "1. Kopfschuss (MMR): nächster +80%; 2.: +10% Rüstung (voll: Bonus-Rüstung max +50%); 3.: Magazin füllt sich; ab 4.: alle Boni je Folge-Kopfschuss. Fehlschuss setzt Zyklus zurück",
+                sourceNote: "Grundtalent: +80% verstärkter Schaden auf den Folge-Kopfschuss",
+                chestTalent: { label: "Stand Tall (Weste)", note: "Bonus-Rüstung 50% → 100% — keine Auswirkung auf den Schaden" },
+                backpackTalent: { label: "Lucky (Rucksack)", note: "1 Fehlschuss erlaubt — keine Auswirkung auf die Schadenshöhe" }
+            },
+            virtuoso: {
+                name: "Symphony",
+                shortName: "Virtuoso",
+                flatAmp: 40,
+                flatAmpByWeapon: { AR: 20, LMG: 20 },
+                maxStacks: 1,
+                killBased: true,
+                condition: "Kill >25m: +40% WD (Shotguns/SMGs/Pistolen) bzw. Kill <25m: +40% WD (MMR/Rifles); ARs/LMGs +20%; 4 Stacks (wechselnde Distanz): alle Boni verdoppelt & gleichzeitig",
+                sourceNote: "Grundtalent: +40% verstärkter Schaden (AR/LMG +20%) nach Distanz-Kill",
+                chestTalent: { label: "Fortissimo (Weste)", ampMult: 2, note: "verdoppelt die Waffenschaden-Boni (+40% → +80%, AR/LMG +20% → +40%)" },
+                backpackTalent: { label: "Accelerando (Rucksack)", note: "4 → 3 Stacks für Doppel-Boni — keine Auswirkung auf den Grund-Bonus" }
+            },
+            breakingpoint: {
+                name: "On Point",
+                shortName: "Breaking Point",
+                perStackWd: 4,
+                perStackWh: 2,
+                maxStacks: 30,
+                magBasedStacks: true,
+                condition: "Treffer mit Rifle/MMR: +1 Stack (max. = Magazingröße, hier angenommen: 30); leer nachladen: +2% WH & +4% WD pro Stack für 20s",
+                sourceNote: "Grundtalent: +4% WD pro Stack (Stacks = Magazingröße der Waffe)",
+                chestTalent: { label: "Point of No Return (Weste)", note: "Dauer 20s → 40s — keine Auswirkung auf die Bonushöhe" },
+                backpackTalent: { label: "Point of Honor (Rucksack)", perStackWd: 9, note: "+4% → +9% WD pro Stack" }
             }
         };
 
@@ -1578,14 +1623,14 @@
         // Sustain-Faktor: Anteil der Zeit, der tatsächlich gefeuert wird
         // (Magazingröße inkl. Kapazitäts-Mods vs. Nachladezeit inkl.
         // Nachladetempo-Boni). null = keine DB-Daten, Faktor 1.
-        function weaponSustainFactor(weapon, effRpm) {
+        function weaponSustainFactor(weapon, effRpm, extraReloadSpeedPct) {
             const dbEntry = getWeaponDbEntry(weapon);
             if (!dbEntry || !dbEntry.stats) return null;
             const baseMag = dbEntry.stats['Base Mag Size'] || dbEntry.stats['Modded Mag Size'];
             const reloadSec = dbEntry.stats['Empty Reload (secs)'];
             if (!baseMag || !reloadSec || !effRpm) return null;
             const mag = baseMag + modAttrTotal(weapon, 'capacity');
-            const reloadSpeedPct = modAttrTotal(weapon, 'reloadSpeed');
+            const reloadSpeedPct = modAttrTotal(weapon, 'reloadSpeed') + (extraReloadSpeedPct || 0);
             const reload = reloadSec / (1 + reloadSpeedPct / 100);
             const fireTime = mag / (effRpm / 60);
             return fireTime / (fireTime + reload);
@@ -3989,7 +4034,7 @@
                 buildSkillTiers: build.reduce((s, i) => s + gearSkillTiersOf(i), 0),
                 buildArmorCores: build.reduce((s, i) => s + (gearCoreTypeOf(i) === 'armour' || gearIsTriCoreItem(i) ? 1 : 0), 0),
                 named: { wd: 0, chc: 0, chd: 0, dta: 0, dttooc: 0, dth: 0 },
-                delta: { wd: 0, chc: 0, chd: 0, rof: 0, dta: 0, dttooc: 0, dth: 0 },
+                delta: { wd: 0, chc: 0, chd: 0, rof: 0, dta: 0, dttooc: 0, dth: 0, amp: 0, wh: 0 },
                 boni: [],
                 targetSetCount: 0,
                 stackInfo: null
@@ -4050,9 +4095,9 @@
                 let perStackWd = stackConf.perStackWd || 0;
                 let perStackChd = stackConf.perStackChd || 0;
                 let perStackRof = stackConf.perStackRof || 0;
-                let flatWd = stackConf.flatWd || 0;
-                const hasSetChest0 = build.some(i => i.slot === 'Weste' && brandKeyMatches((i.setName || '').toLowerCase(), targetGreenSet));
-                if (hasSetChest0 && stackConf.chestTalent && stackConf.chestTalent.flatWd) flatWd = stackConf.chestTalent.flatWd;
+                let perStackWh = stackConf.perStackWh || 0;
+                let flatAmp = stackConf.flatAmp || 0;
+                if (stackConf.flatAmpByWeapon && targetWeaponType in stackConf.flatAmpByWeapon) flatAmp = stackConf.flatAmpByWeapon[targetWeaponType];
                 let maxStacks = stackConf.maxStacks;
                 const hasSetChest = build.some(i => i.slot === 'Weste' && brandKeyMatches((i.setName || '').toLowerCase(), targetGreenSet));
                 const hasSetBackpack = build.some(i => i.slot === 'Rucksack' && brandKeyMatches((i.setName || '').toLowerCase(), targetGreenSet));
@@ -4062,6 +4107,9 @@
                 if (hasSetBackpack && bpT && bpT.perStackWd) perStackWd = bpT.perStackWd;
                 if (hasSetBackpack && bpT && bpT.perStackChd) perStackChd = bpT.perStackChd;
                 if (hasSetBackpack && bpT && bpT.perStackRof) perStackRof = bpT.perStackRof;
+                if (hasSetBackpack && bpT && bpT.perStackWh) perStackWh = bpT.perStackWh;
+                if (hasSetChest && chestT && chestT.flatAmp) flatAmp = chestT.flatAmp;
+                else if (hasSetChest && chestT && chestT.ampMult) flatAmp = flatAmp * chestT.ampMult;
                 // Stack-Auslastung (Einstellung, Standard 100% = volle Stacks)
                 let utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
                 if (isNaN(utilization) || utilization < 0) utilization = 100;
@@ -4070,11 +4118,14 @@
                 const stackWd = stacks * perStackWd;
                 const stackChd = stacks * perStackChd;
                 const stackRof = stacks * perStackRof;
-                const stackWdTotal = flatWd + stacks * perStackWd;
-                if (stackWdTotal > 0 || stackChd > 0 || stackRof > 0) {
+                const stackWh = stacks * perStackWh;
+                const stackWdTotal = stacks * perStackWd;
+                if (stackWdTotal > 0 || stackChd > 0 || stackRof > 0 || flatAmp > 0 || stackWh > 0) {
                     if (stackWdTotal > 0) d.wd += stackWdTotal;
                     if (stackChd > 0) d.chd += stackChd;
                     if (stackRof > 0) d.rof += stackRof;
+                    if (stackWh > 0) d.wh += stackWh;
+                    if (flatAmp > 0) d.amp += flatAmp;
                     cache.stackInfo = {
                         name: stackConf.name,
                         stacks: stacks,
@@ -4082,31 +4133,36 @@
                         perStackWd: perStackWd,
                         perStackChd: perStackChd,
                         perStackRof: perStackRof,
+                        perStackWh: perStackWh,
                         perStack: perStackWd || perStackChd,
                         attr: (perStackWd > 0 && perStackChd > 0) ? 'wd+chd' : (perStackChd > 0 ? 'chd' : 'wd'),
-                        flatWd: flatWd,
+                        flatAmp: flatAmp,
                         wd: stackWdTotal,
                         chd: stackChd,
                         rof: stackRof,
+                        wh: stackWh,
                         hasChest: hasSetChest,
                         hasBackpack: hasSetBackpack
                     };
                     const talentParts = [];
-                    if (hasSetChest && chestT) talentParts.push(chestT.label + (chestT.maxStacks ? '' : ' (nur Markierungen)'));
-                    if (hasSetBackpack && bpT && (bpT.perStackWd || bpT.perStackChd || bpT.perStackRof)) talentParts.push(bpT.label);
-                    if (hasSetChest && chestT && chestT.flatWd) talentParts.push(chestT.label);
+                    if (hasSetChest && chestT) talentParts.push(chestT.label + (chestT.maxStacks || chestT.marks ? '' : ''));
+                    if (hasSetBackpack && bpT && (bpT.perStackWd || bpT.perStackChd || bpT.perStackRof || bpT.perStackWh)) talentParts.push(bpT.label);
+                    if (hasSetChest && chestT && chestT.flatAmp) talentParts.push(chestT.label);
+                    if (hasSetChest && chestT && chestT.ampMult) talentParts.push(chestT.label);
                     const unitParts = [];
-                    if (flatWd > 0) unitParts.push(`+${formatGermanNumber(flatWd)}% WD (Basis-Debuff)`);
-                    if (stackWd > 0) unitParts.push(`+${formatGermanNumber(stackWd)}% WD${flatWd > 0 ? ' (Kill-Stacks)' : ''}`);
+                    if (flatAmp > 0) unitParts.push(`+${formatGermanNumber(flatAmp)}% verstärkter Schaden`);
+                    if (stackWd > 0) unitParts.push(`+${formatGermanNumber(stackWd)}% WD`);
                     if (stackChd > 0) unitParts.push(`+${formatGermanNumber(stackChd)}% CHD`);
                     if (stackRof > 0) unitParts.push(`+${formatGermanNumber(stackRof)}% RPM`);
+                    if (stackWh > 0) unitParts.push(`+${formatGermanNumber(stackWh)}% Waffenhandhabung`);
                     const perParts = [];
                     if (perStackWd > 0) perParts.push(`${formatGermanNumber(perStackWd)}% WD`);
                     if (perStackChd > 0) perParts.push(`${formatGermanNumber(perStackChd)}% CHD`);
                     if (perStackRof > 0) perParts.push(`${formatGermanNumber(perStackRof)}% RPM`);
+                    if (perStackWh > 0) perParts.push(`${formatGermanNumber(perStackWh)}% WH`);
                     cache.boni.push(
-                        `${stackConf.name}: ${flatWd > 0 ? `+${formatGermanNumber(flatWd)}% Basis-Verstärkung + ` : ''}${stacks}/${maxStacks} Stacks × ${perParts.join(' & ')}/Stack = ${unitParts.join(' & ')}` +
-                        (talentParts.length ? ` — aktiv: ${talentParts.join(' + ')}` : ` — ${stackConf.sourceNote}`)
+                        `${stackConf.name}: ${flatAmp > 0 ? `+${formatGermanNumber(flatAmp)}% verstärkter Schaden` : ''}${perParts.length ? `${flatAmp > 0 ? ' + ' : ''}${stacks}/${maxStacks} Stacks × ${perParts.join(' & ')}/Stack = ${unitParts.join(' & ')}` : ` = ${unitParts.join(' & ')}`}` +
+                        (talentParts.length ? ` — aktiv: ${[...new Set(talentParts)].join(' + ')}` : ` — ${stackConf.sourceNote}`)
                     );
                 }
             }
@@ -4304,6 +4360,16 @@
             // Gear-Talent-Verstärker (Weste/Rucksack, z.B. Glaskanone +25%) –
             // eigene multiplikative Schadensgruppe aus dem Build-Cache.
             const gearAmpMult = 1 + ((bc.gearAmp || 0) / 100);
+            // Set-Verstärker (4p-Talente wie Ongoing Directive Hohlspitz,
+            // Hunter's Fury Debuff, Aces & Eights, Hotshot, Virtuoso):
+            // eigene multiplikative Gruppe — in-game Verstärker stapeln
+            // multiplikativ zwischen den Gruppen, nicht additiv im WD-Bucket.
+            const setAmpMult = 1 + ((bc.delta.amp || 0) / 100);
+            // Waffenhandhabung aus Set-Boni (z.B. Tipping Scales +0,5%/Stack):
+            // wirkt in-game v.a. als Nachladetempo → fließt über den
+            // Sustain-Faktor (Feuerzeit vs. Feuerzeit+Nachladezeit) in den
+            // zeitlichen Schaden ein. 1% WH ≈ 1% Nachladetempo.
+            const buildWh = bc.delta.wh || 0;
             let buildChc = bc.buildChc;
             let buildChd = bc.buildChd;
             let buildWd = bc.buildWd;
@@ -4424,15 +4490,22 @@
                 let dttoocMult = 1 + (totalDttooc / 100) * ep.ooc; // specDttoocBonus steckt bereits in totalDttooc (Abschnitt 5)
                 let dthMult = 1 + (totalDth / 100) * ep.health;
                 let rofMult = 1 + (totalRof / 100);
+                // Sustain-Faktor: Magazin vs. Nachladezeit inkl. WH-Bonus
+                let sustainMult = 1;
+                if (typeof weaponEffectiveRpm === 'function' && typeof weaponSustainFactor === 'function') {
+                    const rpmInfo = weaponEffectiveRpm(weapon, totalRof);
+                    const sf = rpmInfo.rpm ? weaponSustainFactor(weapon, rpmInfo.rpm, buildWh) : null;
+                    if (sf) sustainMult = sf;
+                }
                 let hsdMult = 1 + (totalHsd / 100); // HSD: bewusst noch nicht multipliziert (Kopfschuss-Modell folgt später)
 
                 let knowHowMult = 1 + (knowHowLevel / 100);
                 let rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * specDmgAmp;
-                let nonCritHit = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult;
+                let nonCritHit = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult * setAmpMult;
                 let critHit = nonCritHit * (1 + (finalChd / 100));
 
                 let avgBulletDmg = (nonCritHit * (1 - cappedChc / 100)) + (critHit * (cappedChc / 100));
-                let effectiveDPS = avgBulletDmg * rofMult;
+                let effectiveDPS = avgBulletDmg * rofMult * sustainMult;
 
                 const meetsTarget = finalChc >= targetChc;
                 if (meetsTarget) anyMeetsTarget = true;
@@ -4440,7 +4513,7 @@
                 // sonst die beste overall (Fallback-Teilmenge).
                 const better = chosenMod === null || (meetsTarget && !chosenMod.meetsTarget) || (meetsTarget === chosenMod.meetsTarget && effectiveDPS > chosenDps);
                 if (better) {
-                    chosenMod = { mod, meetsTarget, finalChc, finalChd, cappedChc, dtaMult, dttoocMult, dthMult, rofMult, nonCritHit, critHit, avgBulletDmg, effectiveDPS };
+                    chosenMod = { mod, meetsTarget, finalChc, finalChd, cappedChc, dtaMult, dttoocMult, dthMult, rofMult, nonCritHit, critHit, avgBulletDmg, effectiveDPS, sustainMult, setAmpMult };
                     chosenDps = effectiveDPS;
                 }
             }
@@ -4485,6 +4558,9 @@
                     talentAmp: talentAmp,
                     talentsActiveSetting: !!talentsActive,
                     stackInfo: stackInfo,
+                    setAmpMult: chosenMod.setAmpMult,
+                    sustainMult: chosenMod.sustainMult,
+                    buildWh: buildWh,
                     breakdown: {
                         weapon: srcWeapon,
                         talent: { wd: talentWd, chc: talentChc, chd: talentChd },
@@ -5193,33 +5269,34 @@ function prefilterItemScore(item, targetWeaponType) {
             const basePerWd = conf.perStackWd || 0;
             const basePerChd = conf.perStackChd || 0;
             const basePerRof = conf.perStackRof || 0;
-            const flatWd = conf.flatWd || 0;
-            const chestFlatWd = (conf.chestTalent && conf.chestTalent.flatWd) ? conf.chestTalent.flatWd : flatWd;
+            const flatAmp = conf.flatAmp || 0;
+            const chestFlatAmp = (conf.chestTalent && conf.chestTalent.flatAmp) ? conf.chestTalent.flatAmp
+                : (conf.chestTalent && conf.chestTalent.ampMult) ? flatAmp * conf.chestTalent.ampMult : flatAmp;
             // Zeit- statt Treffer-Achse: Manche Sets bauen Stacks zeitlich
             // auf (Umbra: +10/s in Deckung) statt pro Treffer.
             const gainPerSec = conf.stackGainPerSec || 0;
             // Schaden pro Kugel: WD-Stacks sind additiv in totalWd (Faktor
             // herausrechnen), CHD-Stacks erhöhen die Krit-Erwartung. Beides
             // kann kombiniert auftreten (Concentrated Company).
-            const nonCritNoStack = (si.wd || 0) > 0 ? best.nonCritHit / (1 + (si.wd || 0) / 100) : best.nonCritHit;
+            const nonCritNoStack = ((si.wd || 0) > 0 ? best.nonCritHit / (1 + (si.wd || 0) / 100) : best.nonCritHit)
+                / (1 + (si.flatAmp || 0) / 100);
             const chcFrac = (best.cappedChc || 0) / 100;
             const chd0 = (best.finalChd || 0) - (si.chd || 0);
             const dmgAt = (stacks, perWd, perChd, flat) =>
-                nonCritNoStack * (1 + ((flat || 0) + stacks * perWd) / 100) *
+                nonCritNoStack * (1 + (stacks * perWd) / 100) * (1 + ((flat || 0)) / 100) *
                 ((1 - chcFrac) + (1 + (chd0 + stacks * perChd) / 100) * chcFrac);
-
-            // 4 Varianten: Weste erhöht maxStacks oder flatWd (Ongoing
-            // Directive), Rucksack erhöht perStack
-            const hasChestT = !!(conf.chestTalent && (conf.chestTalent.maxStacks || conf.chestTalent.flatWd));
+            // 4 Varianten: Weste erhöht maxStacks oder flatAmp (Ongoing
+            // Directive, Aces & Eights, Virtuoso), Rucksack erhöht perStack
+            const hasChestT = !!(conf.chestTalent && (conf.chestTalent.maxStacks || conf.chestTalent.flatAmp || conf.chestTalent.ampMult));
             const hasBpT = !!(conf.backpackTalent && (conf.backpackTalent.perStackWd || conf.backpackTalent.perStackChd || conf.backpackTalent.perStackRof));
             const bpPerWd = conf.backpackTalent ? (conf.backpackTalent.perStackWd || basePerWd) : basePerWd;
             const bpPerChd = conf.backpackTalent ? (conf.backpackTalent.perStackChd || basePerChd) : basePerChd;
             const bpPerRof = conf.backpackTalent ? (conf.backpackTalent.perStackRof || basePerRof) : basePerRof;
             const variants = [];
-            variants.push({ key: 'base', label: 'Ohne Set-Weste & -Rucksack', max: conf.maxStacks, perWd: basePerWd, perChd: basePerChd, perRof: basePerRof, flat: flatWd, color: '#9ca3af' });
-            if (hasChestT) variants.push({ key: 'chest', label: conf.chestTalent.label, max: conf.chestTalent.maxStacks || conf.maxStacks, perWd: basePerWd, perChd: basePerChd, perRof: basePerRof, flat: chestFlatWd, color: '#ff6600' });
-            if (hasBpT) variants.push({ key: 'bp', label: conf.backpackTalent.label, max: conf.maxStacks, perWd: bpPerWd, perChd: bpPerChd, perRof: bpPerRof, flat: flatWd, color: '#38bdf8' });
-            if (hasChestT && hasBpT) variants.push({ key: 'both', label: conf.chestTalent.label + ' + ' + conf.backpackTalent.label, max: conf.chestTalent.maxStacks || conf.maxStacks, perWd: bpPerWd, perChd: bpPerChd, perRof: bpPerRof, flat: chestFlatWd, color: '#34d399' });
+            variants.push({ key: 'base', label: 'Ohne Set-Weste & -Rucksack', max: conf.maxStacks, perWd: basePerWd, perChd: basePerChd, perRof: basePerRof, flat: flatAmp, color: '#9ca3af' });
+            if (hasChestT) variants.push({ key: 'chest', label: conf.chestTalent.label, max: conf.chestTalent.maxStacks || conf.maxStacks, perWd: basePerWd, perChd: basePerChd, perRof: basePerRof, flat: chestFlatAmp, color: '#ff6600' });
+            if (hasBpT) variants.push({ key: 'bp', label: conf.backpackTalent.label, max: conf.maxStacks, perWd: bpPerWd, perChd: bpPerChd, perRof: bpPerRof, flat: flatAmp, color: '#38bdf8' });
+            if (hasChestT && hasBpT) variants.push({ key: 'both', label: conf.chestTalent.label + ' + ' + conf.backpackTalent.label, max: conf.chestTalent.maxStacks || conf.maxStacks, perWd: bpPerWd, perChd: bpPerChd, perRof: bpPerRof, flat: chestFlatAmp, color: '#34d399' });
 
             const rpmInfo = effectiveChartRpm(best.weapon);
             const rpm = rpmInfo && rpmInfo.rpm ? rpmInfo.rpm : null;
@@ -5264,7 +5341,7 @@ function prefilterItemScore(item, targetWeaponType) {
 
             let paths = '';
             variants.forEach(v => {
-                const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatWd || 0));
+                const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0));
                 const d = v.points.map((p, i) => (i === 0 ? 'M' : 'L') + px(p.s).toFixed(1) + ',' + py(p.dmg).toFixed(1)).join(' ');
                 const w = isCurrent ? 3.5 : 1.8;
                 const op = isCurrent ? 1 : 0.55;
@@ -5285,7 +5362,7 @@ function prefilterItemScore(item, targetWeaponType) {
             });
 
             const legend = variants.map(v => {
-                const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatWd || 0));
+                const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0));
                 return `<span class="inline-flex items-center gap-1.5 ${isCurrent ? 'font-bold text-white' : 'text-gray-400'}">
                     <span style="display:inline-block;width:18px;height:3px;background:${v.color};${isCurrent ? '' : 'opacity:.55'}"></span>
                     ${escapeHtml(v.label)} <span class="text-[10px] text-gray-500">(max. ${v.max} × ${[v.perWd ? `+${formatGermanNumber(v.perWd)}% WD` : '', v.perChd ? `+${formatGermanNumber(v.perChd)}% CHD` : '', v.perRof ? `+${formatGermanNumber(v.perRof)}% RPM` : ''].filter(Boolean).join(' & ')}/Stack)</span>
@@ -5304,7 +5381,7 @@ function prefilterItemScore(item, targetWeaponType) {
                         ${grid}${labels}${paths}
                     </svg>
                     <div class="text-[11px] mt-2 flex flex-wrap gap-x-2">${legend}</div>
-                    <p class="text-[10px] text-gray-500 mt-1">Annahme: ${gainPerSec ? 'zeitlicher Stack-Aufbau (in Deckung)' : (conf.killBased ? '1 Stack pro Kill eines markierten/debufften Gegners; Stack-Verfall ignoriert' : '1 Stack pro Treffer, kein Stack-Verlust durch Fehlschüsse')}${flatWd > 0 ? `; der Basis-Debuff von +${formatGermanNumber(flatWd)}% WD ist in jedem Datenpunkt enthalten` : ''}. Y-Achse: Ø-Schaden pro Kugel (inkl. Krit-Erwartung, Waffen-Talente, Rüstungs-/Ungedeckt-Multiplikatoren). X-Achse: ${gainPerSec ? 'reale Zeit' : (conf.killBased ? 'Kills' : 'reale Zeit aus der effektiven Feuerrate')}. Gestrichelte Linien = Varianten, die dieser Build NICHT nutzt.${conf.perStackRof ? ' Feuerraten-Anteil (+' + formatGermanNumber(conf.perStackRof) + '% RPM/Stack) erhöht den DPS, nicht den Schaden pro Kugel — daher flacht die Kurve nur mit dem CHD-Anteil ab.' : ''}${conf.perStackChd && !conf.perStackWd && !conf.perStackRof ? ' Waffenhandhabungs-Bonus pro Stack (z. B. Tipping Scales +0,5%/Stack) ist nicht im Schaden modelliert.' : ''}${conf.chestTalent && conf.chestTalent.marks ? ` ${conf.chestTalent.label}: nur mehr Markierungen (${conf.chestTalent.marks}), keine Auswirkung auf die Kurve.` : ''}</p>
+                    <p class="text-[10px] text-gray-500 mt-1">Annahme: ${gainPerSec ? 'zeitlicher Stack-Aufbau (in Deckung)' : (conf.killBased ? '1 Stack pro Kill eines markierten/debufften Gegners; Stack-Verfall ignoriert' : '1 Stack pro Treffer, kein Stack-Verlust durch Fehlschüsse')}${flatAmp > 0 ? `; der Basis-Verstärker von +${formatGermanNumber(flatAmp)}% ist in jedem Datenpunkt enthalten` : ''}. Y-Achse: Ø-Schaden pro Kugel (inkl. Krit-Erwartung, Waffen-Talente, Rüstungs-/Ungedeckt-Multiplikatoren). X-Achse: ${gainPerSec ? 'reale Zeit' : (conf.killBased ? 'Kills' : 'reale Zeit aus der effektiven Feuerrate')}. Gestrichelte Linien = Varianten, die dieser Build NICHT nutzt.${conf.perStackRof ? ' Feuerraten-Anteil (+' + formatGermanNumber(conf.perStackRof) + '% RPM/Stack) erhöht den DPS, nicht den Schaden pro Kugel — daher flacht die Kurve nur mit dem CHD-Anteil ab.' : ''}${conf.perStackWh ? ' Waffenhandhabungs-Bonus pro Stack (+' + formatGermanNumber(conf.perStackWh) + '%/Stack) fließt über das Nachladetempo in den zeitlichen Schaden (Sustain-Faktor) ein.' : ''}${conf.chestTalent && conf.chestTalent.marks ? ` ${conf.chestTalent.label}: nur mehr Markierungen (${conf.chestTalent.marks}), keine Auswirkung auf die Kurve.` : ''}</p>
                 </div>
             `;
         }
