@@ -501,7 +501,7 @@ function deleteBrandEntry(key) {
     refreshAfterDbChange('Brand-Set gelöscht.');
 }
 
-const ADMIN_GREEN_GROUPS = { dps: 'DPS-Sets', support: 'Skill-/Support-/Tank-Sets' };
+const ADMIN_GREEN_GROUPS = { dps: 'DPS-Sets', armour: 'Rüstungs-Sets', skill: 'Fertigkeits-Sets' };
 
 function populateGreenGroupFilter() {
     const groups = [...new Set(Object.values(GREEN_SET_INFO).map(g => g.group).filter(Boolean))].sort();
@@ -543,7 +543,7 @@ function openGreenForm(key) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${modalInput('ag2Key', 'Schlüssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. striker' })}
             ${modalInput('ag2Name', 'Vollständiger Name', g.name || '', { required: true, placeholder: "z.B. Striker's Battlegear" })}
-            ${modalInput('ag2Group', 'Gruppe', g.group || 'dps', { type: 'select', options: [['dps', 'DPS-Sets'], ['support', 'Skill-/Support-/Tank-Sets']] })}
+            ${modalInput('ag2Group', 'Gruppe', g.group || 'dps', { type: 'select', options: [['dps', 'DPS-Sets'], ['armour', 'Rüstungs-Sets'], ['skill', 'Fertigkeits-Sets']] })}
         </div>
         ${modalInput('ag2N2', '2p-Bonus', g.n2 || '')}
         ${modalInput('ag2N3', '3p-Bonus', g.n3 || '')}
