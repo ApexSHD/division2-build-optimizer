@@ -86,6 +86,9 @@ function getChk(id) {
 
 // ---------- Persistenz ----------
 function persistAdminDb() {
+    // Nie leere Datenbestaende persistieren (Schutz vor kaputtem Zustand)
+    if (!Array.isArray(weaponsData.weapons) || weaponsData.weapons.length === 0) return;
+    if (!GEAR_DB || typeof GEAR_DB !== 'object' || Object.keys(GEAR_DB).length === 0) return;
     const o = getAdminOverrides();
     o.weapons = weaponsData.weapons;
     o.gear = { named_item_configs: NAMED_ITEM_CONFIGS, gear_db: GEAR_DB, green_set_info: GREEN_SET_INFO };
