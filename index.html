@@ -939,6 +939,7 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">🧹 Gear-Sets (<span id="adminGreenCount">0</span>)</h3>
                         <div class="flex gap-2 flex-wrap items-center">
+                            <select id="adminGreenGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Gruppe wählen…</option></select>
                             <input type="text" id="adminGreenFilter" oninput="renderAdminTables()" placeholder="🔍 Set suchen…" class="p-2 rounded-lg text-sm w-40">
                             <button onclick="openGreenForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear-Set</button>
                         </div>
