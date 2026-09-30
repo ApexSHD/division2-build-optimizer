@@ -451,7 +451,7 @@ function renderBrandsAdmin() {
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
-            <th class="py-2 px-3">Schl\u00fcssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Waffenbonus</th><th class="py-2 px-3">Aktionen</th>
+            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Waffenbonus</th><th class="py-2 px-3">Aktionen</th>
         </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
@@ -461,8 +461,8 @@ function openBrandForm(key) {
     openAdminModal(isNew ? 'Neues Brand-Set anlegen' : 'Brand-Set bearbeiten: ' + key);
     document.getElementById('adminModalBody').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            ${modalInput('abKey', 'Schl\u00fcssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
-            ${modalInput('abName', 'Vollst\u00e4ndiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
+            ${modalInput('abKey', 'Schlüssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
+            ${modalInput('abName', 'Vollständiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
             ${modalInput('abGroup', 'Gruppe', b.group || 'dps', { type: 'select', options: [['dps', 'DPS'], ['utility', 'Utility & Defense']] })}
             ${modalInput('abWeaponHint', 'Waffen-Hint (optional)', b.weapon_hint || '', { placeholder: 'z.B. AR' })}
         </div>
@@ -477,7 +477,7 @@ function openBrandForm(key) {
 function saveBrandForm(key) {
     const newKey = getVal('abKey').trim();
     const name = getVal('abName').trim();
-    if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
+    if (!newKey || !name) { adminToast('Bitte Schlüssel und Namen angeben.', 'error'); return; }
     const entry = { name, group: getVal('abGroup') };
     const wh = getVal('abWeaponHint').trim(); if (wh) entry.weapon_hint = wh;
     const wb = getVal('abWdBonus').trim(); if (wb) entry.wd_bonus = wb;
@@ -492,22 +492,35 @@ function saveBrandForm(key) {
         BRAND_SET_INFO[newKey] = entry;
     }
     closeAdminModal();
-    refreshAfterDbChange(oldKey ? 'Brand-Set aktualisiert.' : 'Brand-Set hinzugef\u00fcgt.');
+    refreshAfterDbChange(oldKey ? 'Brand-Set aktualisiert.' : 'Brand-Set hinzugefügt.');
 }
 
 function deleteBrandEntry(key) {
-    if (!BRAND_SET_INFO[key] || !confirm(`Brand-Set "${key}" wirklich l\u00f6schen?`)) return;
+    if (!BRAND_SET_INFO[key] || !confirm(`Brand-Set "${key}" wirklich löschen?`)) return;
     delete BRAND_SET_INFO[key];
-    refreshAfterDbChange('Brand-Set gel\u00f6scht.');
+    refreshAfterDbChange('Brand-Set gelöscht.');
+}
+
+const ADMIN_GREEN_GROUPS = { dps: 'DPS-Sets', support: 'Skill-/Support-/Tank-Sets' };
+
+function populateGreenGroupFilter() {
+    const groups = [...new Set(Object.values(GREEN_SET_INFO).map(g => g.group).filter(Boolean))].sort();
+    fillSelectOptions('adminGreenGroupFilter', [['', 'Gruppe wählen…'], ...groups.map(g => [g, ADMIN_GREEN_GROUPS[g] || g])], true);
 }
 
 function renderGreensAdmin() {
     const el = document.getElementById('adminGreenTable');
     if (!el) return;
     const filter = (getVal('adminGreenFilter') || '').toLowerCase();
+    const gf = getVal('adminGreenGroupFilter') || '';
     const entries = Object.entries(GREEN_SET_INFO)
-        .filter(([k, g]) => !filter || k.toLowerCase().includes(filter) || (g.name || '').toLowerCase().includes(filter));
+        .filter(([k, g]) => (!gf || g.group === gf) && (!filter || k.toLowerCase().includes(filter) || (g.name || '').toLowerCase().includes(filter)));
+    populateGreenGroupFilter();
     document.getElementById('adminGreenCount').textContent = Object.keys(GREEN_SET_INFO).length;
+    if (!gf) {
+        el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst eine Gruppe auswählen.</p>';
+        return;
+    }
     const rows = entries.map(([key, g]) => `<tr class="border-t border-gray-800">
         <td class="py-2 px-3 text-sm font-semibold">${esc(key)}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(g.name)}</td>
@@ -518,7 +531,7 @@ function renderGreensAdmin() {
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
-            <th class="py-2 px-3">Schl\u00fcssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Aktionen</th>
+            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Aktionen</th>
         </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
@@ -528,8 +541,9 @@ function openGreenForm(key) {
     openAdminModal(isNew ? 'Neues Gear-Set anlegen' : 'Gear-Set bearbeiten: ' + key);
     document.getElementById('adminModalBody').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            ${modalInput('ag2Key', 'Schl\u00fcssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. striker' })}
-            ${modalInput('ag2Name', 'Vollst\u00e4ndiger Name', g.name || '', { required: true, placeholder: "z.B. Striker's Battlegear" })}
+            ${modalInput('ag2Key', 'Schlüssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. striker' })}
+            ${modalInput('ag2Name', 'Vollständiger Name', g.name || '', { required: true, placeholder: "z.B. Striker's Battlegear" })}
+            ${modalInput('ag2Group', 'Gruppe', g.group || 'dps', { type: 'select', options: [['dps', 'DPS-Sets'], ['support', 'Skill-/Support-/Tank-Sets']] })}
         </div>
         ${modalInput('ag2N2', '2p-Bonus', g.n2 || '')}
         ${modalInput('ag2N3', '3p-Bonus', g.n3 || '')}
@@ -544,8 +558,8 @@ function openGreenForm(key) {
 function saveGreenForm(key) {
     const newKey = getVal('ag2Key').trim();
     const name = getVal('ag2Name').trim();
-    if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
-    const entry = { name, n2: getVal('ag2N2') || '', n3: getVal('ag2N3') || '', n4: getVal('ag2N4') || '' };
+    if (!newKey || !name) { adminToast('Bitte Schlüssel und Namen angeben.', 'error'); return; }
+    const entry = { name, group: getVal('ag2Group') || 'dps', n2: getVal('ag2N2') || '', n3: getVal('ag2N3') || '', n4: getVal('ag2N4') || '' };
     const md = getVal('ag2Modeled').trim(); if (md) entry.modeled = md;
     const oldKey = (key && key !== 'null') ? key : null;
     if (oldKey && oldKey !== newKey) {
@@ -556,13 +570,13 @@ function saveGreenForm(key) {
         GREEN_SET_INFO[newKey] = entry;
     }
     closeAdminModal();
-    refreshAfterDbChange(oldKey ? 'Gear-Set aktualisiert.' : 'Gear-Set hinzugef\u00fcgt.');
+    refreshAfterDbChange(oldKey ? 'Gear-Set aktualisiert.' : 'Gear-Set hinzugefügt.');
 }
 
 function deleteGreenEntry(key) {
-    if (!GREEN_SET_INFO[key] || !confirm(`Gear-Set "${key}" wirklich l\u00f6schen?`)) return;
+    if (!GREEN_SET_INFO[key] || !confirm(`Gear-Set "${key}" wirklich löschen?`)) return;
     delete GREEN_SET_INFO[key];
-    refreshAfterDbChange('Gear-Set gel\u00f6scht.');
+    refreshAfterDbChange('Gear-Set gelöscht.');
 }
 
 // ---------- Mod-Formular ----------

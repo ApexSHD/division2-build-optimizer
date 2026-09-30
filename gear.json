@@ -1432,6 +1432,7 @@
   "green_set_info": {
     "striker": {
       "name": "Striker's Battlegear",
+      "group": "dps",
       "n2": "+15% Waffenhandhabung",
       "n3": "+15% Feuerrate",
       "n4": "Striker's Gamble (Stack-Schaden bis 0,65%/Treffer, max. 100 Stacks)",
@@ -1439,6 +1440,7 @@
     },
     "heartbreaker": {
       "name": "Heartbreaker",
+      "group": "dps",
       "n2": "+15% Sturmgewehr- & +15% LMG-Schaden",
       "n3": "+15% Waffenhandhabung",
       "n4": "Heartstopper (Pulse + Stack-Schaden auf gepulste Ziele)",
@@ -1446,6 +1448,7 @@
     },
     "huntersfury": {
       "name": "Hunter's Fury",
+      "group": "dps",
       "n2": "+15% Schrotflinten- & +15% SMG-Schaden",
       "n3": "+20% Rüstung bei Kill & +50% Leben bei Kill",
       "n4": "Apex Predator (4p, situativer Debuff)",
@@ -1453,6 +1456,7 @@
     },
     "negotiator": {
       "name": "Negotiator's Dilemma",
+      "group": "dps",
       "n2": "+15% CHC",
       "n3": "+20% CHD",
       "n4": "Hostile Negotiations (Markierungs-Schadensübertragung)",
@@ -1460,6 +1464,7 @@
     },
     "umbra": {
       "name": "Umbra Initiative",
+      "group": "dps",
       "n2": "+15% CHC",
       "n3": "+30% Nachladegeschwindigkeit",
       "n4": "From the Shadows / Into the Light (Deckungs-Stacks)",
@@ -1467,6 +1472,7 @@
     },
     "hotshot": {
       "name": "Hotshot",
+      "group": "dps",
       "n2": "+30% Scharfschützengewehr-Schaden (MMR)",
       "n3": "+30% Kopfschuss-Schaden & +30% Waffenhandhabung",
       "n4": "Headache (Kopfschuss-Kombo)",
@@ -1474,6 +1480,7 @@
     },
     "acesandeights": {
       "name": "Aces and Eights",
+      "group": "dps",
       "n2": "+30% MMR- & +30% Gewehr-Schaden",
       "n3": "+30% Kopfschuss-Schaden & +30% Waffenhandhabung",
       "n4": "Dead Man's Hand (Karten-Kombo)",
@@ -1481,6 +1488,7 @@
     },
     "breakingpoint": {
       "name": "Breaking Point",
+      "group": "dps",
       "n2": "+30% MMR- & +30% Gewehr-Schaden",
       "n3": "+30% Kopfschuss-Schaden & +30% Waffenhandhabung",
       "n4": "On Point (Reload-Stacks)",
@@ -1488,6 +1496,7 @@
     },
     "tipofthespear": {
       "name": "Tip of the Spear",
+      "group": "dps",
       "n2": "+20% Signaturwaffen-Schaden",
       "n3": "+10% Waffenschaden (global)",
       "n4": "Aggressive Recon",
@@ -1495,6 +1504,7 @@
     },
     "virtuoso": {
       "name": "Virtuoso",
+      "group": "dps",
       "n2": "+15% Waffenhandhabung & +15% Magazingröße",
       "n3": "+15% Waffenschaden (global)",
       "n4": "Symphony",
@@ -1502,6 +1512,7 @@
     },
     "tippingscales": {
       "name": "Tipping Scales",
+      "group": "dps",
       "n2": "+30% Magazingröße",
       "n3": "+30% LMG-Schaden",
       "n4": "Throttle Control (Stack-Handhabung/CHD)",
@@ -1509,6 +1520,7 @@
     },
     "concentratedcompany": {
       "name": "Concentrated Company",
+      "group": "dps",
       "n2": "+10% Waffenschaden (global)",
       "n3": "+30% Waffenhandhabung",
       "n4": "Camaraderie (Team-Kill-Stacks)",
@@ -1516,6 +1528,7 @@
     },
     "corestrength": {
       "name": "Core Strength",
+      "group": "dps",
       "n2": "+10% Waffenhandhabung",
       "n3": "+5% WD / +5% Rüstung / +5% Skill-Effizienz",
       "n4": "Core Exercise (Core-Attribut-Mix)",
@@ -1523,6 +1536,7 @@
     },
     "future": {
       "name": "Future Initiative",
+      "group": "support",
       "n2": "+30% Fertigkeiten-Reparatur",
       "n3": "+15% Fertigkeiten-Tempo & +30% Fertigkeiten-Dauer",
       "n4": "Ground Control",
@@ -1530,6 +1544,7 @@
     },
     "eclipse": {
       "name": "Eclipse Protocol",
+      "group": "support",
       "n2": "+15% Statuseffekte",
       "n3": "+15% Fertigkeiten-Tempo & +30% Gefahrenschutz",
       "n4": "Indirect Transmission",
@@ -1537,6 +1552,7 @@
     },
     "foundry": {
       "name": "Foundry Bulwark",
+      "group": "support",
       "n2": "+10% Gesamtrüstung",
       "n3": "+1% Rüstungsregen & +50% Schild-HP",
       "n4": "Makeshift Repairs",
@@ -1544,6 +1560,7 @@
     },
     "rigger": {
       "name": "Rigger",
+      "group": "support",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+15% Fertigkeiten-Dauer",
       "n4": "Tend and Befriend",
@@ -1551,6 +1568,7 @@
     },
     "hardwired": {
       "name": "Hard Wired",
+      "group": "support",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+15% Fertigkeitsschaden & +30% Fertigkeiten-Reparatur",
       "n4": "Feedback Loop",
@@ -1558,6 +1576,7 @@
     },
     "ongoing": {
       "name": "Ongoing Directive",
+      "group": "support",
       "n2": "+15% Statuseffekte",
       "n3": "+30% Nachladegeschwindigkeit",
       "n4": "Rules of Engagement (Hohlspitz-Munition)",
@@ -1565,6 +1584,7 @@
     },
     "truepatriot": {
       "name": "True Patriot",
+      "group": "support",
       "n2": "+15% Waffenhandhabung",
       "n3": "+30% Magazingröße",
       "n4": "Red, White and Blue",
@@ -1572,6 +1592,7 @@
     },
     "systemcorruption": {
       "name": "System Corruption",
+      "group": "support",
       "n2": "+15% Rüstung bei Kill",
       "n3": "+40% Disrupt- & +40% Pulse-Resistenz",
       "n4": "Hackstep Protocol",
@@ -1579,6 +1600,7 @@
     },
     "cavalier": {
       "name": "Cavalier",
+      "group": "support",
       "n2": "+30% Gefahrenschutz",
       "n3": "+40% Fertigkeiten-Reparatur",
       "n4": "Charging/Charged",
@@ -1586,6 +1608,7 @@
     },
     "ortizexuro": {
       "name": "Ortiz: Exuro",
+      "group": "support",
       "n2": "+20% Brenndauer & +15% Fertigkeits-Leben",
       "n3": "+40% Brandschaden",
       "n4": "Incinerator Turret Prototyp",
@@ -1593,6 +1616,7 @@
     },
     "aegis": {
       "name": "Aegis",
+      "group": "support",
       "n2": "+70% Leben",
       "n3": "+15% Gesamtrüstung",
       "n4": "Stoic",
@@ -1600,6 +1624,7 @@
     },
     "refactor": {
       "name": "Refactor",
+      "group": "support",
       "n2": "+15% Statuseffekte",
       "n3": "+25% Fertigkeitsschaden",
       "n4": "Return to Sender",
@@ -1607,6 +1632,7 @@
     },
     "measuredassembly": {
       "name": "Measured Assembly",
+      "group": "support",
       "n2": "+15% Fertigkeiten-Tempo",
       "n3": "+60% Fertigkeiten-Reparatur & +40% Explosionsresistenz",
       "n4": "Huddle",
@@ -1614,6 +1640,7 @@
     },
     "ortizreficere": {
       "name": "Ortiz: Reficere",
+      "group": "support",
       "n2": "+8% Fertigkeitseffizienz",
       "n3": "+60% Fertigkeiten-Reparatur",
       "n4": "Rapid Application Nanite Prototyp",
@@ -1621,6 +1648,7 @@
     },
     "emberengine": {
       "name": "Ember Engine",
+      "group": "support",
       "n2": "+8% Fertigkeitseffizienz",
       "n3": "+30% Statuseffekte",
       "n4": "Spontaneous Combustion",
