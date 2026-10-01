@@ -51,6 +51,17 @@ Then open http://localhost:8000 in your browser. Any other static file server wo
 
 The tool is also available online via **GitHub Pages**: https://apexshd.github.io/division2-build-optimizer/
 
+## 🧪 Tests
+
+A jsdom-based regression test suite boots the full app (data, scripts, UI) and covers the critical paths: weapon/gear inventory (form prefill, add, edit, filter, sort), optimization run, result rendering, and calculation-core invariants (reference values in `tests/fixtures/reference-values.json`).
+
+```bash
+npm install       # once; installs jsdom as dev dependency
+node tests/run.js
+```
+
+The suite runs automatically in CI on every push to `main` and on every pull request.
+
 ## 🔄 Rebuilding Tailwind
 
 If you add new Tailwind classes to the HTML or JS, rebuild the static stylesheet:

@@ -7,7 +7,7 @@ on:
 
 jobs:
   check:
-    name: Syntax- und Datenbank-Check
+    name: Syntax-, Datenbank- und Regressionstest
     runs-on: ubuntu-latest
     steps:
       - name: Repository auschecken
@@ -31,3 +31,9 @@ jobs:
             node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
             echo "OK: $f"
           done
+
+      - name: Abhängigkeiten für Tests installieren
+        run: npm install
+
+      - name: Regressionstests ausführen
+        run: node tests/run.js
