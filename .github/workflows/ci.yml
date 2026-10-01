@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    name: Syntax- und Datenbank-Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v4
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JavaScript-Syntax prüfen
+        run: |
+          for f in js/*.js; do
+            node --check "$f"
+            echo "OK: $f"
+          done
+
+      - name: JSON-Dateien validieren
+        run: |
+          for f in *.json; do
+            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))"
+            echo "OK: $f"
+          done
