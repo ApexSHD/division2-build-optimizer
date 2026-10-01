@@ -129,7 +129,7 @@
                     const inp = document.getElementById('exoticStackUtil_' + slugify(name))?.value;
                     const val = (inp !== undefined && inp !== '') ? inp : '100';
                     html += '<div class="flex items-center gap-2 text-xs text-gray-300">';
-                    html += '<input type="range" min="0" max="100" step="5" value="' + val + '" id="exoticStackUtil_' + slugify(name) + '" oninput="document.getElementById(\'exoticStackUtilVal_' + slugify(name) + '\').textContent = this.value + \'%\'; if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="flex-1 accent-orange-500">';
+                    html += '<input type="range" min="0" max="100" step="5" value="' + val + '" id="exoticStackUtil_' + slugify(name) + '" oninput="document.getElementById(\'exoticStackUtilVal_' + slugify(name) + '\').textContent = this.value + \'%\';" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="flex-1 accent-orange-500">';
                     html += '<span id="exoticStackUtilVal_' + slugify(name) + '" class="font-mono text-amber-400 w-10 text-right">' + val + '%</span>';
                     html += '</div>';
                     html += '<p class="text-[10px] text-gray-500">Stacks: max. ' + def.maxStacks + ' × +' + formatGermanNumber(def.perStackWd) + '% WD — ' + escapeHtml(def.note) + '</p>';
@@ -348,10 +348,10 @@
             return Number(val).toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
 
-        function parseLocalizedFloat(str) {
-            if (typeof str !== 'string') str = String(str ?? '0');
+        function parseLocalizedFloat(str, fallback = 0) {
+            if (typeof str !== 'string') str = String(str ?? '');
             str = str.trim();
-            if (!str) return 0;
+            if (!str) return fallback;
             // Robust gegen beide Formate:
             //  - deutsch:  "50.482" (Tausender) / "22,5" (Dezimal) / "22,50"
             //  - roh/englisch: "50482" / "22.5"
@@ -365,7 +365,7 @@
                 str = /^-?\d{1,3}(\.\d{3})+$/.test(str) ? str.replace(/\./g, '') : str;
             }
             const num = parseFloat(str);
-            return isNaN(num) ? 0 : num;
+            return isNaN(num) ? fallback : num;
         }
 
         // Formatiert den Basis-Schaden während der Eingabe mit Tausender-Punkten (z.B. 93.000)
@@ -382,7 +382,7 @@
                             (type === 'error' ? 'border-red-500 text-red-200 bg-red-950/90' : 'border-sky-500 text-sky-200 bg-sky-950/90');
             toast.className = `p-4 rounded-xl border shadow-xl backdrop-blur-md text-sm font-semibold flex items-center justify-between gap-3 transition-all duration-300 transform translate-y-2 opacity-0 ${borderColor}`;
             toast.innerHTML = `
-                <span>${message}</span>
+                <span>${escapeHtml(message)}</span>
                 <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white">&times;</button>
             `;
             container.appendChild(toast);
@@ -1736,11 +1736,12 @@
         function weaponSustainFactor(weapon, effRpm, extraReloadSpeedPct) {
             const dbEntry = getWeaponDbEntry(weapon);
             if (!dbEntry || !dbEntry.stats) return null;
-            const baseMag = dbEntry.stats['Base Mag Size'] || dbEntry.stats['Modded Mag Size'];
+            const baseMag = dbEntry.stats['Modded Mag Size'] || dbEntry.stats['Base Mag Size'];
             const reloadSec = dbEntry.stats['Empty Reload (secs)'];
             if (!baseMag || !reloadSec || !effRpm) return null;
             const mag = baseMag + modAttrTotal(weapon, 'capacity');
-            const reloadSpeedPct = modAttrTotal(weapon, 'reloadSpeed') + (extraReloadSpeedPct || 0);
+            const reloadSpeedPct = (weapon && weapon.minorType === 'reloadSpeed' ? (weapon.minorVal || 0) : 0)
+                + modAttrTotal(weapon, 'reloadSpeed') + (extraReloadSpeedPct || 0);
             const reload = reloadSec / (1 + reloadSpeedPct / 100);
             const fireTime = mag / (effRpm / 60);
             return fireTime / (fireTime + reload);
@@ -4222,8 +4223,8 @@
                 if (hasSetChest && chestT && chestT.flatAmp) flatAmp = chestT.flatAmp;
                 else if (hasSetChest && chestT && chestT.ampMult) flatAmp = flatAmp * chestT.ampMult;
                 // Stack-Auslastung (Einstellung, Standard 100% = volle Stacks)
-                let utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
-                if (isNaN(utilization) || utilization < 0) utilization = 100;
+                let utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value, 100);
+                if (utilization < 0) utilization = 100;
                 if (utilization > 100) utilization = 100;
                 let stacks = Math.round(maxStacks * (utilization / 100));
                 const stackWd = stacks * perStackWd;
@@ -4339,10 +4340,9 @@
                         if (slider && slider.value !== '' && !isNaN(parseLocalizedFloat(slider.value))) {
                             utilization = parseLocalizedFloat(slider.value);
                         } else {
-                            const global = parseLocalizedFloat(document.getElementById('stackUtilization')?.value);
-                            utilization = isNaN(global) ? 100 : global;
+                            utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value, 100);
                         }
-                        if (isNaN(utilization) || utilization < 0) utilization = 100;
+                        if (utilization < 0) utilization = 100;
                         if (utilization > 100) utilization = 100;
                     }
                     if (def.byDistance) {
@@ -4630,8 +4630,8 @@
             let maxDmg = 0;
             // v36: Mindest-CHC aus den Einstellungen (Element targetChc),
             // statt hartkodiert 50. Fällt das Feld weg, gilt weiter 50.
-            const targetChcRaw = (typeof document !== 'undefined' && document.getElementById('targetChc')) ? parseLocalizedFloat(document.getElementById('targetChc').value) : null;
-            const targetChc = (targetChcRaw !== null && !isNaN(targetChcRaw)) ? targetChcRaw : 50;
+            const targetChcRaw = (typeof document !== 'undefined' && document.getElementById('targetChc')) ? parseLocalizedFloat(document.getElementById('targetChc').value, 50) : null;
+            const targetChc = (targetChcRaw !== null) ? targetChcRaw : 50;
 
             // Herkunfts-Snapshot 4: Set- & Marken-Boni (Differenz seit Snapshot 3);
             // der 4p-Stack-Schaden wird separat als eigene Quelle ausgewiesen.
@@ -4662,7 +4662,9 @@
                 // Sustain-Faktor: Magazin vs. Nachladezeit inkl. WH-Bonus
                 let sustainMult = 1;
                 if (typeof weaponEffectiveRpm === 'function' && typeof weaponSustainFactor === 'function') {
-                    const rpmInfo = weaponEffectiveRpm(weapon, totalRof);
+                    const modRofPart = modAttrTotal(weapon, 'rof') || 0;
+                    const talentRofPart = Math.max(0, totalRof - modRofPart);
+                    const rpmInfo = weaponEffectiveRpm(weapon, talentRofPart);
                     const sf = rpmInfo.rpm ? weaponSustainFactor(weapon, rpmInfo.rpm, buildWh) : null;
                     if (sf) sustainMult = sf;
                 }
@@ -5028,6 +5030,10 @@ function prefilterItemScore(item, targetWeaponType) {
                 btn.classList.remove('opacity-75', 'cursor-wait');
                 if (_combinedBtnOriginalHTML !== null) btn.innerHTML = _combinedBtnOriginalHTML;
                 _combinedBtnOriginalHTML = null;
+                const resultsBox = document.getElementById('comparisonResults');
+                if (resultsBox && resultsBox.querySelector('.animate-spin')) {
+                    if (typeof renderComparison === 'function') renderComparison();
+                }
             }
         }
 
@@ -5041,7 +5047,7 @@ function prefilterItemScore(item, targetWeaponType) {
             const settings = {
                 targetWeaponType: document.getElementById('targetWeaponType').value,
                 specialization: document.getElementById('specialization').value,
-                knowHowLevel: parseInt(document.getElementById('knowHowLevel').value) || 30,
+                knowHowLevel: (() => { const kh = parseInt(document.getElementById('knowHowLevel').value, 10); return Number.isNaN(kh) ? 30 : kh; })(),
                 shdMax: document.getElementById('shdMax').checked,
                 shdCustomWd: document.getElementById('shdCustomWd')?.value || 0,
                 shdCustomChc: document.getElementById('shdCustomChc')?.value || 0,
