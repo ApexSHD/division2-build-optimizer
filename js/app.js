@@ -140,6 +140,43 @@
             });
             wrap.innerHTML = html;
         }
+        // Issue #41-Follow-up: Perk-Schadensbeitrag eines Exoten-Teils für
+        // die Vorauswahl (gearItemScore/prefilterItemScore). Nutzt dieselben
+        // Annahmen wie computeBuildCache: Coyote-Distanz-Zone aus dem
+        // Dropdown, Stack-Perks aus dem Auslastungs-Slider, bedingte Perks
+        // gelten als aktiv (wie „Bedingte Talente aktiv“). Liefert null,
+        // wenn die Perks global deaktiviert sind.
+        function exoticPerkScoreBonus(item) {
+            if (typeof EXOTIC_GEAR_PERKS === 'undefined' || !item || !item.setName) return null;
+            const def = EXOTIC_GEAR_PERKS[item.setName];
+            if (!def) return null;
+            const activeEl = (typeof document !== 'undefined') && document.getElementById('exoticPerksActive');
+            if (activeEl && !activeEl.checked) return null;
+            let bonus = { wd: 0, chc: 0, chd: 0, amp: 0, rof: 0 };
+            if (def.byDistance) {
+                const zone = (typeof document !== 'undefined' && document.getElementById('coyoteDistance')?.value) || 'mid';
+                const z = def.byDistance[zone] || def.byDistance.mid;
+                bonus.chc += z.chc || 0; bonus.chd += z.chd || 0;
+            } else if (def.perStackWd) {
+                let utilization = 100;
+                if (typeof document !== 'undefined') {
+                    const slider = document.getElementById('exoticStackUtil_' + slugify(item.setName));
+                    if (slider && slider.value !== '' && !isNaN(parseLocalizedFloat(slider.value))) {
+                        utilization = parseLocalizedFloat(slider.value);
+                    } else {
+                        utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value, 100);
+                    }
+                    if (utilization < 0) utilization = 100;
+                    if (utilization > 100) utilization = 100;
+                }
+                bonus.wd += Math.round(def.maxStacks * (utilization / 100)) * def.perStackWd;
+            } else if (def.chdPerRedAttr) {
+                bonus.chd += def.chdPerRedAttr;
+            } else {
+                bonus.wd += def.wd || 0; bonus.chd += def.chd || 0; bonus.amp += def.amp || 0; bonus.rof += def.rof || 0;
+            }
+            return bonus;
+        }
         function slugify(s) {
             return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         }
@@ -3832,8 +3869,18 @@
             const gtActive = gt && !gt.conditional;
             const gtWd = (gtActive && gt.type === 'wd') ? (gt.value || 0) : 0;
             const gtAmp = (gtActive && gt.type === 'amp') ? (gt.value || 0) : 0;
-            const effWd = (item.wd || 0) + namedWd + gtWd;
-            const effChd = (item.chd || 0) + namedChd;
+            // Issue #41-Follow-up: Exoten-Perk im Score berücksichtigen,
+            // damit die Vorauswahl Exoten verdient wählt (Perks aktiv =>
+            // Boni wie im Build-Cache; sonst neutral). Bedingte Perks gelten
+            // analog „Bedingte Talente aktiv“ als aktiv.
+            const exo = (typeof exoticPerkScoreBonus === 'function') ? exoticPerkScoreBonus(item) : null;
+            const exoWd = exo ? exo.wd : 0;
+            const exoChd = exo ? exo.chd : 0;
+            const exoChc = exo ? exo.chc : 0;
+            const exoAmp = exo ? exo.amp : 0;
+            const exoRof = exo ? exo.rof : 0;
+            const effWd = (item.wd || 0) + namedWd + gtWd + exoWd;
+            const effChd = (item.chd || 0) + namedChd + exoChd;
             const wdMult = 1 + effWd / 100;
             const critMult = 1 + crit * (effChd / 100);
             let namedMult = 1;
@@ -3844,7 +3891,8 @@
                 else if (item.namedKey === 'dth') namedMult *= 1 + ((item.namedVal || 0) / 100) * ep.health;
                 else if (item.namedKey === 'dttooc') namedMult *= 1 + ((item.namedVal || 0) / 100) * ep.ooc;
             }
-            let score = wdMult * critMult * namedMult * (1 + gtAmp / 100) * 100;
+            const exoChcMult = 1 + exoChc / 100;
+            let score = wdMult * critMult * namedMult * (1 + gtAmp / 100) * (1 + exoAmp / 100) * (1 + exoRof / 100) * exoChcMult * 100;
             const parts = [`${gearCoreDisplay(item)}${namedWd ? ' + Named ' + formatGermanNumber(namedWd) + '%' : ''}`];
             if (item.namedKey === 'hsd' && item.namedVal > 0) parts.push(`HSD +${formatGermanNumber(item.namedVal)}% (kein Schadensbeitrag im Score)`);
             if (effChd > 0) {
@@ -3860,6 +3908,15 @@
             }
             if (gtWd > 0) parts.push(`Talent ${gt.label}: +${formatGermanNumber(gtWd)}% WD (unbedingt)`);
             if (gtAmp > 0) parts.push(`Talent ${gt.label}: +${formatGermanNumber(gtAmp)}% Verstärker ×${formatGermanNumber(1 + gtAmp / 100)}`);
+            if (exo) {
+                const exoParts = [];
+                if (exoWd) exoParts.push(`+${formatGermanNumber(exoWd)}% WD`);
+                if (exoChc) exoParts.push(`+${formatGermanNumber(exoChc)}% CHC`);
+                if (exoChd) exoParts.push(`+${formatGermanNumber(exoChd)}% CHD`);
+                if (exoAmp) exoParts.push(`+${formatGermanNumber(exoAmp)}% Verstärker`);
+                if (exoRof) exoParts.push(`+${formatGermanNumber(exoRof)}% RPM`);
+                if (exoParts.length) parts.push(`Exoten-Perk ${item.setName}: ${exoParts.join(' & ')}`);
+            }
             if (gt && gt.conditional) parts.push(`Talent ${gt.label}: bedingt (${gt.condition || 'Bedingung'}) – kein Schadensbeitrag im Score`);
             // v32: Marken-Waffenschaden der Ziel-Gattung einrechnen,
             // damit Empfehlung & Vorauswahl markenbewusst vergleichen
@@ -6269,6 +6326,21 @@ function prefilterItemScore(item, targetWeaponType) {
             }
             if (feWeapon && !weaponsInventory.some(w => w.name === feWeapon && w.isExotic)) {
                 exoticProblems.push(`keine exotische Waffe <strong>${escapeHtml(feWeapon)}</strong> im Waffen-Inventar`);
+            }
+            // Struktureller Konflikt: Exoten-Zwang + 4pc-Zwang + Ziel-Set
+            // sind nur vereinbar, wenn 4 Set-Teile UNTERWEGS des Exot-Slots
+            // vorhanden sind (Exot belegt selbst einen der 6 Slots, ein
+            // Set braucht 4 der 6). Westen-/Rucksack-Zwang verringert den
+            // Spielraum weiter — hier nur der große 4pc-Fall.
+            if (feGear && key && info && document.getElementById('require4pc')?.checked) {
+                const exGearItems2 = gearInventory.filter(i => i.setName === feGear);
+                const exSlots2 = new Set(exGearItems2.map(i => i.slot));
+                const exSlotCount = Math.max(1, exSlots2.size);
+                const setPiecesTotal = gearInventory.filter(i => brandKeyMatches((i.setName || '').toLowerCase(), key)).length;
+                const need = 4 + exSlotCount;
+                if (setPiecesTotal < need) {
+                    exoticProblems.push(`<strong>${escapeHtml(info.name)} 4p + ${escapeHtml(feGear)}</strong> zusammen benötigen ${need} Teile-Slots, im Inventar sind aber nur ${setPiecesTotal} ${escapeHtml(info.name)}-Teile`);
+                }
             }
             if (!key || !info) {
                 if (exoticProblems.length) {
