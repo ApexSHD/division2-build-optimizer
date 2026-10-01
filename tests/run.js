@@ -334,6 +334,25 @@ const setInput = (id, value) => {
   } else {
     t('Exoten-Zwang: alle Builds enthalten das erzwungene Exoten-gear', true);
   }
+  // ===== 4c. SPIELREGEL: MAX. 1 EXOT (Issue #44) =====
+  console.log('\n--- Spielregel: max. 1 Exot pro Build ---');
+  // Zweit-Exot ins Inventar (Rucksack-Slot bleibt besetzt -> Kombination prinzipiell moeglich)
+  w.eval(`gearInventory.push({ id: 998, slot: 'Rucksack', setName: 'Memento', chc: 0, chd: 0, wd: 15, namedKey: '', namedVal: 0 }); renderGearInventory()`);
+  w.eval(`document.getElementById('require4pc').checked = false; updateSetAvailability();`);
+  await w.eval('calculateCombinedComparison()');
+  await new Promise(r => setTimeout(r, 800));
+  const freeResults = w.eval('lastComparisonData || []');
+  const multiExo = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
+  t('Spielregel: kein Build ohne Zwang mit mehr als 1 Exot', Array.isArray(freeResults) && freeResults.length > 0 && multiExo === 0);
+  // Mit erzwungenem Exot gilt die Regel weiterhin
+  setSelect('forceExoticGear', firstExoticGear || '');
+  await w.eval('calculateCombinedComparison()');
+  await new Promise(r => setTimeout(r, 800));
+  const forcedMulti = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
+  t('Spielregel: kein Build mit erzwungenem Exot enthaelt einen Zweit-Exot', forcedMulti === 0);
+  setSelect('forceExoticGear', '');
+  w.eval(`gearInventory = gearInventory.filter(i => i.id !== 998); renderGearInventory(); document.getElementById('require4pc').checked = true; updateSetAvailability();`);
+
 
 
   // ===== 5. RECHEN-KERN (Regressionsschutz) =====
