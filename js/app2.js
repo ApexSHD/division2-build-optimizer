@@ -318,7 +318,7 @@ function computeAutoMods(weapon) {
     let chc = (weapon.core2Type === 'chc' ? weapon.core2Val : 0) + (weapon.minorType === 'chc' ? weapon.minorVal : 0);
     let chd = (weapon.core2Type === 'chd' ? weapon.core2Val : 0) + (weapon.minorType === 'chd' ? weapon.minorVal : 0);
     // Krit-Chance-Annahme aus den Gear-Einstellungen (Standard 60%)
-    const p = Math.min((typeof gearCritChanceAssumption === 'function' ? gearCritChanceAssumption() : 0.6) * 100 + chc, 60) / 100;
+    const gearBaseChc = typeof gearCritChanceAssumption === 'function' ? gearCritChanceAssumption() * 100 : 60;
 
     // Reihenfolge: erst Slots mit Krit-Bezug (optic/muzzle), dann der Rest
     ['optic', 'muzzle', 'underbarrel', 'magazine'].forEach(cat => {
@@ -326,7 +326,9 @@ function computeAutoMods(weapon) {
         if (!allowed.length) return; // Slot existiert bei dieser Waffe nicht
         const catalog = (MOD_CATALOG[cat] || []).filter(m => m.slotTypes.some(t => allowed.includes(t)));
         if (!catalog.length) return;
-        let best = null, bestGain = -1;
+        // p dynamisch: aktueller Krit-Stand inkl. bereits gewählter Mods
+        const p = Math.min(gearBaseChc + chc, 60) / 100;
+        let best = null, bestGain = 0;
         catalog.forEach(m => {
             const g = modDamageGain(m, chc, chd, p);
             if (g > bestGain) { bestGain = g; best = m; }
