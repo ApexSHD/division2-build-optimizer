@@ -182,8 +182,8 @@
     'optimist': { label: 'Optimist (Waffen-Schaden)', type: 'wd', valueNormal: 35, valueNamed: 35, conditional: true, condition: 'leeres Magazin (+3,5% je 10% fehlende Munition)', note: 'Schadensausgabe der Waffe wird um +3,5% für jede 10% Munition, die im Magazin fehlt, erhöht.' },
     'angespannt': { label: 'Angespannt (Kritischer Trefferschaden)', type: 'chd', valueNormal: 50, valueNamed: 50, conditional: true, condition: 'während des Feuerns (max. 5 Stacks)', note: 'Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 Mal.' },
     'raserei': { label: 'Raserei (Waffen-Schaden & Feuerrate)', type: 'wdrof', valueNormal: 3, valueNamed: 3, conditional: true, condition: 'nach leerem Nachladen: je 8 Kugeln Magazin +3% WD & +3% RoF (9s aktiv)', note: 'Je 8 Kugeln Magazinkapazität: +3% Feuerrate und +3% Waffen-Schaden für 9s nach leerem Nachladen. Magazin-abhängig: wird als Ø über den Nachladezyklus berechnet.' },
-    'abgemessen': { label: 'Abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'untere Magazinhälfte: +30% Gesamt-WD (obere Hälfte: +25% RoF, −25% WD)', note: 'Die obere Hälfte des Magazins hat +25% Feuerrate und −25% Waffen-Schaden, die untere −18% Feuerrate und +30% Gesamt-Waffen-Schaden. Hier modelliert: untere Magazinhälfte (+30% WD).' },
-    'perfekt_abgemessen': { label: 'Perfekt abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 40, valueNamed: 40, conditional: true, condition: 'untere Magazinhälfte: +40% Gesamt-WD (obere Hälfte: +30% RoF, −30% WD)', note: 'Perfect Measured: obere Magazinhälfte +30% RoF / −30% WD, untere −18% RoF / +40% Gesamt-WD. Hier modelliert: untere Magazinhälfte (+40% WD).' },
+    'abgemessen': { label: 'Abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'Magazin-Ø: obere Hälfte +25% RoF / −25% WD, untere Hälfte −18% RoF / +30% WD', note: 'Die obere Hälfte des Magazins hat +25% Feuerrate und −25% Waffen-Schaden, die untere −18% Feuerrate und +30% Gesamt-Waffen-Schaden. Magazin-abhängig: wird als Ø über das volle Magazin berechnet (Issue #34).' },
+    'perfekt_abgemessen': { label: 'Perfekt abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 40, valueNamed: 40, conditional: true, condition: 'Magazin-Ø: obere Hälfte +30% RoF / −30% WD, untere Hälfte −18% RoF / +40% WD', note: 'Perfect Measured: obere Magazinhälfte +30% RoF / −30% WD, untere −18% RoF / +40% Gesamt-WD. Magazin-abhängig: wird als Ø über das volle Magazin berechnet (Issue #34).' },
     'adaptive_instincts': { label: 'Adaptive Instincts (Kritische Trefferchance / Schaden)', type: 'chcchd', valueNormal: 20, valueNamed: 20, valueChc: 20, valueChd: 50, conditional: true, condition: 'nach 30 Kopfschüssen (45s aktiv)', note: '30 Kopfschüsse gewähren +20% CHC und +50% CHD für 45s. (Alternative Boni: 65 Körpertreffer → +90% WD, 20 Beintreffer → +150% Nachladetempo. Hier modelliert: Kopfschuss-Bonus.)' },
     'nahkampf': { label: 'Nahkampf (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'nach Kill im Nahbereich 7m (10s aktiv)', note: 'Das Töten eines Ziels im Nahbereich (7m) gewährt +30% Waffen-Schaden für 10s.' },
     'schnelle_hande': { label: 'Schnelle Hände (Nutzen)', type: null, valueNormal: 0, valueNamed: 0, note: 'Kritische Treffer fügen einen Stack von +3% Nachlade-Geschwindigkeit hinzu. Maximal 40 Stacks.' },
@@ -1769,63 +1769,101 @@
 
         // Liefert für magazin-abhängige Talente den Ø-Beitrag
         // ({ wd, chd, rof, note }) oder null für alle anderen Talente.
-        function magazineAverageTalent(tKey, weapon) {
+        // Liefert fuer magazin-abhaengige Talente den Durchschnitts-Beitrag
+        // ({ wd, chd, rof, note }) oder null fuer alle anderen Talente.
+        // Issue #34: Einheitliche "Modifikatoren pro Schuss i von n"-Logik
+        // statt Spezialfaelle. Alle vier Talente (Abgemessen, Optimist,
+        // Angespannt, Raserei) iterieren Schuss fuer Schuss ueber das
+        // Magazin und mitteln die Modifikatoren.
+        function magazineModifiersPerShot(tKey, weapon) {
             const k = String(tKey || '').toLowerCase();
-            const isOptimist = (k === 'optimist' || k === 'perfekter_optimist' || k === 'perfekt_optimist');
-            const isStrained = (k === 'angespannt' || k === 'perfekt_angespannt');
-            const isFrenzy = (k === 'raserei' || k === 'perfekt_raserei');
-            if (!isOptimist && !isStrained && !isFrenzy) return null;
             const perfekt = k.indexOf('perfekt') === 0;
-            const fmt = v => formatGermanNumber(Math.round(v * 100) / 100);
             const ms = effectiveMagStats(weapon);
+            const n = ms && ms.mag > 0 ? ms.mag : 0;
+            const fmt = v => formatGermanNumber(Math.round(v * 100) / 100);
 
+            const avg = (mods) => {
+                if (!mods) return null;
+                if (!n) return mods.fallback;
+                let wd = 0, chd = 0, rof = 0;
+                for (let i = 0; i < n; i++) { wd += mods.wd(i, n); chd += mods.chd(i, n); rof += mods.rof(i, n); }
+                return { wd: wd / n, chd: chd / n, rof: rof / n };
+            };
+
+            // Abgemessen (Measured): Schuss i (0-basiert, Magazin wird von
+            // oben nach unten geleert) - obere Haelfte: +25% (+30%) RoF,
+            // -25% (-30%) WD; untere Haelfte: -18% RoF, +30% (+40%) WD.
+            // Frueher: nur +30% WD Best-Case fuer den ganzen Zyklus -> Waffe
+            // wurde ueberschaetzt (Issue #34).
+            const isMeasured = (k === 'abgemessen' || k === 'gemessen' || k === 'measured'
+                || k === 'perfekt_abgemessen' || k === 'perfekt_gemessen' || k === 'perfect_measured');
+            if (isMeasured) {
+                const wdHi = perfekt ? -30 : -25, rofHi = perfekt ? 30 : 25;
+                const wdLo = perfekt ? 40 : 30, rofLo = -18;
+                const res = avg({
+                    wd: (i, m) => (i < m / 2 ? wdHi : wdLo),
+                    chd: () => 0,
+                    rof: (i, m) => (i < m / 2 ? rofHi : rofLo),
+                    fallback: { wd: (wdHi + wdLo) / 2, chd: 0, rof: (rofHi + rofLo) / 2 }
+                });
+                if (!res) return null;
+                return { ...res, note: `Magazin-Ø (${n ? n + ' Schuss' : 'ohne DB-Daten'}): Ø ${fmt(res.wd)}% WD / ${fmt(res.rof)}% RoF (obere Hälfte ${rofHi > 0 ? '+' : ''}${rofHi}% RoF / ${wdHi}% WD, untere +${wdLo}% WD / ${rofLo}% RoF)` };
+            }
+
+            // Optimist: +3,5% (4,5%) WD je 10% fehlender Munition; beim
+            // i-ten Schuss fehlen i/mag der Munition.
+            const isOptimist = (k === 'optimist' || k === 'perfekter_optimist' || k === 'perfekt_optimist');
             if (isOptimist) {
-                // +3,5% (4,5%) je 10% fehlender Munition: beim i-ten Schuss
-                // (0-basiert) fehlen i/mag der Munition.
                 const per10 = perfekt ? 4.5 : 3.5;
-                const maxVal = per10 * 10;
-                let avg;
-                if (ms && ms.mag > 1) {
-                    let sum = 0;
-                    for (let i = 0; i < ms.mag; i++) sum += (i / ms.mag) * 10;
-                    avg = per10 * (sum / ms.mag);
-                } else {
-                    avg = maxVal / 2;
-                }
-                return { wd: avg, chd: 0, rof: 0,
-                    note: `Magazin-Ø (${ms ? ms.mag + ' Schuss' : 'ohne DB-Daten'}): +${fmt(avg)}% WD statt Best-Case +${fmt(maxVal)}%` };
+                const res = avg({
+                    wd: (i, m) => per10 * ((i / m) * 10),
+                    chd: () => 0,
+                    rof: () => 0,
+                    fallback: { wd: per10 * 5, chd: 0, rof: 0 }
+                });
+                if (!res) return null;
+                return { ...res, note: `Magazin-Ø (${n ? n + ' Schuss' : 'ohne DB-Daten'}): +${fmt(res.wd)}% WD statt Best-Case +${fmt(per10 * 10)}%` };
             }
 
+            // Angespannt (Strained): +10% CHD je 0,5s Feuern, max. 5 (8)
+            // Stacks. Stack-Stand beim i-ten Schuss aus Schussintervall.
+            const isStrained = (k === 'angespannt' || k === 'perfekt_angespannt' || k === 'strained');
             if (isStrained) {
-                // +10% CHD je 0,5s Feuern, max. 5 (8) Stacks. Stack-Stand
-                // beim i-ten Schuss: min(floor(i * Schussintervall / 0,5), max).
                 const perStack = 10, maxStacks = perfekt ? 8 : 5;
-                let avg;
-                if (ms) {
-                    const dt = 60 / ms.rpm;
-                    let sum = 0;
-                    for (let i = 0; i < ms.mag; i++) sum += Math.min(Math.floor((i * dt) / 0.5), maxStacks);
-                    avg = perStack * (sum / ms.mag);
-                } else {
-                    avg = (perStack * maxStacks) / 2;
-                }
-                return { wd: 0, chd: avg, rof: 0,
-                    note: `Magazin-Ø (${ms ? ms.mag + ' Schuss @ ' + ms.rpm + ' RPM' : 'ohne DB-Daten'}): +${fmt(avg)}% CHD statt Best-Case +${fmt(perStack * maxStacks)}%` };
+                const dt = ms ? 60 / ms.rpm : 0;
+                const res = avg({
+                    wd: () => 0,
+                    chd: (i) => Math.min(Math.floor((i * dt) / 0.5), maxStacks) * perStack,
+                    rof: () => 0,
+                    fallback: { wd: 0, chd: (perStack * maxStacks) / 2, rof: 0 }
+                });
+                if (!res) return null;
+                return { ...res, note: `Magazin-Ø (${n ? n + ' Schuss @ ' + ms.rpm + ' RPM' : 'ohne DB-Daten'}): +${fmt(res.chd)}% CHD statt Best-Case +${fmt(perStack * maxStacks)}%` };
             }
 
-            // Raserei: je 8 Kugeln Magazin +3% WD & +3% RoF für 9s nach
-            // leerem Nachladen → Ø = Stacks × 3% × Aktivzeitanteil am Zyklus
-            // (Feuerzeit + Nachladezeit).
-            if (ms) {
-                const stacks = Math.floor(ms.mag / 8);
-                const fireTime = ms.mag / (ms.rpm / 60);
-                const cycle = fireTime + ms.reload;
-                const duty = Math.min(1, 9 / (cycle || 1));
-                const avg = 3 * stacks * duty;
-                return { wd: avg, chd: 0, rof: avg,
-                    note: `Nachladezyklus-Ø (${ms.mag} Schuss → ${stacks} Stacks à +3%/+3%, ${fmt(duty * 100)}% Aktivzeit): +${fmt(avg)}% WD & RoF` };
+            // Raserei (Frenzy): je 10 Kugeln Magazin +3% WD & +3% RoF fuer
+            // 9s nach leerem Nachladen. Ø = Stacks x 3% x Aktivzeitanteil
+            // am Zyklus (Feuerzeit + Nachladezeit). Kuratierte Talent-DB:
+            // je 10 Kugeln (frueher hier faelschlich 8).
+            const isFrenzy = (k === 'raserei' || k === 'perfekt_raserei' || k === 'frenzy');
+            if (isFrenzy) {
+                if (ms) {
+                    const stacks = Math.floor(ms.mag / 10);
+                    const fireTime = ms.mag / (ms.rpm / 60);
+                    const cycle = fireTime + ms.reload;
+                    const duty = Math.min(1, 9 / (cycle || 1));
+                    const a = 3 * stacks * duty;
+                    return { wd: a, chd: 0, rof: a,
+                        note: `Nachladezyklus-Ø (${ms.mag} Schuss → ${stacks} Stacks à +3%/+3%, ${fmt(duty * 100)}% Aktivzeit): +${fmt(a)}% WD & RoF` };
+                }
+                return { wd: 9, chd: 0, rof: 9, note: 'ohne DB-Daten: geschätzter Ø-Wert (+9% WD/RoF)' };
             }
-            return { wd: 9, chd: 0, rof: 9, note: 'ohne DB-Daten: geschätzter Ø-Wert (+9% WD/RoF)' };
+            return null;
+        }
+        // Abwaertskompatible Haelfte: alle Aufrufer nutzen weiterhin
+        // magazineAverageTalent().
+        function magazineAverageTalent(tKey, weapon) {
+            return magazineModifiersPerShot(tKey, weapon);
         }
 
         function weaponGearsetScore(weapon) {
