@@ -301,6 +301,24 @@ const setInput = (id, value) => {
     t('Exoten-Zwang: alle Ergebnisse nutzen die erzwungene Waffe', true);
   }
 
+  // Exoten-Perk im Vorauswahl-Score: Coyote muss die Vorauswahl verdienen
+  // überleben (Perk +10% CHC/+10% CHD schlägt gleiche Stats ohne Perk).
+  const perkScore = w.eval(`
+    (() => {
+      const coyote = gearInventory.find(i => i.setName === "Coyote's Mask");
+      const strikerMask = gearInventory.find(i => i.setName === 'Striker' && i.slot === 'Maske');
+      document.getElementById('exoticPerksActive').checked = true;
+      renderExoticPerkList();
+      const on = prefilterItemScore(coyote, 'AR');
+      document.getElementById('exoticPerksActive').checked = false;
+      const off = prefilterItemScore(coyote, 'AR');
+      return { on, off, striker: prefilterItemScore(strikerMask, 'AR') };
+    })()
+  `);
+  t('Exoten-Perk im Vorauswahl-Score: mit aktivierten Perks hoher als ohne', perkScore.on > perkScore.off + 1);
+  t('Exoten-Perk im Vorauswahl-Score: Coyote schlaegt Striker-Maske bei aktiven Perks', perkScore.on > perkScore.striker);
+  const perkChk = $('exoticPerksActive'); if (perkChk) perkChk.checked = false;
+
   // Erzwungenes exotisches Gear: alle Ergebnis-Builds enthalten den Exoten
   const firstExoticGear = feGear ? ([...feGear.options].find(o => o.value) || {}).value : '';
   if (firstExoticGear) {
