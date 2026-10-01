@@ -54,5 +54,37 @@
   "chc_capped_at_60": {
     "expression": "Math.min(60, 999)",
     "expected": 60
+  },
+  "magazine_average_measured_eagle_bearer": {
+    "expression": "magazineAverageTalent('abgemessen', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).wd",
+    "expected": 2.5,
+    "note": "Issue #34: Abgemessen als Magazin-Ø (60 Schuss: obere Hälfte -25% WD / untere +30% WD) statt Best-Case +30%"
+  },
+  "magazine_average_measured_rof_eagle_bearer": {
+    "expression": "magazineAverageTalent('abgemessen', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).rof",
+    "expected": 3.5,
+    "note": "Ø-RoF: 30x +25% (obere) und 30x -18% (untere) = +3,5%"
+  },
+  "magazine_average_perfect_measured_wd": {
+    "expression": "magazineAverageTalent('perfekt_abgemessen', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).wd",
+    "expected": 5,
+    "note": "Perfekt abgemessen Ø-WD: 30x -30% + 30x +40% = +5%"
+  },
+  "magazine_average_frenzy_eagle_bearer": {
+    "expression": "magazineAverageTalent('raserei', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).wd",
+    "expected": 18,
+    "note": "Raserei Ø: floor(60/10)=6 Stacks à 3% = 18% WD (Issue #34: je 10 Kugeln statt 8, wie kuratierte Talent-DB)"
+  },
+  "magazine_average_optimist_eagle_bearer": {
+    "expression": "magazineAverageTalent('optimist', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).wd",
+    "expected": 17.21,
+    "tolerance": 0.01,
+    "note": "Optimist Ø unverändert: +3,5% je 10% fehlender Munition über 60 Schuss"
+  },
+  "magazine_average_strained_eagle_bearer": {
+    "expression": "magazineAverageTalent('angespannt', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).chd",
+    "expected": 31.67,
+    "tolerance": 0.01,
+    "note": "Angespannt Ø unverändert: +10% CHD je 0,5s, max 5 Stacks, 60 Schuss @ 850 RPM"
   }
 }
