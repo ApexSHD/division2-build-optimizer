@@ -1,0 +1,12 @@
+{
+  "name": "division2-build-optimizer",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Build-Optimizer fuer Tom Clancy's The Division 2 (statische Web-App, kein Build-Schritt). Dev-Dependencies nur fuer Regressionstests.",
+  "scripts": {
+    "test": "node tests/run.js"
+  },
+  "devDependencies": {
+    "jsdom": "^30.1.1"
+  }
+}

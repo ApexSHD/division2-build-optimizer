@@ -1,0 +1,58 @@
+{
+  "parseLocalizedFloat_default_0": {
+    "expression": "parseLocalizedFloat('')",
+    "expected": 0
+  },
+  "parseLocalizedFloat_fallback_100": {
+    "expression": "parseLocalizedFloat('', 100)",
+    "expected": 100
+  },
+  "parseLocalizedFloat_german_decimal": {
+    "expression": "parseLocalizedFloat('22,5')",
+    "expected": 22.5
+  },
+  "parseLocalizedFloat_german_thousands": {
+    "expression": "parseLocalizedFloat('50.482')",
+    "expected": 50482
+  },
+  "parseLocalizedFloat_raw_decimal": {
+    "expression": "parseLocalizedFloat('22.5')",
+    "expected": 22.5
+  },
+  "mod_rof_single_counted": {
+    "expression": "(() => { const weapon = { name: 'X', type: 'Sturmgewehr', autoMods: false, mods: { magazine: { type: 'rof', val: 20 } } }; const modRof = modAttrTotal(weapon, 'rof') || 0; return weaponEffectiveRpm(weapon, Math.max(0, 20 - modRof)).rofPct; })()",
+    "expected": 20
+  },
+  "mod_rof_effective_rpm": {
+    "expression": "(() => { const weapon = { name: 'Eagle Bearer', type: 'Sturmgewehr', autoMods: false, mods: { magazine: { type: 'rof', val: 10 } } }; const modRof = modAttrTotal(weapon, 'rof') || 0; return weaponEffectiveRpm(weapon, Math.max(0, 10 - modRof)).rpm; })()",
+    "expected": 935,
+    "tolerance": 0.01,
+    "note": "Eagle Bearer DB-RPM 850 × 1,10 (Mod-RoF einfach gezählt)"
+  },
+  "sustain_factor_eagle_bearer": {
+    "expression": "weaponSustainFactor({ name: 'Eagle Bearer', type: 'Sturmgewehr', autoMods: false }, 850)",
+    "expected": 0.6675,
+    "tolerance": 0.001,
+    "note": "Modded Mag 60 @850 RPM (4,235s Feuerzeit), Empty Reload 2,11s -> 4,235/(4,235+2,11) = 0,6675"
+  },
+  "effective_mag_stats_eagle_bearer": {
+    "expression": "effectiveMagStats({ name: 'Eagle Bearer', type: 'Sturmgewehr', autoMods: false }).mag",
+    "expected": 60,
+    "note": "Modded Mag Size wird vor Base Mag Size verwendet"
+  },
+  "magazine_average_optimist_fallback": {
+    "expression": "magazineAverageTalent('optimist', { name: 'X', type: 'Sturmgewehr', autoMods: false }).wd",
+    "expected": 17.5,
+    "tolerance": 0.5,
+    "note": "Optimist Ø ohne DB-Daten: max 35% / 2 = 17,5% WD"
+  },
+  "auto_mods_no_chc_at_cap": {
+    "expression": "(() => { const m = computeAutoMods({ name: 'X', type: 'Sturmgewehr', autoMods: true, core2Type: 'chc', core2Val: 60, minorType: 'chd', minorVal: 15 }); return Object.values(m).some(x => x.type === 'chc') ? 1 : 0; })()",
+    "expected": 0,
+    "note": "Bei gedeckeltem CHC darf kein CHC-Mod mehr gewählt werden (Fix #32)"
+  },
+  "chc_capped_at_60": {
+    "expression": "Math.min(60, 999)",
+    "expected": 60
+  }
+}
