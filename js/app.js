@@ -5106,6 +5106,9 @@ function prefilterItemScore(item, targetWeaponType) {
             let allBuilds = [];
             function permute(currentBuild, slotIndex) {
                 if (slotIndex === slots.length) {
+                    // Issue #44: Spielregel erzwingen – max. 1 exotisches Gear-Teil pro Build
+                    const exoticCount = currentBuild.filter(i => isExoticGearName(i.setName)).length;
+                    if (exoticCount > 1) return;
                     allBuilds.push([...currentBuild]);
                     return;
                 }
