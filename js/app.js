@@ -143,6 +143,28 @@
         function slugify(s) {
             return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         }
+        // ===== Issue #41: Exoten-Zwang für den Vergleich =====
+        // Füllt die beiden Dropdowns „Exotisches Gear erzwingen“ und
+        // „Exotische Waffe erzwingen“ aus den Inventaren. Nur Exoten
+        // (GEAR_DB cls==='exotic' bzw. weapon.isExotic) erscheinen zur
+        // Auswahl; die aktuelle Auswahl bleibt erhalten, wenn das Item
+        // noch existiert.
+        function updateForceExoticOptions() {
+            const gearSel = document.getElementById('forceExoticGear');
+            const weapSel = document.getElementById('forceExoticWeapon');
+            if (gearSel) {
+                const prev = gearSel.value;
+                const names = [...new Set(gearInventory.map(i => i.setName).filter(isExoticGearName))].sort((a, b) => a.localeCompare(b, 'de'));
+                gearSel.innerHTML = '<option value="">— kein Exoten-Zwang —</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+                if (prev && names.includes(prev)) gearSel.value = prev;
+            }
+            if (weapSel) {
+                const prev = weapSel.value;
+                const names = [...new Set(weaponsInventory.filter(w => w.isExotic).map(w => w.name))].sort((a, b) => a.localeCompare(b, 'de'));
+                weapSel.innerHTML = '<option value="">— kein Exoten-Zwang —</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+                if (prev && names.includes(prev)) weapSel.value = prev;
+            }
+        }
         function isExoticGearName(name) {
             const e = GEAR_DB[name];
             return !!e && e.cls === 'exotic';
@@ -2165,6 +2187,7 @@
         }
 
         function renderWeaponsInventory() {
+            if (typeof updateForceExoticOptions === 'function') updateForceExoticOptions();
             const typeFilter = document.getElementById('weaponTypeFilter').value;
             const attrFilterEl = document.getElementById('weaponAttrFilter');
             const attrFilter = attrFilterEl ? attrFilterEl.value : '';
@@ -3960,6 +3983,7 @@
 
         function renderGearInventory() {
             if (typeof renderExoticPerkList === 'function') renderExoticPerkList();
+            if (typeof updateForceExoticOptions === 'function') updateForceExoticOptions();
             updateGearSetFilterOptions();
             updateGearModAdvice();
             const slotFilter = document.getElementById('gearSlotFilter')?.value || '';
@@ -4938,7 +4962,7 @@ function prefilterItemScore(item, targetWeaponType) {
     return gearItemScore(item, targetWeaponType).score;
 }
 
-        function generateAllGearBuilds(items, targetGreenSet, targetWeaponType) {
+        function generateAllGearBuilds(items, targetGreenSet, targetWeaponType, forceExoticGear) {
             const slots = ['Maske', 'Rucksack', 'Weste', 'Handschuhe', 'Holster', 'Knieschoner'];
             let itemsBySlot = {};
 
@@ -4989,6 +5013,15 @@ function prefilterItemScore(item, targetWeaponType) {
                     const withScore = kept.map(i => ({ item: i, sc: prefilterItemScore(i, targetWeaponType) }));
                     withScore.sort((a, b) => b.sc - a.sc);
                     let final = withScore.slice(0, MAX_PER_SLOT).map(x => x.item);
+                    // Issue #41: Erzwungenes Exoten-Gear ist vom globalen
+                    // Cutoff ausgenommen (Set-Schutz analog Ziel-Green-Set),
+                    // sonst fliegt der Exot aus der Kandidatenliste, bevor
+                    // der Vergleichs-Filter ihn fordern kann.
+                    if (forceExoticGear) {
+                        const forced = kept.filter(i => i.setName === forceExoticGear);
+                        const finalIds = new Set(final);
+                        forced.forEach(i => { if (!finalIds.has(i)) final.push(i); });
+                    }
                     if (targetGreenSet) {
                         const targetItems = kept
                             .filter(i => brandKeyMatches((i.setName || '').toLowerCase(), targetGreenSet))
@@ -5094,6 +5127,8 @@ function prefilterItemScore(item, targetWeaponType) {
                 targetGreenSet: document.getElementById('targetGreenSet').value,
                 forceChest: document.getElementById('forceChest').checked,
                 forceBackpack: document.getElementById('forceBackpack').checked,
+                forceExoticGear: document.getElementById('forceExoticGear')?.value || '',
+                forceExoticWeapon: document.getElementById('forceExoticWeapon')?.value || '',
                 talentsActive: document.getElementById('talentsActive')?.checked || false,
                 exoticPerksActive: document.getElementById('exoticPerksActive')?.checked || false
             };
@@ -5105,7 +5140,7 @@ function prefilterItemScore(item, targetWeaponType) {
 
             try {
                 // Alle Builds generieren
-                const allBuilds = generateAllGearBuilds(gearInventory, settings.targetGreenSet, settings.targetWeaponType);
+                const allBuilds = generateAllGearBuilds(gearInventory, settings.targetGreenSet, settings.targetWeaponType, settings.forceExoticGear);
 
                 // PERFORMANCE (Schritt 2): Alle waffenunabhängigen Build-Effekte
                 // (Attribut-Summen, Set-/Stack-/Marken-Boni) einmal pro Build
@@ -5127,6 +5162,7 @@ function prefilterItemScore(item, targetWeaponType) {
                         if (settings.require4pc && setPieces.length < 4) hints.push(`nur ${setPieces.length} Teile des Ziel-Sets im Inventar (4 benötigt)`);
                         if (settings.forceChest && !hasChestP) hints.push('keine Set-Weste im Inventar, aber „Weste aus diesem Set erzwingen“ ist aktiv');
                         if (settings.forceBackpack && !hasBpP) hints.push('keine Set-Rucksack im Inventar, aber „Rucksack aus diesem Set erzwingen“ ist aktiv');
+                        if (settings.forceExoticGear && !gearInventory.some(i => i.setName === settings.forceExoticGear)) hints.push(`kein „${settings.forceExoticGear}“ im Gear-Inventar, aber Exoten-Zwang ist aktiv`);
                         showToast('Kein Build möglich — Set-Bedingungen können nicht erfüllt werden: ' + (hints.join('; ') || 'unbekannte Ursache') + '. Haken entfernen oder Set-Teile ergänzen.', 'error');
                     }
                     return;
@@ -5135,7 +5171,9 @@ function prefilterItemScore(item, targetWeaponType) {
                 // Top 3 Waffen berechnen
                 const topWeapons = calculateTopWeapons(settings);
                 if (topWeapons.length === 0) {
-                    showToast(`Keine Waffe der Gattung "${weaponTypeLabel(settings.targetWeaponType)}" im Waffen-Inventar gefunden. Bitte füge eine passende Waffe hinzu oder wähle eine andere Gattung.`, 'error');
+                    showToast(settings.forceExoticWeapon
+                        ? `Keine exotische Waffe „${settings.forceExoticWeapon}“ im Waffen-Inventar gefunden. Bitte füge sie hinzu oder hebe den Exoten-Zwang auf.`
+                        : `Keine Waffe der Gattung "${weaponTypeLabel(settings.targetWeaponType)}" im Waffen-Inventar gefunden. Bitte füge eine passende Waffe hinzu oder wähle eine andere Gattung.`, 'error');
                     return;
                 }
 
@@ -5198,7 +5236,9 @@ function prefilterItemScore(item, targetWeaponType) {
             // "LMG"). Ohne diesen Filter würden hier die Waffen mit dem
             // höchsten geschätzten DPS-Wert aus dem GESAMTEN Inventar
             // herangezogen werden – unabhängig von ihrer Gattung.
-            const weaponsOfType = weaponsInventory.filter(w => w.type === settings.targetWeaponType);
+            const weaponsOfType = settings.forceExoticWeapon
+                ? weaponsInventory.filter(w => w.name === settings.forceExoticWeapon)
+                : weaponsInventory.filter(w => w.type === settings.targetWeaponType);
             const ep = enemyProfile();
             const knowHowLevel = settings.knowHowLevel || 30;
             const knowHowMult = 1 + (knowHowLevel / 100);
@@ -5430,6 +5470,7 @@ function prefilterItemScore(item, targetWeaponType) {
 
                 if (settings.forceChest && !hasChest) return false;
                 if (settings.forceBackpack && !hasBackpack) return false;
+                if (settings.forceExoticGear && !build.some(i => i.setName === settings.forceExoticGear)) return false;
 
                 return true;
             });
@@ -6212,7 +6253,33 @@ function prefilterItemScore(item, targetWeaponType) {
             const sel = document.getElementById('targetGreenSet');
             const key = sel ? sel.value : '';
             const info = GREEN_SET_INFO[key];
-            if (!key || !info) { box.classList.add('hidden'); return; }
+            // Issue #41: Exoten-Zwang prüfen — unabhängig vom Ziel-Set
+            const feGear = document.getElementById('forceExoticGear')?.value || '';
+            const feWeapon = document.getElementById('forceExoticWeapon')?.value || '';
+            const exoticProblems = [];
+            if (feGear) {
+                const exGearItems = gearInventory.filter(i => i.setName === feGear);
+                const exSlots = [...new Set(exGearItems.map(i => i.slot))];
+                if (!exGearItems.length) {
+                    exoticProblems.push(`kein <strong>${escapeHtml(feGear)}</strong> im Gear-Inventar`);
+                } else {
+                    const covered = ['Maske', 'Rucksack', 'Weste', 'Handschuhe', 'Holster', 'Knieschoner'].filter(s => !exSlots.includes(s));
+                    if (covered.length === 6) exoticProblems.push(`<strong>${escapeHtml(feGear)}</strong>: unbekannter Slot`);
+                }
+            }
+            if (feWeapon && !weaponsInventory.some(w => w.name === feWeapon && w.isExotic)) {
+                exoticProblems.push(`keine exotische Waffe <strong>${escapeHtml(feWeapon)}</strong> im Waffen-Inventar`);
+            }
+            if (!key || !info) {
+                if (exoticProblems.length) {
+                    box.innerHTML = `⚠️ <strong>Exoten-Zwang nicht erfüllbar:</strong> ${exoticProblems.join(' · ')}.`;
+                    box.className = 'text-[11px] leading-snug rounded-lg p-2 mb-2 border bg-red-500/10 border-red-500/40 text-red-300';
+                    box.classList.remove('hidden');
+                } else {
+                    box.classList.add('hidden');
+                }
+                return;
+            }
 
             const pieces = gearInventory.filter(i => brandKeyMatches((i.setName || '').toLowerCase(), key));
             const slotsFound = [...new Set(pieces.map(i => i.slot))];
@@ -6236,6 +6303,9 @@ function prefilterItemScore(item, targetWeaponType) {
             if (problems.length) {
                 html = `⚠️ <strong>Set-Bedingung nicht erfüllbar:</strong> ${problems.join(' · ')}.<br>Vorhanden: ${slotList}. Haken entfernen oder fehlende Teile ergänzen.`;
                 box.className = 'text-[11px] leading-snug rounded-lg p-2 mb-2 border bg-red-500/10 border-red-500/40 text-red-300';
+            } else if (exoticProblems.length) {
+                html = `⚠️ <strong>Exoten-Zwang nicht erfüllbar:</strong> ${exoticProblems.join(' · ')}.`;
+                box.className = 'text-[11px] leading-snug rounded-lg p-2 mb-2 border bg-red-500/10 border-red-500/40 text-red-300';
             } else {
                 html = `✅ <strong>${count} Teil${count === 1 ? '' : 'e'}</strong> von ${info.name} im Inventar: ${slotList}.`;
                 box.className = 'text-[11px] leading-snug rounded-lg p-2 mb-2 border bg-green-500/10 border-green-500/40 text-green-300';
@@ -6247,6 +6317,7 @@ function prefilterItemScore(item, targetWeaponType) {
 // ========== INITIALISIERUNG ==========
         function initApp() {
             loadFromLocalStorage();
+            updateForceExoticOptions();
             updateKnowHowDisplay();
             onTargetGreenSetChange();
             renderWeaponsInventory();

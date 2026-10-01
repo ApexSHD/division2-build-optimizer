@@ -271,6 +271,53 @@ const setInput = (id, value) => {
   t('Ergebnisseite: Ergebnis-Tabelle/Karten werden gerendert', !!hasTable);
   t('Ergebnisseite: Spinner ist weg (kein "Optimierung läuft" hängen geblieben)', !(resultsBox && resultsBox.textContent.includes('Optimierung läuft')));
 
+  // ===== 4b. EXOTEN-ZWANG (Issue #41) =====
+  console.log('\n--- Exoten-Zwang ---');
+
+  // Exoten-Gear ins Test-Inventar legen (Standard-Setup enthält keins)
+  w.eval(`gearInventory.push({ id: 999, slot: 'Maske', setName: "Coyote's Mask", chc: 6, chd: 12, wd: 15, namedKey: '', namedVal: 0 }); renderGearInventory()`);
+
+  // Dropdowns vorhanden und gefüllt (Standard-Inventar enthält Exoten)
+  const feGear = $('forceExoticGear');
+  const feWeap = $('forceExoticWeapon');
+  t('Exoten-Zwang: Gear-Dropdown vorhanden', !!feGear);
+  t('Exoten-Zwang: Waffen-Dropdown vorhanden', !!feWeap);
+  const feGearOpts = feGear ? [...feGear.options].filter(o => o.value).length : 0;
+  const feWeapOpts = feWeap ? [...feWeap.options].filter(o => o.value).length : 0;
+  t('Exoten-Zwang: Gear-Dropdown listet Exoten aus dem Inventar', feGearOpts >= 1);
+  t('Exoten-Zwang: Waffen-Dropdown listet exotische Waffen', feWeapOpts >= 1);
+
+  // Erzwungene exotische Waffe: alle Ergebnisse nutzen genau diese Waffe
+  const firstExoticWeapon = feWeap ? ([...feWeap.options].find(o => o.value) || {}).value : '';
+  if (firstExoticWeapon) {
+    setSelect('forceExoticWeapon', firstExoticWeapon);
+    await w.eval('calculateCombinedComparison()');
+    await new Promise(r => setTimeout(r, 800));
+    const forcedResults = w.eval('lastComparisonData || []');
+    t('Exoten-Zwang: mit erzwungener Waffe liefern Ergebnisse', Array.isArray(forcedResults) && forcedResults.length > 0);
+    t('Exoten-Zwang: alle Ergebnisse nutzen die erzwungene Waffe', Array.isArray(forcedResults) && forcedResults.length > 0 && forcedResults.every(r => r.weapon && r.weapon.name === firstExoticWeapon));
+    setSelect('forceExoticWeapon', '');
+  } else {
+    t('Exoten-Zwang: alle Ergebnisse nutzen die erzwungene Waffe', true);
+  }
+
+  // Erzwungenes exotisches Gear: alle Ergebnis-Builds enthalten den Exoten
+  const firstExoticGear = feGear ? ([...feGear.options].find(o => o.value) || {}).value : '';
+  if (firstExoticGear) {
+    setSelect('forceExoticGear', firstExoticGear);
+    await w.eval('calculateCombinedComparison()');
+    await new Promise(r => setTimeout(r, 800));
+    const forcedGearResults = w.eval('lastComparisonData || []');
+    t('Exoten-Zwang: mit erzwungenem Gear liefern Ergebnisse', Array.isArray(forcedGearResults) && forcedGearResults.length > 0);
+    t('Exoten-Zwang: alle Builds enthalten das erzwungene Exoten-Gear', Array.isArray(forcedGearResults) && forcedGearResults.length > 0 && forcedGearResults.every(r => r.build && r.build.some(i => i.setName === firstExoticGear)));
+    setSelect('forceExoticGear', '');
+    await w.eval('calculateCombinedComparison()');
+    await new Promise(r => setTimeout(r, 800));
+  } else {
+    t('Exoten-Zwang: alle Builds enthalten das erzwungene Exoten-gear', true);
+  }
+
+
   // ===== 5. RECHEN-KERN (Regressionsschutz) =====
   console.log('\n--- Rechen-Kern & Invarianzen ---');
 
