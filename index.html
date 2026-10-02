@@ -844,6 +844,22 @@
                         </select>
                         <p id="greenSetHint" class="text-[11px] text-gray-500 leading-snug mb-2"></p>
                         <div id="setAvailabilityBox" class="hidden text-[11px] leading-snug rounded-lg p-2 mb-2 border"></div>
+                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Set-Bedingungen</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="require4pc" checked onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
+                                <span>4 Set-Teile erzwingen</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="forceChest" checked onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
+                                <span id="forceChestLabel">Weste aus diesem Set erzwingen</span>
+                            </label>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+                                <input type="checkbox" id="forceBackpack" checked onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
+                                <span id="forceBackpackLabel">Rucksack aus diesem Set erzwingen</span>
+                            </label>
+                        </div>
+
 
                         <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
                             <label class="block text-xs font-bold uppercase text-div-accent">Stack-Auslastung (4p-Stack-Talente, z.B. Striker's Gamble)</label>
@@ -896,21 +912,6 @@
                         </div>
                         <p class="text-[11px] text-gray-500">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt.</p>
                     </div>
-                        <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Set-Bedingungen</label>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="require4pc" checked onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
-                                <span>4 Set-Teile erzwingen</span>
-                            </label>
-                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="forceChest" onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
-                                <span id="forceChestLabel">Weste aus diesem Set erzwingen</span>
-                            </label>
-                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
-                                <input type="checkbox" id="forceBackpack" checked onchange="updateSetAvailability()" class="rounded accent-orange-500 w-4 h-4">
-                                <span id="forceBackpackLabel">Rucksack aus diesem Set erzwingen</span>
-                            </label>
-                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                             <label class="block">
                                 <span class="text-xs font-semibold uppercase text-gray-400">Exotisches Gear erzwingen</span>
