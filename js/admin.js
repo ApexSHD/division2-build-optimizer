@@ -878,6 +878,10 @@ function importDb(event, which) {
 function resetDb() {
     if (!confirm('Alle lokalen Änderungen an Waffen/Gear/Mods verwerfen und auf die Original-Datenbanken zurücksetzen?')) return;
     try { localStorage.removeItem(ADMIN_LS_KEY); } catch (e) {}
+    // Legacy-Schluessel des alten Waffen-Upload-Pfads mit entfernen (Issue #28),
+    // damit ein alter Bestand nach dem Reset nicht erneut greift.
+    try { localStorage.removeItem('div2_weapons_db_v2'); } catch (e) {}
+    try { localStorage.removeItem('div2_weapons_db_v1'); } catch (e) {}
     location.reload();
 }
 

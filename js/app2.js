@@ -1973,8 +1973,13 @@ function handleWeaponDbUpdate(event) {
             const db = normalizeWeaponDbJson(parsed);
             // Datenbestand austauschen und persistent im Browser speichern
             weaponsData.weapons = db.weapons;
+            // Einheitlicher Persistenz-Pfad: div2_admin_db (Issue #28).
+            // Der Legacy-Schluessel div2_weapons_db_v2 wird mit migriert und entfernt.
             try {
-                localStorage.setItem('div2_weapons_db_v2', JSON.stringify(db));
+                const o = JSON.parse(localStorage.getItem('div2_admin_db') || '{}');
+                o.weapons = db.weapons;
+                localStorage.setItem('div2_admin_db', JSON.stringify(o));
+                localStorage.removeItem('div2_weapons_db_v2');
             } catch (storageErr) {
                 console.warn('Waffen-Datenbank konnte nicht im Browser gespeichert werden:', storageErr);
             }
@@ -1996,31 +2001,43 @@ function handleWeaponDbUpdate(event) {
 }
 
 // Beim Start: gespeicherte Waffen-Datenbank aus dem Browser laden (falls vorhanden)
+// Beim Start: gespeicherte Waffen-Datenbank aus dem Browser laden (falls vorhanden)
 function loadSavedWeaponDb() {
     // Alter Speicher-Schlüssel (v1): enthielt DB-Versionen ohne Named-Blöcke
     // (z.B. v2-5). Wird entfernt, damit die neu eingebettete DB (mit named-
     // Talenten/Attributen) greift.
     try { localStorage.removeItem('div2_weapons_db_v1'); } catch (e) {}
+    // Einheitlicher Persistenz-Pfad (Issue #28): Der Legacy-Schlüssel
+    // div2_weapons_db_v2 (alter Waffen-Upload) wird einmalig in den
+    // Admin-Override-Speicher (div2_admin_db) migriert und entfernt.
+    // Gibt es dort schon Waffen (Verwaltungs-Tab), gewinnt dieser Bestand;
+    // der Legacy-Import wird dann verworfen. Datenverlust ist ausgeschlossen:
+    // der Verwaltungs-Tab sichert seine Overrides als vollstaendigen Snapshot
+    // und der Reset stellt die eingebettete DB wieder her.
     try {
-        const saved = localStorage.getItem('div2_weapons_db_v2');
-        if (!saved) return;
-        const db = JSON.parse(saved);
-        // Sicherheitscheck: Nur DBs mit Named-Blöcken übernehmen (Versions-
-        // Schutz, damit ein aelterer Import die eingebettete v2-6 nicht
-        // ueberschreibt).
-        const hasNamed = db && Array.isArray(db.weapons) && db.weapons.some(w => w && w.named);
-        if (hasNamed && db.weapons.length) {
-            weaponsData.weapons = db.weapons;
-            console.log('Gespeicherte Waffen-Datenbank geladen (' + db.weapons.length + ' Waffen).');
-        } else if (db && Array.isArray(db.weapons) && db.weapons.length) {
-            console.log('Gespeicherte Waffen-Datenbank ignoriert (keine Named-Blöcke) – eingebettete DB in Verwendung.');
+        const legacyRaw = localStorage.getItem('div2_weapons_db_v2');
+        if (legacyRaw) {
+            const legacy = JSON.parse(legacyRaw);
+            const legacyWeapons = (legacy && Array.isArray(legacy.weapons)) ? legacy.weapons : [];
+            // Sicherheitscheck: Nur DBs mit Named-Bloecken uebernehmen (Versions-
+            // Schutz, damit ein aelterer Import die eingebettete v2-6 nicht
+            // ueberschreibt).
+            const hasNamed = legacyWeapons.some(w => w && w.named);
+            let o = {};
+            try { o = JSON.parse(localStorage.getItem('div2_admin_db') || '{}'); } catch (e) { o = {}; }
+            const adminHasWeapons = Array.isArray(o.weapons) && o.weapons.length > 0;
+            if (hasNamed && legacyWeapons.length && !adminHasWeapons) {
+                o.weapons = legacyWeapons;
+                localStorage.setItem('div2_admin_db', JSON.stringify(o));
+                weaponsData.weapons = legacyWeapons;
+                console.log('Legacy-Waffen-Datenbank in Verwaltungs-Speicher migriert (' + legacyWeapons.length + ' Waffen).');
+            }
+            localStorage.removeItem('div2_weapons_db_v2');
         }
     } catch (err) {
-        console.warn('Gespeicherte Waffen-Datenbank konnte nicht geladen werden:', err);
+        console.warn('Legacy-Waffen-Datenbank konnte nicht migriert werden:', err);
     }
 }
-
-// Lade die Waffen-Daten, fülle die Drop-down-Listen und die Talente, sobald die Seite geladen ist
 function initPage() {
     loadSavedWeaponDb();
     populateWeaponTypeDropdown();
