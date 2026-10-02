@@ -4398,49 +4398,36 @@
                 }
             }
 
-            // Marken-Boni
-            const grupoCount = getBrandCount(build, 'Grupo Shadow');
-            if (grupoCount >= 1) { d.chd += 13; cache.boni.push("Grupo Shadow 1p (+13% CHD)"); }
-
-            const walkerCount = getBrandCount(build, 'Walker, Harris & Co.');
-            if (walkerCount >= 1) { d.wd += 6; cache.boni.push("Walker, Harris 1p (+6% WD)"); }
-            if (walkerCount >= 2) { d.dta += 5; cache.boni.push("Walker, Harris 2p (+5% DTA)"); }
-            if (walkerCount >= 3) { d.dth += 10; cache.boni.push("Walker, Harris 3p (+10% DTH)"); }
-
-            const ceskaCount = getBrandCount(build, 'Ceska');
-            if (ceskaCount >= 1) { d.chc += 8; cache.boni.push("Ceska 1p (+8% CHC)"); }
-
-            const fenrisCount = getBrandCount(build, 'Fenris');
-            if (fenrisCount >= 1 && targetWeaponType === 'AR') { d.wd += 12; cache.boni.push("Fenris 1p (+12% AR-Schaden)"); }
-
-            const petrovCount = getBrandCount(build, 'Petrov');
-            if (petrovCount >= 1 && targetWeaponType === 'LMG') { d.wd += 12; cache.boni.push("Petrov 1p (+12% LMG-Schaden)"); }
-
-            const sokolovCount = getBrandCount(build, 'Sokolov');
-            if (sokolovCount >= 1 && targetWeaponType === 'MP') { d.wd += 12; cache.boni.push("Sokolov 1p (+12% MP-Schaden)"); }
-            if (sokolovCount >= 2) { d.chd += 13; cache.boni.push("Sokolov 2p (+13% CHD)"); }
-            if (sokolovCount >= 3) { d.chc += 8; cache.boni.push("Sokolov 3p (+8% CHC)"); }
-
-            const overlordCount = getBrandCount(build, 'Overlord');
-            if (overlordCount >= 1 && targetWeaponType === 'Rifle') { d.wd += 12; cache.boni.push("Overlord 1p (+12% Gewehr-Schaden)"); }
-
-            const badgerCount = getBrandCount(build, 'Badger Tuff');
-            if (badgerCount >= 1 && targetWeaponType === 'Shotgun') { d.wd += 12; cache.boni.push("Badger Tuff 1p (+12% Schrotflinten-Schaden)"); }
-
-            const airaldiCount = getBrandCount(build, 'Airaldi');
-            if (airaldiCount >= 1 && targetWeaponType === 'MMR') { d.wd += 12; cache.boni.push("Airaldi 1p (+12% MMR-Schaden)"); }
-
-            const habsburgCount = getBrandCount(build, 'Habsburg');
-            if (habsburgCount >= 2 && targetWeaponType === 'MMR') { d.wd += 24; cache.boni.push("Habsburg Guard 2p (+24% MMR-Schaden)"); }
-
-            const unitCount = getBrandCount(build, 'Unit Alloys');
-            if (unitCount >= 1) { d.rof += 5; cache.boni.push("Unit Alloys 1p (+5% RoF)"); }
-            if (unitCount >= 2 && targetWeaponType === 'AR') { d.wd += 24; cache.boni.push("Unit Alloys 2p (+24% AR-Schaden)"); }
-
-            const provCount = getBrandCount(build, 'Providence Defense');
-            if (provCount >= 1) cache.boni.push("Providence Defense 1p (+13% HSD)");
-            if (provCount >= 2) { d.chc += 8; cache.boni.push("Providence Defense 2p (+8% CHC)"); }
-            if (provCount >= 3) { d.chd += 13; cache.boni.push("Providence Defense 3p (+13% CHD)"); }
+            // Marken-Boni — datengetrieben aus BRAND_SET_INFO (bonuses_pve, Y8S3-Live-Werte).
+            // Pro Brand werden die Boni aller erreichten Set-Größen (1p/2p/3p) kumulativ
+            // angewendet. Score-Keys: wd/chc/chd/hsd/dta/dth/rof/wh; wd_by_weapon nur bei
+            // passender Zielwaffe; text-Boni (Skill/Defense/Utility) nur als Ausweis ohne
+            // Score-Beitrag (Skill-Optimierung separat, Issue #54).
+            const brandBonusLabels = { wd: '% WD', chc: '% CHC', chd: '% CHD', hsd: '% HSD', dta: '% DTA', dth: '% DTH', rof: '% RoF', wh: '% Waffenhandhabung' };
+            const brandWeaponTypeLabel = { AR: 'AR', LMG: 'LMG', MP: 'MP', Rifle: 'Gewehr', Shotgun: 'Schrotflinte', MMR: 'MMR', Pistol: 'Pistole' };
+            Object.entries(BRAND_SET_INFO).forEach(([brandKey, bInfo]) => {
+                const bonuses = bInfo.bonuses_pve;
+                if (!bonuses) return;
+                const count = getBrandCount(build, brandKey);
+                if (count <= 0) return;
+                const brandName = bInfo.name || brandKey;
+                ['1', '2', '3'].forEach(tier => {
+                    if (count < Number(tier)) return;
+                    const b = bonuses[tier];
+                    if (!b) return;
+                    const parts = [];
+                    ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh'].forEach(k => {
+                        if (b[k]) { d[k] += b[k]; parts.push(`+${formatGermanNumber(b[k])}${brandBonusLabels[k]}`); }
+                    });
+                    if (b.wd_by_weapon && b.wd_by_weapon[targetWeaponType] && brandWeaponTypeLabel[targetWeaponType]) {
+                        const wwd = b.wd_by_weapon[targetWeaponType];
+                        d.wd += wwd;
+                        parts.push(`+${formatGermanNumber(wwd)}% ${brandWeaponTypeLabel[targetWeaponType]}-Schaden`);
+                    }
+                    if (parts.length) cache.boni.push(`${brandName} ${tier}p (${parts.join(', ')})`);
+                    if (b.text) cache.boni.push(`${brandName} ${tier}p (${b.text}) — kein Score-Beitrag`);
+                });
+            });
 
             // ===== Exotische Gear-Perks (Klasse 1+2) =====
             // Nur aktiv, wenn "Exoten-Perks aktiv" in den Einstellungen an ist
@@ -4949,6 +4936,11 @@
             key = key.toLowerCase().replace(/’/g, "'");
             name = name.toLowerCase().replace(/’/g, "'");
             key = BRAND_KEY_ALIAS[key] || key;
+            // Brand-Sets: Fragment-Abgleich aus BRAND_SET_INFO (z.B. Y8S3-Brands)
+            const bInfo = (typeof BRAND_SET_INFO !== 'undefined') && BRAND_SET_INFO[key];
+            if (bInfo && Array.isArray(bInfo.fragments) && bInfo.fragments.length > 0) {
+                return bInfo.fragments.some(f => name.includes(f));
+            }
             // Grüne Sets: Fragment-Abgleich aus der Tabelle
             const frags = GREEN_SET_MATCH[key];
             if (frags) return frags.some(f => name.includes(f));
@@ -4983,32 +4975,23 @@
 // This bonus is used ONLY for pre-selection; the real piece-count logic
 // (e.g. Petrov 1p only with LMG) stays unchanged in computeBuildCache.
 function brandWeaponDamageBonusPct(item, targetWeaponType) {
+    // v50 (Y8S3): datengetrieben aus BRAND_SET_INFO (bonuses_pve) statt
+    // hartcodierter Switch-Liste. Erfasst wd-Boni und waffentypbezogene
+    // wd_by_weapon-Boni (1p/2p/3p kumulativ), unabhaengig von der Stueckzahl
+    // (Vorauswahl-Heuristik wie bisher: Unit Alloys 2p wird schon bei 1
+    // Teil fuer AR gegutgeschrieben).
     const name = item.setName || '';
     let bonus = 0;
-    // Weapon-independent 1p bonus (any weapon type)
-    if (brandKeyMatches(name, 'walker')) bonus += 6; // Walker, Harris 1p: +6% WD
-    switch (targetWeaponType) {
-        case 'AR':
-            if (brandKeyMatches(name, 'fenris')) bonus += 12;      // Fenris 1p: +12% AR
-            if (brandKeyMatches(name, 'unitalloys')) bonus += 24; // Unit Alloys 2p: +24% AR
-            break;
-        case 'LMG':
-            if (brandKeyMatches(name, 'petrov')) bonus += 12;       // Petrov 1p: +12% LMG
-            break;
-        case 'MP':
-            if (brandKeyMatches(name, 'sokolov')) bonus += 12;     // Sokolov 1p: +12% MP
-            break;
-        case 'Rifle':
-            if (brandKeyMatches(name, 'overlord')) bonus += 12;    // Overlord 1p: +12% Rifle
-            break;
-        case 'Shotgun':
-            if (brandKeyMatches(name, 'badger')) bonus += 12;      // Badger Tuff 1p: +12% Shotgun
-            break;
-        case 'MMR':
-            if (brandKeyMatches(name, 'airaldi')) bonus += 12;     // Airaldi 1p: +12% MMR
-            if (brandKeyMatches(name, 'habsburg')) bonus += 24;    // Habsburg Guard 2p: +24% MMR
-            break;
-    }
+    Object.entries(BRAND_SET_INFO).forEach(([brandKey, bInfo]) => {
+        const bonuses = bInfo.bonuses_pve;
+        if (!bonuses || !brandKeyMatches(name, brandKey)) return;
+        ['1', '2', '3'].forEach(tier => {
+            const b = bonuses[tier];
+            if (!b) return;
+            if (b.wd) bonus += b.wd;
+            if (b.wd_by_weapon && b.wd_by_weapon[targetWeaponType]) bonus += b.wd_by_weapon[targetWeaponType];
+        });
+    });
     return bonus;
 }
 
