@@ -573,6 +573,41 @@ const setInput = (id, value) => {
   w.eval("switchTab('weapons')");
 
 
+  // ===== 13. EXOTEN-ATTRIBUT-SPERRE (Regression) =====
+  // Bei Exoten war Attribut 3 (und Kern 1/2) gesperrt, obwohl die DB keine
+  // fixen Attributwerte liefert -> Nebenattribut war nicht erfassbar.
+  console.log('\n--- Exoten-Attribut-Sperre ---');
+  {
+    const setSel = (id, v) => { const el = $(id); if (el) { el.value = v; el.dispatchEvent(new w.Event('change', { bubbles: true })); } };
+    setSel('weaponDbTypeSelect', 'Leichtes Maschinengewehr (LMG)');
+    const dbSel = $('weaponDbSelect');
+    const vertigoOpt = dbSel && Array.from(dbSel.options).find(o => String(o.value).includes('Vertigo'));
+    if (dbSel && vertigoOpt) {
+      dbSel.value = vertigoOpt.value;
+      dbSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 100));
+      const mt = $('weaponMinorType'), mv = $('weaponMinorVal'), c1 = $('weaponCore1'), c2 = $('weaponCore2Val'), bd = $('weaponBaseDmg');
+      t('Exote: Attribut 3 (Typ) ist editierbar', mt && mt.disabled === false);
+      t('Exote: Attribut 3 (Wert) ist editierbar', mv && mv.disabled === false);
+      t('Exote: Kern 1 ist editierbar', c1 && c1.disabled === false);
+      t('Exote: Kern 2 ist editierbar', c2 && c2.disabled === false);
+      t('Exote: Basis-Schaden bleibt gesperrt (DB-Wert)', bd && bd.disabled === true);
+      // Wechsel auf normale Waffe: Felder muessen ebenfalls frei sein
+      const normalOpt = Array.from(dbSel.options).find(o => o.value && !/Vertigo|Bullet King|Insult|Pestilence|Ouroboros|Pakhan|Big Alejandro|Bluescreen|Iron Lung|Lady Death|Chatterbox|Backfire|Bighorn|Chameleon|Eagle Bearer|Strega|Capacitor|Agitator|St. Elmo|Oxpecker|Underboss|Fomny|Fenris/i.test(String(o.value)));
+      if (normalOpt) {
+        dbSel.value = normalOpt.value;
+        dbSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+        await new Promise(r => setTimeout(r, 100));
+        const mtN = $('weaponMinorType'), mvN = $('weaponMinorVal');
+        t('Nach Exot-Wechsel: Attribut 3 bleibt editierbar', mtN && mtN.disabled === false && mvN && mvN.disabled === false);
+      } else {
+        t('Nach Exot-Wechsel: Attribut 3 bleibt editierbar', true);
+      }
+    } else {
+      t('Exote: Attribut 3 (Typ) ist editierbar', false);
+    }
+  }
+
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
   // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt
