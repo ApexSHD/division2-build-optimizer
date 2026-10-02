@@ -638,6 +638,44 @@ const setInput = (id, value) => {
     }
   }
 
+  // ===== 15. AUTO-MODS-SCHALTER STANDARD (Issue #84) =====
+  // Der Schalter "Mods automatisch optimieren" muss bei neuen Waffen und
+  // nach Bearbeitung/Abbrechen immer vorbelegt sein.
+  console.log('\n--- Auto-Mods-Schalter (Issue #84) ---');
+  {
+    const chk = $('autoModsToggle');
+    if (chk) {
+      // Schalter abwaehlen, Waffe anlegen -> Standard wiederhergestellt
+      chk.checked = false;
+      chk.dispatchEvent(new w.Event('change', { bubbles: true }));
+      const name = $('weaponName');
+      const prevName = name.value;
+      name.value = 'Issue84-Test-Waffe';
+      const prevType = $('weaponType').value;
+      w.eval('addWeapon()');
+      await new Promise(r => setTimeout(r, 100));
+      t('Auto-Mods nach addWeapon wieder vorbelegt (Issue #84)', chk.checked === true && chk.disabled === false);
+      // Die Test-Waffe wieder entfernen und Formularzustand restaurieren
+      w.eval(`weaponsInventory = weaponsInventory.filter(x => x.name !== 'Issue84-Test-Waffe')`);
+      name.value = prevName;
+      name.dispatchEvent(new w.Event('input', { bubbles: true }));
+      const tEl = $('weaponType');
+      if (tEl) tEl.value = prevType;
+      // Bearbeitungsmodus einer Waffe mit autoMods=false: Schalter trotzdem vorbelegt
+      w.eval(`startEditWeapon(weaponsInventory.find(x => x.autoMods === false && !x.isExotic) ? weaponsInventory.find(x => x.autoMods === false && !x.isExotic).id : weaponsInventory[0].id)`);
+      await new Promise(r => setTimeout(r, 100));
+      const notExotic = !w.eval('(weaponsInventory.find(w => w.id === editWeaponId) || {}).isExotic');
+      t('Auto-Mods im Bearbeitungsmodus vorbelegt (Issue #84)', notExotic ? chk.checked === true : true);
+      w.eval('cancelEditWeapon()');
+      await new Promise(r => setTimeout(r, 100));
+      t('Auto-Mods nach Abbrechen vorbelegt (Issue #84)', chk.checked === true && chk.disabled === false);
+    } else {
+      t('Auto-Mods nach addWeapon wieder vorbelegt (Issue #84)', false);
+      t('Auto-Mods im Bearbeitungsmodus vorbelegt (Issue #84)', false);
+      t('Auto-Mods nach Abbrechen vorbelegt (Issue #84)', false);
+    }
+  }
+
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
   // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt

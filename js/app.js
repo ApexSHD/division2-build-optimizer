@@ -1344,7 +1344,7 @@
                     autoChkEdit.checked = false;
                     autoChkEdit.disabled = true;
                 } else {
-                    autoChkEdit.checked = !!weapon.autoMods;
+                    autoChkEdit.checked = true;
                     autoChkEdit.disabled = false;
                     // BUGFIX: Nach dem Bearbeiten einer Exotic bleiben die
                     // Attribut-Felder sonst dauerhaft gesperrt – hier explizit
