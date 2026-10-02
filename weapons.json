@@ -3839,7 +3839,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Big Alejandro",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - keine Mod-Slots (nur Skin-Slot); 10th Anniversary Event (03.03.-02.04.2026)",
             "stats": {
                 "RPM": 1100,
                 "Base Mag Size": 200,
@@ -3852,12 +3852,12 @@
                 "Modded Sustain DPS": 525855.2912,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 65
+                "HSD": 85
             },
             "exotic": {
                 "talent": {
                     "name": "Cover Shooter",
-                    "description": "Cover Shooter\nEvery bullet fired while in cover increases weapon damage by 1% up to 100%. The bonus lasts for 15 seconds.\n\nGetting a kill with this weapon while in cover resets the duration.\n\nThe bonus damage is canceled by reloading, swapping weapons, or exiting combat."
+                    "description": "Cover Shooter\nEvery bullet fired while in cover increases Weapon Damage by 1% up to 100%. The bonus lasts for 15s.\nGetting a kill with this weapon while in cover resets the duration.\nThe bonus damage is cancelled by reloading, swapping weapons or exiting combat."
                 },
                 "fixedMods": []
             }
