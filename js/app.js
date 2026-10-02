@@ -3120,11 +3120,11 @@
                 const named = namedAllowed ? list.filter(([k]) => GEAR_NAMED_ONLY_ATTRS.has(k)) : [];
                 if (std.length) {
                     html += `<optgroup label="${g}">` + std.map(([k, c]) =>
-                        `<option value="${k}">${c.label}${c.max !== null ? ` (max ${formatGermanNumber(c.max)}${gearAttrUnit(k)})` : ''}</option>`).join('') + '</optgroup>';
+                        `<option value="${k}">${c.label}</option>`).join('') + '</optgroup>';
                 }
                 if (named.length) {
                     html += `<optgroup label="${g} – nur Named/Exotic">` + named.map(([k, c]) =>
-                        `<option value="${k}">${c.label}${c.max !== null ? ` (max ${formatGermanNumber(c.max)}${gearAttrUnit(k)})` : ''}</option>`).join('') + '</optgroup>';
+                        `<option value="${k}">${c.label}</option>`).join('') + '</optgroup>';
                 }
             });
             return html;
