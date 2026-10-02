@@ -23,7 +23,6 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: javascript-typescript
-          queries: security-extended
 
       - name: CodeQL-Analyse ausfuehren
         uses: github/codeql-action/analyze@v3
