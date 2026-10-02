@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Division 2 · Build-Optimizer Alpha 0.2</title>
+    <meta name="description" content="Build-Optimizer fuer Tom Clancy's The Division 2: Waffen- und Ausruestungs-Inventar verwalten, DPS-Builds optimieren und Builds vergleichen.">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="stylesheet" href="tailwind.css">
@@ -13,7 +14,7 @@
 <body class="p-4 md:p-8 min-h-screen relative">
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full px-4 md:px-0"></div>
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <main class="max-w-7xl mx-auto space-y-6">
         <!-- Header -->
         <header class="div-card p-6 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center border-l-4 border-div-accent gap-4">
             <div>
@@ -47,7 +48,7 @@
                 <button onclick="importAllCSV()" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-div-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                     Alles importieren
-                    <input type="file" id="allFileInput" accept=".zip,.csv" onchange="handleAllImport(event)" class="hidden">
+                    <input type="file"  aria-label="CSV-Datei importieren" id="allFileInput" accept=".zip,.csv" onchange="handleAllImport(event)" class="hidden">
                 </button>
                 <button onclick="clearAllInventory()" class="btn-secondary px-3 py-2 rounded-lg text-xs font-semibold text-red-400 hover:text-red-300 hover:border-red-500">
                     Alles leeren
@@ -85,34 +86,34 @@
                 </h2>
 
                 <form id="weaponForm" action="javascript:void(0)" onsubmit="event.preventDefault(); addWeapon();" class="space-y-4">
-                    <input type="hidden" id="weaponIsExotic" value="false">
+                    <input type="hidden"  aria-label="Waffe ist exotisch" id="weaponIsExotic" value="false">
                     <div class="p-3 bg-zinc-900/80 rounded-lg border border-div-accent/40 space-y-2">
                         <label class="block text-xs font-bold uppercase text-div-accent mb-1">📖 Waffe aus Datenbank wählen (füllt Name &amp; Typ automatisch)</label>
                         
 <div>
     <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Waffentyp auswählen</label>
-    <select id="weaponDbTypeSelect" onchange="onWeaponTypeChange()" class="w-full p-2.5 rounded-lg text-sm">
+    <select  aria-label="Waffen-Datenbank-Typ" id="weaponDbTypeSelect" onchange="onWeaponTypeChange()" class="w-full p-2.5 rounded-lg text-sm">
         <option value="">— Waffentyp auswählen —</option>
     </select>
 </div>
 <div>
     <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Waffe auswählen</label>
-    <select id="weaponDbSelect" onchange="selectWeaponFromDatabase()" class="w-full p-2.5 rounded-lg text-sm">
+    <select  aria-label="Waffen-Datenbank-Eintrag" id="weaponDbSelect" onchange="selectWeaponFromDatabase()" class="w-full p-2.5 rounded-lg text-sm">
         <option value="">— Waffe auswählen —</option>
     </select>
 </div>
 
-                        <p class="text-xs text-gray-500">Basis-Schaden, Attribute und Mods hängen von World Tier, Gear Score und Rezept ab und müssen unten wie gewohnt eingetragen werden.</p>
+                        <p class="text-xs text-gray-400">Basis-Schaden, Attribute und Mods hängen von World Tier, Gear Score und Rezept ab und müssen unten wie gewohnt eingetragen werden.</p>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Name</label>
-                            <input type="text" id="weaponName" placeholder="z.B. St. Elmo's Engine" class="w-full p-2.5 rounded-lg text-sm" required>
+                            <input type="text"  aria-label="Waffenname" id="weaponName" placeholder="z.B. St. Elmo's Engine" class="w-full p-2.5 rounded-lg text-sm" required>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Typ</label>
-                            <select id="weaponType" onchange="onManualWeaponTypeChange();" class="w-full p-2.5 rounded-lg text-sm">
+                            <select  aria-label="Waffentyp" id="weaponType" onchange="onManualWeaponTypeChange();" class="w-full p-2.5 rounded-lg text-sm">
                                 <option value="AR">Sturmgewehr (AR)</option>
                                 <option value="LMG">Leichtes Maschinengewehr (LMG)</option>
                                 <option value="MP">Maschinenpistole (MP)</option>
@@ -127,7 +128,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Basis-Schaden</label>
-                            <input type="text" inputmode="decimal" id="weaponBaseDmg" value="93.000" oninput="formatBaseDmgInput(this)" class="w-full p-2.5 rounded-lg text-sm" required>
+                            <input type="text" inputmode="decimal"  aria-label="Basis-Schaden" id="weaponBaseDmg" value="93.000" oninput="formatBaseDmgInput(this)" class="w-full p-2.5 rounded-lg text-sm" required>
                         </div>
                         
                     </div>
@@ -145,11 +146,11 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label id="weaponCore1Label" class="block text-xs text-gray-400 mb-1">Kern 1: +% Sturmgewehr-Schaden (WD)</label>
-                                <input type="text" inputmode="decimal" id="weaponCore1" value="15" oninput="updateCore1Hint()" class="w-full p-2 rounded-lg text-sm" required>
+                                <input type="text" inputmode="decimal"  aria-label="Kern-Attribut 1 Wert" id="weaponCore1" value="15" oninput="updateCore1Hint()" class="w-full p-2 rounded-lg text-sm" required>
                             </div>
                             <div>
                                 <label id="weaponCore2Label" class="block text-xs text-gray-400 mb-1">Kern 2: +% Lebenspunktschaden (DTH)</label>
-                                <select id="weaponCore2Type" onchange="updateMinorTypeOptions();" class="w-full p-2 rounded-lg text-sm hidden">
+                                <select  aria-label="Kern-Attribut 2 Typ" id="weaponCore2Type" onchange="updateMinorTypeOptions();" class="w-full p-2 rounded-lg text-sm hidden">
                                     <option value="dth">Lebenspunktschaden (DTH) %</option>
                                     <option value="chc">Kritische Trefferchance (CHC) %</option>
                                     <option value="chd">Kritischer Trefferschaden (CHD) %</option>
@@ -158,19 +159,19 @@
                                     <option value="dta">Rüstungsschaden (DTA) %</option>
                                     <option value="rof">Feuerrate (RoF) %</option>
                                 </select>
-                                <input type="text" inputmode="decimal" id="weaponCore2Val" value="21" oninput="updateCore2Hint()" class="w-full p-2 rounded-lg text-sm mt-1" required>
-                                <p id="core2Hint" class="text-[11px] text-gray-500 mt-1"></p>
+                                <input type="text" inputmode="decimal"  aria-label="Kern-Attribut 2 Wert" id="weaponCore2Val" value="21" oninput="updateCore2Hint()" class="w-full p-2 rounded-lg text-sm mt-1" required>
+                                <p id="core2Hint" class="text-[11px] text-gray-400 mt-1"></p>
                             </div>
                         </div>
-                        <p id="core1Hint" class="text-[11px] text-gray-500 pt-1"></p>
-                        <p id="weaponCoreHint" class="text-[11px] text-gray-500">Kern 2 wird durch die Waffengattung automatisch festgelegt.</p>
+                        <p id="core1Hint" class="text-[11px] text-gray-400 pt-1"></p>
+                        <p id="weaponCoreHint" class="text-[11px] text-gray-400">Kern 2 wird durch die Waffengattung automatisch festgelegt.</p>
                     </div>
 
                     <div class="p-3 bg-zinc-900/80 rounded-lg border border-gray-800 space-y-3">
                         <p class="text-xs font-bold uppercase text-div-accent">Nebenattribut (Attribut 3)</p>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <select id="weaponMinorType" onchange="updateMinorHint()" class="w-full p-2 rounded-lg text-sm">
+                                <select  aria-label="Minor-Attribut Typ" id="weaponMinorType" onchange="updateMinorHint()" class="w-full p-2 rounded-lg text-sm">
                                     <option value="dttooc">Schaden gg. ungedeckte Ziele (DTToOC)</option>
                                     <option value="dta">Rüstungsschaden (DTA)</option>
                                     <option value="dth">Lebenspunktschaden (DTH)</option>
@@ -186,10 +187,10 @@
                                 </select>
                             </div>
                             <div>
-                                <input type="text" inputmode="decimal" id="weaponMinorVal" value="10" oninput="updateMinorHint()" class="w-full p-2 rounded-lg text-sm" required>
+                                <input type="text" inputmode="decimal"  aria-label="Minor-Attribut Wert" id="weaponMinorVal" value="10" oninput="updateMinorHint()" class="w-full p-2 rounded-lg text-sm" required>
                             </div>
                         </div>
-                        <p id="minorHint" class="text-[11px] text-gray-500"></p>
+                        <p id="minorHint" class="text-[11px] text-gray-400"></p>
                     </div>
 
                     <div class="p-3 bg-zinc-900/80 rounded-lg border border-gray-800 space-y-3">
@@ -198,53 +199,53 @@
                             <input type="checkbox" id="autoModsToggle" onchange="toggleAutoMods()" class="rounded accent-orange-500 w-4 h-4" checked>
                             <span>🔧 <strong>Mods automatisch optimieren</strong> — das Tool kalkuliert die beste Mod-Belegung (abhängig von Waffe & Slot-Typen). Abwählen für manuelle Erfassung.</span>
                         </label>
-                        <p id="modSlotsHint" class="text-[11px] text-gray-500"></p>
+                        <p id="modSlotsHint" class="text-[11px] text-gray-400"></p>
                         <div id="modSlotsGrid" class="grid grid-cols-2 gap-2">
                             <div id="modSlotOpticWrap" class="p-2 rounded-lg bg-zinc-950/50 border border-gray-800">
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-xs text-gray-400">Visier (Optik)</label>
-                                    <button type="button" onclick="resetModSlot('optic')" class="text-[10px] text-gray-600 hover:text-red-400" title="Slot zurücksetzen">✕</button>
+                                    <button type="button" onclick="resetModSlot('optic')" class="text-[10px] text-gray-400 hover:text-red-400" title="Slot zurücksetzen">✕</button>
                                 </div>
-                                <select id="modOpticMod" onchange="onModSelectChange('optic'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
+                                <select  aria-label="Optik-Mod" id="modOpticMod" onchange="onModSelectChange('optic'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
                                 <div class="flex gap-1">
-                                    <select id="modOpticType" onchange="onModTypeChange('optic'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
-                                    <input type="text" inputmode="decimal" id="modOpticVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
+                                    <select  aria-label="Optik-Attribut Typ" id="modOpticType" onchange="onModTypeChange('optic'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
+                                    <input type="text" inputmode="decimal"  aria-label="Optik-Attribut Wert" id="modOpticVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
                                 </div>
                                 <div id="modOpticHint" class="text-[10px] text-amber-400 mt-1"></div>
                             </div>
                             <div id="modSlotMuzzleWrap" class="p-2 rounded-lg bg-zinc-950/50 border border-gray-800">
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-xs text-gray-400">Mündung</label>
-                                    <button type="button" onclick="resetModSlot('muzzle')" class="text-[10px] text-gray-600 hover:text-red-400" title="Slot zurücksetzen">✕</button>
+                                    <button type="button" onclick="resetModSlot('muzzle')" class="text-[10px] text-gray-400 hover:text-red-400" title="Slot zurücksetzen">✕</button>
                                 </div>
-                                <select id="modMuzzleMod" onchange="onModSelectChange('muzzle'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
+                                <select  aria-label="Muzzle-Mod" id="modMuzzleMod" onchange="onModSelectChange('muzzle'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
                                 <div class="flex gap-1">
-                                    <select id="modMuzzleType" onchange="onModTypeChange('muzzle'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
-                                    <input type="text" inputmode="decimal" id="modMuzzleVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
+                                    <select  aria-label="Muzzle-Attribut Typ" id="modMuzzleType" onchange="onModTypeChange('muzzle'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
+                                    <input type="text" inputmode="decimal"  aria-label="Muzzle-Attribut Wert" id="modMuzzleVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
                                 </div>
                                 <div id="modMuzzleHint" class="text-[10px] text-amber-400 mt-1"></div>
                             </div>
                             <div id="modSlotUnderbarrelWrap" class="p-2 rounded-lg bg-zinc-950/50 border border-gray-800">
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-xs text-gray-400">Unterlauf</label>
-                                    <button type="button" onclick="resetModSlot('underbarrel')" class="text-[10px] text-gray-600 hover:text-red-400" title="Slot zurücksetzen">✕</button>
+                                    <button type="button" onclick="resetModSlot('underbarrel')" class="text-[10px] text-gray-400 hover:text-red-400" title="Slot zurücksetzen">✕</button>
                                 </div>
-                                <select id="modUnderbarrelMod" onchange="onModSelectChange('underbarrel'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
+                                <select  aria-label="Underbarrel-Mod" id="modUnderbarrelMod" onchange="onModSelectChange('underbarrel'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
                                 <div class="flex gap-1">
-                                    <select id="modUnderbarrelType" onchange="onModTypeChange('underbarrel'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
-                                    <input type="text" inputmode="decimal" id="modUnderbarrelVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
+                                    <select  aria-label="Underbarrel-Attribut Typ" id="modUnderbarrelType" onchange="onModTypeChange('underbarrel'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
+                                    <input type="text" inputmode="decimal"  aria-label="Underbarrel-Attribut Wert" id="modUnderbarrelVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
                                 </div>
                                 <div id="modUnderbarrelHint" class="text-[10px] text-amber-400 mt-1"></div>
                             </div>
                             <div id="modSlotMagazineWrap" class="p-2 rounded-lg bg-zinc-950/50 border border-gray-800">
                                 <div class="flex items-center justify-between mb-1">
                                     <label class="text-xs text-gray-400">Magazin</label>
-                                    <button type="button" onclick="resetModSlot('magazine')" class="text-[10px] text-gray-600 hover:text-red-400" title="Slot zurücksetzen">✕</button>
+                                    <button type="button" onclick="resetModSlot('magazine')" class="text-[10px] text-gray-400 hover:text-red-400" title="Slot zurücksetzen">✕</button>
                                 </div>
-                                <select id="modMagazineMod" onchange="onModSelectChange('magazine'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
+                                <select  aria-label="Magazin-Mod" id="modMagazineMod" onchange="onModSelectChange('magazine'); updateModLiveSummary();" class="w-full p-1.5 rounded-lg text-xs mb-1"><option value="">— Mod auswählen —</option></select>
                                 <div class="flex gap-1">
-                                    <select id="modMagazineType" onchange="onModTypeChange('magazine'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
-                                    <input type="text" inputmode="decimal" id="modMagazineVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
+                                    <select  aria-label="Magazin-Attribut Typ" id="modMagazineType" onchange="onModTypeChange('magazine'); updateModLiveSummary();" class="flex-1 min-w-0 p-1.5 rounded-lg text-xs"></select>
+                                    <input type="text" inputmode="decimal"  aria-label="Magazin-Attribut Wert" id="modMagazineVal" oninput="updateModLiveSummary()" class="w-14 p-1.5 rounded-lg text-xs" placeholder="Wert">
                                 </div>
                                 <div id="modMagazineHint" class="text-[10px] text-amber-400 mt-1"></div>
                             </div>
@@ -256,11 +257,11 @@
                         <label class="block text-xs font-bold uppercase text-div-accent">Waffen-Talent</label>
                         
 <div id="weaponTalentSelectWrap">
-<select id="weaponTalentSelectSelect" onchange="onTalentChange()" class="w-full p-2 rounded-lg text-sm">
+<select  aria-label="Waffen-Talent" id="weaponTalentSelectSelect" onchange="onTalentChange()" class="w-full p-2 rounded-lg text-sm">
     <option value="">— Talent auswählen —</option>
 </select>
 </div>
-<p id="talentDescription" class="text-xs text-gray-500 mt-1"></p>
+<p id="talentDescription" class="text-xs text-gray-400 mt-1"></p>
 
                     </div>
 
@@ -283,13 +284,13 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase">Waffe:</label>
-                            <select id="weaponNameFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold max-w-[220px]">
+                            <select  aria-label="Filter: Waffenname" id="weaponNameFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold max-w-[220px]">
                                 <option value="">Alle Waffen</option>
                             </select>
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase">Filtern nach Typ:</label>
-                            <select id="weaponTypeFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Filter: Waffentyp" id="weaponTypeFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="">Alle Typen</option>
                                 <option value="AR">Sturmgewehr (AR)</option>
                                 <option value="LMG">LMG</option>
@@ -302,7 +303,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase">Attribut-Filter:</label>
-                            <select id="weaponAttrFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Filter: Attribut" id="weaponAttrFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="">Alle Attribute</option>
                                 <option value="dth">Lebenspunktschaden (DTH)</option>
                                 <option value="chc">Kritische Trefferchance (CHC)</option>
@@ -314,7 +315,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase">Empfehlung:</label>
-                            <select id="weaponRecoFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Filter: Empfehlung" id="weaponRecoFilter" onchange="renderWeaponsInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="">Alle</option>
                                 <option value="top">★ Nur Top-Empfehlungen</option>
                                 <option value="ok">◐ Nur brauchbar</option>
@@ -324,7 +325,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase">Sortieren nach:</label>
-                            <select id="weaponSortCriteria" onchange="sortAndRenderWeapons()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Sortierung" id="weaponSortCriteria" onchange="sortAndRenderWeapons()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="name">Name (A-Z)</option>
                                 <option value="baseDmgDesc">Basis-Schaden (Höchste)</option>
                                 <option value="core1Desc">Kern 1 / WD (Höchste)</option>
@@ -353,7 +354,7 @@
                                     <div class="flex items-center gap-1">
                                         <span>Empfehlung</span><span id="wSortIcon-recommendation" class="text-div-accent"></span>
                                         <button type="button"
-                                                class="info-btn text-gray-500 hover:text-div-accent"
+                                                class="info-btn text-gray-400 hover:text-div-accent"
                                                 onclick="event.stopPropagation(); toggleInfoPopover('recoInfoPopover', this)"
                                                 aria-label="Erläuterung zur Empfehlungs-Spalte">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,9 +366,9 @@
                                     <div id="recoInfoPopover" class="hidden fixed z-50 w-72 p-3 rounded-lg bg-zinc-800 border border-gray-700 text-xs font-normal normal-case text-gray-300 shadow-xl">
                                         <p class="font-bold text-div-accent mb-1">Wie wird die Empfehlung berechnet?</p>
                                         <p>Score = Basis-Schaden × Waffenschaden (Kern 1 + Talent) × Rüstungs-/DTToOC-/DTH-Multiplikatoren × Krit-Erwartung (CHC×CHD) × Talent-Verstärker × Feuerrate × Sustain (Magazin/Nachladezeit).</p>
-                                        <p class="mt-1 text-gray-500">Bedingte Talente werden als aktiv angenommen. Feuerrate &amp; Magazin fließen über die Waffen-Datenbank ein (RPM, Magazingröße, Nachladezeit) plus RoF-/Kapazitäts-/Nachladetempo-Boni aus Mods und Talenten. HSD fließt nicht ein (kopfschuss-situativ).</p>
+                                        <p class="mt-1 text-gray-400">Bedingte Talente werden als aktiv angenommen. Feuerrate &amp; Magazin fließen über die Waffen-Datenbank ein (RPM, Magazingröße, Nachladezeit) plus RoF-/Kapazitäts-/Nachladetempo-Boni aus Mods und Talenten. HSD fließt nicht ein (kopfschuss-situativ).</p>
                                         <p class="mt-1 text-amber-400">⚠ Nur innerhalb derselben Waffengattung vergleichbar (z.B. AR vs. AR).</p>
-                                        <button onclick="event.stopPropagation(); toggleInfoPopover('recoInfoPopover')" class="mt-2 text-gray-500 hover:text-white text-[10px] underline">schließen</button>
+                                        <button onclick="event.stopPropagation(); toggleInfoPopover('recoInfoPopover')" class="mt-2 text-gray-400 hover:text-white text-[10px] underline">schließen</button>
                                     </div>
                                 </th>
                                 <th class="p-3 text-right">Aktion</th>
@@ -406,7 +407,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Slot</label>
-                            <select id="gearSlot" onchange="onGearSlotChange()" class="w-full p-2.5 rounded-lg text-sm">
+                            <select  aria-label="Slot" id="gearSlot" onchange="onGearSlotChange()" class="w-full p-2.5 rounded-lg text-sm">
                                 <option value="Maske">Maske</option>
                                 <option value="Rucksack">Rucksack</option>
                                 <option value="Weste">Weste</option>
@@ -417,7 +418,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Set / Marke / Named</label>
-                            <select id="gearSetName" onchange="onGearSetSelectionChange()" class="w-full p-2.5 rounded-lg text-sm">
+                            <select  aria-label="Set/Name" id="gearSetName" onchange="onGearSetSelectionChange()" class="w-full p-2.5 rounded-lg text-sm">
                                 <optgroup label="Gear Sets (Grün)">
                                     <option value="Striker">Striker's Battlegear</option>
                                     <option value="Heartbreaker">Heartbreaker</option>
@@ -525,7 +526,7 @@
 
                     <div class="p-3 bg-zinc-900/80 rounded-lg border border-div-accent/40 space-y-2">
                         <label class="block text-xs font-bold uppercase text-div-accent mb-1">📖 Named-/Exotic-Teil aus Datenbank wählen — listet automatisch nur Teile des oben gewählten Slots (füllt Marke, Core, Attribute &amp; Perk)</label>
-                        <select id="gearDbSelect" onchange="selectGearFromDatabase()" class="w-full p-2.5 rounded-lg text-sm">
+                        <select  aria-label="Gear-Datenbank-Eintrag" id="gearDbSelect" onchange="selectGearFromDatabase()" class="w-full p-2.5 rounded-lg text-sm">
                             <option value="">— Teil auswählen —</option>
                         </select>
                         <div id="gearDbInfo" class="text-[11px] text-gray-400 border-t border-gray-800 pt-2 hidden"></div>
@@ -535,7 +536,7 @@
                         <p id="namedAttributeTitle" class="text-xs font-bold uppercase text-div-accent">Besonderes Named-Attribut</p>
                         <div class="grid grid-cols-2 gap-2 items-center">
                             <span id="namedAttrLabel" class="text-xs text-gray-300">Zusatzwert (%):</span>
-                            <input type="text" inputmode="decimal" id="namedAttrVal" value="8" class="w-full p-1.5 rounded text-sm">
+                            <input type="text" inputmode="decimal"  aria-label="Named-Attribut Wert" id="namedAttrVal" value="8" class="w-full p-1.5 rounded text-sm">
                         </div>
                         <p class="text-[11px] text-gray-400">Dieses Attribut wird direkt in die Berechnung einbezogen.</p>
                     </div>
@@ -547,45 +548,45 @@
                     <p id="gearProtoExoticHint" class="text-[11px] text-amber-400 mt-1 hidden">⚠ Exotisches Gear (z.B. Memento, Coyote's Mask, Catharsis, NinjaBike Bag) hat fixe Werte – kein Prototyp-Bonus (+50%) anwendbar. Haken deaktiviert.</p>
 
                     <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">Kernattribut <span class="font-normal text-gray-500">(Standard-Kern je Set/Marke wird vorausgewählt, jederzeit übersteuerbar)</span></label>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Kernattribut <span class="font-normal text-gray-400">(Standard-Kern je Set/Marke wird vorausgewählt, jederzeit übersteuerbar)</span></label>
                         <div class="grid grid-cols-3 gap-2">
-                            <select id="gearCoreType" onchange="onGearCoreTypeChange()" class="col-span-2 p-2 rounded-lg text-sm">
+                            <select  aria-label="Kern-Attribut Typ" id="gearCoreType" onchange="onGearCoreTypeChange()" class="col-span-2 p-2 rounded-lg text-sm">
                                 <option value="wd">🔴 Waffenschaden (WD)</option>
                                 <option value="armour">🔵 Rüstung</option>
                                 <option value="skill">🟡 Fertigkeitsrang</option>
                             </select>
-                            <input type="text" inputmode="decimal" id="gearWd" value="15" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" required>
+                            <input type="text" inputmode="decimal"  aria-label="Waffenschaden Wert" id="gearWd" value="15" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" required>
                         </div>
-                        <p id="gearWdHint" class="text-[11px] text-gray-500 mt-0.5"></p>
+                        <p id="gearWdHint" class="text-[11px] text-gray-400 mt-0.5"></p>
                     </div>
 
                     <div id="gearAttr1Wrap">
                         <label class="block text-xs font-semibold text-gray-400 mb-1">Attribut 1</label>
                         <div class="grid grid-cols-3 gap-2">
-                            <select id="gearAttr1Type" onchange="onGearAttrTypeChange(1)" class="col-span-2 p-2 rounded-lg text-sm"></select>
-                            <input type="text" inputmode="decimal" id="gearAttr1Val" value="12" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" placeholder="Wert %">
+                            <select  aria-label="Minor-Attribut 1 Typ" id="gearAttr1Type" onchange="onGearAttrTypeChange(1)" class="col-span-2 p-2 rounded-lg text-sm"></select>
+                            <input type="text" inputmode="decimal"  aria-label="Minor-Attribut 1 Wert" id="gearAttr1Val" value="12" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" placeholder="Wert %">
                         </div>
-                        <p id="gearAttr1Hint" class="text-[11px] text-gray-500 mt-0.5"></p>
+                        <p id="gearAttr1Hint" class="text-[11px] text-gray-400 mt-0.5"></p>
                     </div>
 
                     <div id="gearAttr2Wrap">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">Attribut 2 <span class="font-normal text-gray-500">(nur Marken / Named)</span></label>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Attribut 2 <span class="font-normal text-gray-400">(nur Marken / Named)</span></label>
                         <div class="grid grid-cols-3 gap-2">
-                            <select id="gearAttr2Type" onchange="onGearAttrTypeChange(2)" class="col-span-2 p-2 rounded-lg text-sm"></select>
-                            <input type="text" inputmode="decimal" id="gearAttr2Val" value="0" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" placeholder="Wert %">
+                            <select  aria-label="Minor-Attribut 2 Typ" id="gearAttr2Type" onchange="onGearAttrTypeChange(2)" class="col-span-2 p-2 rounded-lg text-sm"></select>
+                            <input type="text" inputmode="decimal"  aria-label="Minor-Attribut 2 Wert" id="gearAttr2Val" value="0" oninput="updateGearAttrHints()" class="w-full p-2 rounded-lg text-sm" placeholder="Wert %">
                         </div>
-                        <p id="gearAttr2Hint" class="text-[11px] text-gray-500 mt-0.5"></p>
+                        <p id="gearAttr2Hint" class="text-[11px] text-gray-400 mt-0.5"></p>
                     </div>
 
                     <div id="gearTalentWrap" class="hidden">
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">Talent <span class="font-normal text-gray-500">(nur High-End Weste &amp; Rucksack)</span></label>
-                        <select id="gearTalent" onchange="updateGearTalentHint()" class="w-full p-2 rounded-lg text-sm"></select>
-                        <p id="gearTalentHint" class="text-[11px] text-gray-500 mt-0.5"></p>
+                        <label class="block text-xs font-semibold text-gray-400 mb-1">Talent <span class="font-normal text-gray-400">(nur High-End Weste &amp; Rucksack)</span></label>
+                        <select  aria-label="Gear-Talent" id="gearTalent" onchange="updateGearTalentHint()" class="w-full p-2 rounded-lg text-sm"></select>
+                        <p id="gearTalentHint" class="text-[11px] text-gray-400 mt-0.5"></p>
                     </div>
 
-                    <p class="text-[11px] text-gray-500">Grüne Gear-Sets haben nur <strong>ein</strong> Attribut, Marken- und Named-Teile bis zu zwei.</p>
+                    <p class="text-[11px] text-gray-400">Grüne Gear-Sets haben nur <strong>ein</strong> Attribut, Marken- und Named-Teile bis zu zwei.</p>
 
-                    <p class="text-xs text-gray-500 italic">* Named-Spezialattribute (wie DTA/DTToOC) werden automatisch berücksichtigt.</p>
+                    <p class="text-xs text-gray-400 italic">* Named-Spezialattribute (wie DTA/DTToOC) werden automatisch berücksichtigt.</p>
 
                     <button type="submit" class="w-full btn-primary py-2.5 rounded-lg text-sm font-bold flex justify-center items-center gap-2 mt-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -608,7 +609,7 @@
                     <div class="flex flex-wrap items-center gap-3">
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap">Filtern nach Slot:</label>
-                            <select id="gearSlotFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Filter: Slot" id="gearSlotFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="">Alle Slots</option>
                                 <option value="Maske">Maske</option>
                                 <option value="Rucksack">Rucksack</option>
@@ -620,13 +621,13 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap">Filtern nach Set:</label>
-                            <select id="gearSetFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold max-w-[220px]">
+                            <select  aria-label="Filter: Set" id="gearSetFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold max-w-[220px]">
                                 <option value="">Alle Sets</option>
                             </select>
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap">Sortieren nach:</label>
-                            <select id="gearSortCriteria" onchange="sortAndRenderGear()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Sortierung Ausruestung" id="gearSortCriteria" onchange="sortAndRenderGear()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="slot">Slot (A-Z)</option>
                                 <option value="setName">Set / Marke (A-Z)</option>
                                 <option value="chcDesc">CHC (Höchste zuerst)</option>
@@ -637,11 +638,11 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap" title="Annahme für die Krit-Erwartung: erwarteter Krit-Bonus = Krit-Chance × CHD">Krit-Chance-Annahme (%):</label>
-                            <input type="text" inputmode="decimal" id="gearCritChanceAssumption" value="60" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold w-16 text-center">
+                            <input type="text" inputmode="decimal"  aria-label="Krit-Chance-Annahme" id="gearCritChanceAssumption" value="60" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold w-16 text-center">
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap">Empfehlung:</label>
-                            <select id="gearRecoFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
+                            <select  aria-label="Filter: Empfehlung Ausruestung" id="gearRecoFilter" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold">
                                 <option value="">Alle</option>
                                 <option value="top">★ Nur Top-Empfehlungen</option>
                                 <option value="ok">◐ Nur brauchbar</option>
@@ -669,7 +670,7 @@
                                     <div class="flex items-center gap-1">
                                         <span>Empfehlung</span><span id="gSortIcon-recoScore" class="text-div-accent"></span>
                                         <button type="button"
-                                                class="info-btn text-gray-500 hover:text-div-accent"
+                                                class="info-btn text-gray-400 hover:text-div-accent"
                                                 onclick="event.stopPropagation(); toggleInfoPopover('gearRecoInfoPopover', this)"
                                                 aria-label="Erläuterung zur Gear-Empfehlung">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -683,7 +684,7 @@
                                         <p>Verglichen werden nur Teile <strong>derselben Marke/desselben Sets</strong>, <strong>desselben Slots</strong> und mit <strong>identischem Attribut-Profil</strong> (z.B. Striker Weste mit CHD nur gegen Striker-Westen mit CHD – CHC- gegen CHD-Teile zu vergleichen macht keinen Sinn).</p>
                                         <p class="mt-1">Score = (1 + WD) × (1 + Krit-Chance-Annahme × CHD) × ggf. Named-Multiplikatoren (DTA/DTToOC/DTH). Die Krit-Chance-Annahme ist oben einstellbar (Standard 60&nbsp;%). CHC selbst fließt bei fester Krit-Chance nicht als Schaden ein, wichtet aber über das Profil.</p>
                                         <p class="mt-1 text-amber-400">⚠ Vergleichbar nur innerhalb derselben Profil-Gruppe (Marke + Attribute).</p>
-                                        <button onclick="event.stopPropagation(); toggleInfoPopover('gearRecoInfoPopover')" class="mt-2 text-gray-500 hover:text-white text-[10px] underline">schließen</button>
+                                        <button onclick="event.stopPropagation(); toggleInfoPopover('gearRecoInfoPopover')" class="mt-2 text-gray-400 hover:text-white text-[10px] underline">schließen</button>
                                     </div>
                                 </th>
                                 <th class="p-3 text-right">Aktion</th>
@@ -723,7 +724,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Waffengattung (für Marken-Boni)</label>
-                            <select id="targetWeaponType" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="w-full p-2.5 rounded-lg text-sm">
+                            <select  aria-label="Waffengattung" id="targetWeaponType" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="w-full p-2.5 rounded-lg text-sm">
                                 <option value="AR" selected>Sturmgewehr (AR) [z.B. Fenris / Saint-Victor]</option>
                                 <option value="LMG">Leichtes Maschinengewehr (LMG) [z.B. Petrov]</option>
                                 <option value="MP">Maschinenpistole (MP) [z.B. Sokolov / Vector]</option>
@@ -734,7 +735,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Spezialisierung</label>
-                            <select id="specialization" class="w-full p-2.5 rounded-lg text-sm">
+                            <select  aria-label="Spezialisierung" id="specialization" class="w-full p-2.5 rounded-lg text-sm">
                                 <option value="gunner" selected>Richtschütze (Gunner) – (+5% Feuerrate)</option>
                                 <option value="firewall">Feuerteufel (Firewall) – Stürmer-Schild (+10% Schaden)</option>
                                 <option value="demolitionist">Zerstörungsexperte (Demolitionist) – (+5% DTToOC)</option>
@@ -773,7 +774,7 @@
 
                     <div class="pt-3 border-t border-gray-800 space-y-2">
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Zu optimierendes grünes Markenset</label>
-                        <select id="targetGreenSet" onchange="onTargetGreenSetChange()" class="w-full p-2.5 rounded-lg text-sm mb-1">
+                        <select  aria-label="Zu optimierendes gruenes Markenset" id="targetGreenSet" onchange="onTargetGreenSetChange()" class="w-full p-2.5 rounded-lg text-sm mb-1">
                             <optgroup label="DPS-Sets (Waffenschaden in Formel)">
                                 <option value="striker" selected>Striker's Battlegear</option>
                                 <option value="heartbreaker">Heartbreaker</option>
@@ -807,7 +808,7 @@
                                 <option value="emberengine">Ember Engine</option>
                             </optgroup>
                         </select>
-                        <p id="greenSetHint" class="text-[11px] text-gray-500 leading-snug mb-2"></p>
+                        <p id="greenSetHint" class="text-[11px] text-gray-400 leading-snug mb-2"></p>
                         <div id="setAvailabilityBox" class="hidden text-[11px] leading-snug rounded-lg p-2 mb-2 border"></div>
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Set-Bedingungen</label>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
@@ -829,10 +830,10 @@
                         <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
                             <label class="block text-xs font-bold uppercase text-div-accent">Stack-Auslastung (4p-Stack-Talente, z.B. Striker's Gamble)</label>
                             <div class="flex items-center gap-3">
-                                <input type="range" id="stackUtilization" min="0" max="100" value="100" oninput="document.getElementById('stackUtilizationInput').value = this.value" class="w-full accent-orange-500 cursor-pointer">
-                                <input type="text" inputmode="numeric" id="stackUtilizationInput" value="100" oninput="document.getElementById('stackUtilization').value = this.value" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                                <input type="range"  aria-label="Stack-Auslastung" id="stackUtilization" min="0" max="100" value="100" oninput="document.getElementById('stackUtilizationInput').value = this.value" class="w-full accent-orange-500 cursor-pointer">
+                                <input type="text" inputmode="numeric"  aria-label="Stack-Auslastung (Eingabe)" id="stackUtilizationInput" value="100" oninput="document.getElementById('stackUtilization').value = this.value" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                             </div>
-                            <p class="text-[11px] text-gray-500">Annahme, mit wie vielen Stacks (in % des Maximums) gerechnet wird. 100 % = volle Stacks im Gefecht. Ohne Striker-Weste gilt das Grund-Maximum (100 Stacks × 0,65 %), mit Weste (Press the Advantage) 200 Stacks, mit Rucksack (Risk Management) 1,00 %/Stack.</p>
+                            <p class="text-[11px] text-gray-400">Annahme, mit wie vielen Stacks (in % des Maximums) gerechnet wird. 100 % = volle Stacks im Gefecht. Ohne Striker-Weste gilt das Grund-Maximum (100 Stacks × 0,65 %), mit Weste (Press the Advantage) 200 Stacks, mit Rucksack (Risk Management) 1,00 %/Stack.</p>
                         </div>
 
                         <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
@@ -841,41 +842,41 @@
                                 🎮 Mein Spiel-Build (optional) — manuelle Erfassung zum Vergleich
                             </label>
                             <div id="manualBuildConfig" class="hidden space-y-2">
-                                <p class="text-[11px] text-gray-500">Wähle deine im Spiel gespielte Waffe und bis zu 6 Ausrüstungsteile aus dem Inventar. Der Build wird mit denselben Annahmen (Know-How, SHD, Spezialisierung, Gegnerprofil, Stack-Auslastung) berechnet und im Vergleich dem besten Optimizer-Ergebnis gegenübergestellt.</p>
+                                <p class="text-[11px] text-gray-400">Wähle deine im Spiel gespielte Waffe und bis zu 6 Ausrüstungsteile aus dem Inventar. Der Build wird mit denselben Annahmen (Know-How, SHD, Spezialisierung, Gegnerprofil, Stack-Auslastung) berechnet und im Vergleich dem besten Optimizer-Ergebnis gegenübergestellt.</p>
                                 <div>
                                     <label class="block text-[11px] text-gray-400 mb-1">Waffe</label>
-                                    <select id="manualWeaponSelect" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select>
+                                    <select  aria-label="Spiel-Build: Waffe" id="manualWeaponSelect" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Maske</label><select id="manualGearSelect_Maske" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Weste</label><select id="manualGearSelect_Weste" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Rucksack</label><select id="manualGearSelect_Rucksack" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Handschuhe</label><select id="manualGearSelect_Handschuhe" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Holster</label><select id="manualGearSelect_Holster" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
-                                    <div><label class="block text-[11px] text-gray-400 mb-1">Knieschoner</label><select id="manualGearSelect_Knieschoner" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Maske</label><select  aria-label="Spiel-Build: Maske" id="manualGearSelect_Maske" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Weste</label><select  aria-label="Spiel-Build: Weste" id="manualGearSelect_Weste" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Rucksack</label><select  aria-label="Spiel-Build: Rucksack" id="manualGearSelect_Rucksack" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Handschuhe</label><select  aria-label="Spiel-Build: Handschuhe" id="manualGearSelect_Handschuhe" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Holster</label><select  aria-label="Spiel-Build: Holster" id="manualGearSelect_Holster" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
+                                    <div><label class="block text-[11px] text-gray-400 mb-1">Knieschoner</label><select  aria-label="Spiel-Build: Knieschoner" id="manualGearSelect_Knieschoner" onchange="markComparisonStale()" class="w-full p-2 rounded-lg text-sm"></select></div>
                                 </div>
                             </div>
                         </div>
 
                     <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
                         <label class="block text-xs font-bold uppercase text-div-accent">Gegnerprofil (Annahmen für DTA / DTH / DTToOC)</label>
-                        <p class="text-[11px] text-gray-500">Rüstungs- und Lebensenergie-Anteil gewichten, wie viel des Kampfes gegen die Rüstungs- bzw. Lebensenergie-Leiste stattfindet; der Ungedeckt-Anteil, wie viel Schaden DTToOC tatsächlich verstärkt. „Nur Lebensenergie“ = Rüstung 0 % / Lebensenergie 100 % (DTA bringt dann nichts).</p>
+                        <p class="text-[11px] text-gray-400">Rüstungs- und Lebensenergie-Anteil gewichten, wie viel des Kampfes gegen die Rüstungs- bzw. Lebensenergie-Leiste stattfindet; der Ungedeckt-Anteil, wie viel Schaden DTToOC tatsächlich verstärkt. „Nur Lebensenergie“ = Rüstung 0 % / Lebensenergie 100 % (DTA bringt dann nichts).</p>
                         <div class="flex items-center gap-3">
                             <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Rüstungs-Anteil (%)</label>
-                            <input type="range" id="enemyArmorShare" min="0" max="100" value="80" oninput="syncEnemySliders('armor')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric" id="enemyArmorShareInput" value="80" oninput="syncEnemySliders('armor')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                            <input type="range"  aria-label="Gegnerprofil: Ruestungs-Anteil" id="enemyArmorShare" min="0" max="100" value="80" oninput="syncEnemySliders('armor')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ruestungs-Anteil (Eingabe)" id="enemyArmorShareInput" value="80" oninput="syncEnemySliders('armor')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                         </div>
                         <div class="flex items-center gap-3">
                             <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Lebensenergie-Anteil (%)</label>
-                            <input type="range" id="enemyHealthShare" min="0" max="100" value="20" oninput="syncEnemySliders('health')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric" id="enemyHealthShareInput" value="20" oninput="syncEnemySliders('health')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                            <input type="range"  aria-label="Gegnerprofil: Lebensenergie-Anteil" id="enemyHealthShare" min="0" max="100" value="20" oninput="syncEnemySliders('health')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Lebensenergie-Anteil (Eingabe)" id="enemyHealthShareInput" value="20" oninput="syncEnemySliders('health')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                         </div>
                         <div class="flex items-center gap-3">
                             <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Ungedeckt-Anteil (%)</label>
-                            <input type="range" id="enemyOocShare" min="0" max="100" value="70" oninput="syncEnemySliders('ooc')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric" id="enemyOocShareInput" value="70" oninput="syncEnemySliders('ooc')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                            <input type="range"  aria-label="Gegnerprofil: Ungedeckt-Anteil" id="enemyOocShare" min="0" max="100" value="70" oninput="syncEnemySliders('ooc')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ungedeckt-Anteil (Eingabe)" id="enemyOocShareInput" value="70" oninput="syncEnemySliders('ooc')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                         </div>
-                        <p class="text-[11px] text-gray-500">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt.</p>
+                        <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt.</p>
                     </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                             <label class="block">
@@ -891,7 +892,7 @@
                                 </select>
                             </label>
                         </div>
-                        <p class="text-[11px] text-gray-500">Erzwingt ein bestimmtes exotisches Gear-Teil bzw. eine exotische Waffe in allen Vergleichs-Builds — so siehst du direkt, wie sich der Exot gegen die freie Optimierung schlägt. Die Waffen-Gattung wird bei erzwungener Waffe ignoriert.</p>
+                        <p class="text-[11px] text-gray-400">Erzwingt ein bestimmtes exotisches Gear-Teil bzw. eine exotische Waffe in allen Vergleichs-Builds — so siehst du direkt, wie sich der Exot gegen die freie Optimierung schlägt. Die Waffen-Gattung wird bei erzwungener Waffe ignoriert.</p>
                     </div>
                 </div>
 
@@ -908,15 +909,15 @@
                 <h2 class="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
                 <span class="text-div-accent">⚙️</span> Globale Einstellungen
                 </h2>
-                <p class="text-xs text-gray-500">Diese Einstellungen gelten global für alle Berechnungen: Optimierung, Vergleich und Empfehlungs-Scores.</p>
+                <p class="text-xs text-gray-400">Diese Einstellungen gelten global für alle Berechnungen: Optimierung, Vergleich und Empfehlungs-Scores.</p>
                 <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
                     <div class="flex items-center justify-between">
                         <label class="block text-xs font-bold uppercase text-div-accent">Know-How-Level (Kenntnisstufe 0 - 30)</label>
                         <span id="knowHowBonusDisplay" class="text-xs bg-div-accent/20 text-div-accent font-mono px-2 py-0.5 rounded border border-div-accent/30">+30% Waffenschaden</span>
                         </div>
                     <div class="flex items-center gap-3 pt-1">
-                        <input type="range" id="knowHowLevel" min="0" max="30" value="30" oninput="updateKnowHowDisplay()" class="w-full accent-orange-500 cursor-pointer">
-                        <input type="text" inputmode="numeric" id="knowHowInput" value="30" oninput="syncKnowHowInput(this.value)" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        <input type="range"  aria-label="Know-How-Level" id="knowHowLevel" min="0" max="30" value="30" oninput="updateKnowHowDisplay()" class="w-full accent-orange-500 cursor-pointer">
+                        <input type="text" inputmode="numeric"  aria-label="Know-How-Level (Eingabe)" id="knowHowInput" value="30" oninput="syncKnowHowInput(this.value)" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                         </div>
                     </div>
                 <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
@@ -934,23 +935,23 @@
                     <div id="customShdContainer" class="hidden grid grid-cols-3 gap-2 pt-2 border-t border-gray-800 text-xs">
                         <div>
                             <label class="block text-gray-400 mb-1">Uhr WD (%)</label>
-                            <input type="text" inputmode="decimal" id="shdCustomWd" value="0" class="w-full p-1.5 rounded text-xs">
+                            <input type="text" inputmode="decimal"  aria-label="SHD-Uhr: Waffenschaden" id="shdCustomWd" value="0" class="w-full p-1.5 rounded text-xs">
                             </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Uhr CHC (%)</label>
-                            <input type="text" inputmode="decimal" id="shdCustomChc" value="0" class="w-full p-1.5 rounded text-xs">
+                            <input type="text" inputmode="decimal"  aria-label="SHD-Uhr: Kritische Trefferchance" id="shdCustomChc" value="0" class="w-full p-1.5 rounded text-xs">
                             </div>
                         <div>
                             <label class="block text-gray-400 mb-1">Uhr CHD (%)</label>
-                            <input type="text" inputmode="decimal" id="shdCustomChd" value="0" class="w-full p-1.5 rounded text-xs">
+                            <input type="text" inputmode="decimal"  aria-label="SHD-Uhr: Kritischer Trefferschaden" id="shdCustomChd" value="0" class="w-full p-1.5 rounded text-xs">
                             </div>
                         </div>
                     </div>
 
                 <div class="flex items-center gap-2 pt-1">
                     <label class="block text-xs font-semibold uppercase text-gray-400 whitespace-nowrap">Mindest-CHC (%)</label>
-                    <input type="number" id="targetChc" min="0" max="100" value="50" class="w-16 p-1.5 rounded-lg text-xs text-center font-bold">
-                    <span class="text-[11px] text-gray-500">Mod-Konfigurationen unterhalb dieses CHC-Werts werden bei der Optimierung übersprungen. Ist das Minimum mit keiner Konfiguration erreichbar, greift automatisch die beste verfügbare (mit Hinweis im Ergebnis).</span>
+                    <input type="number"  aria-label="Mindest-CHC" id="targetChc" min="0" max="100" value="50" class="w-16 p-1.5 rounded-lg text-xs text-center font-bold">
+                    <span class="text-[11px] text-gray-400">Mod-Konfigurationen unterhalb dieses CHC-Werts werden bei der Optimierung übersprungen. Ist das Minimum mit keiner Konfiguration erreichbar, greift automatisch die beste verfügbare (mit Hinweis im Ergebnis).</span>
                     </div>
                 </div>
             </div>
@@ -967,7 +968,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🔫 Waffen-Datenbank (<span id="adminWeaponCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
-                        <select id="adminWeaponTypeFilter" onchange="populateWeaponRarityFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gattungen</option></select> <select id="adminWeaponRarityFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Arten</option></select> <input type="text" id="adminWeaponFilter" oninput="renderAdminTables()" placeholder="🔍 Waffe suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <select  aria-label="Verwaltung: Filter Waffentyp" id="adminWeaponTypeFilter" onchange="populateWeaponRarityFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gattungen</option></select> <select  aria-label="Verwaltung: Filter Seltenheit" id="adminWeaponRarityFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Arten</option></select> <input type="text"  aria-label="Verwaltung: Waffen-Suche" id="adminWeaponFilter" oninput="renderAdminTables()" placeholder="🔍 Waffe suchen…" class="p-2 rounded-lg text-sm w-48">
                         <button onclick="openWeaponForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neue Waffe</button>
                     </div>
                 </div>
@@ -977,7 +978,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🎽 Gear-Datenbank (<span id="adminGearCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
-                        <select id="adminGearSlotFilter" onchange="populateGearClassFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Slots</option></select> <select id="adminGearClassFilter" onchange="populateGearBrandFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Klassen</option></select> <select id="adminGearBrandFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Marken/Sets</option></select> <input type="text" id="adminGearFilter" oninput="renderAdminTables()" placeholder="🔍 Gear suchen…" class="p-2 rounded-lg text-sm w-48">
+                        <select  aria-label="Verwaltung: Filter Slot" id="adminGearSlotFilter" onchange="populateGearClassFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Slots</option></select> <select  aria-label="Verwaltung: Filter Klasse" id="adminGearClassFilter" onchange="populateGearBrandFilter(); renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Klassen</option></select> <select  aria-label="Verwaltung: Filter Marke" id="adminGearBrandFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Marken/Sets</option></select> <input type="text"  aria-label="Verwaltung: Gear-Suche" id="adminGearFilter" oninput="renderAdminTables()" placeholder="🔍 Gear suchen…" class="p-2 rounded-lg text-sm w-48">
                         <button onclick="openGearForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear</button>
                     </div>
                 </div>
@@ -987,8 +988,8 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">🎽 Brand-Sets (<span id="adminBrandCount">0</span>)</h3>
                         <div class="flex gap-2 flex-wrap items-center">
-                            <select id="adminBrandGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gruppen</option></select>
-                            <input type="text" id="adminBrandFilter" oninput="renderAdminTables()" placeholder="🔍 Marke suchen…" class="p-2 rounded-lg text-sm w-40">
+                            <select  aria-label="Verwaltung: Filter Marken-Gruppe" id="adminBrandGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Alle Gruppen</option></select>
+                            <input type="text"  aria-label="Verwaltung: Marken-Suche" id="adminBrandFilter" oninput="renderAdminTables()" placeholder="🔍 Marke suchen…" class="p-2 rounded-lg text-sm w-40">
                             <button onclick="openBrandForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Brand-Set</button>
                         </div>
                     </div>
@@ -998,8 +999,8 @@
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">🧹 Gear-Sets (<span id="adminGreenCount">0</span>)</h3>
                         <div class="flex gap-2 flex-wrap items-center">
-                            <select id="adminGreenGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Gruppe wählen…</option></select>
-                            <input type="text" id="adminGreenFilter" oninput="renderAdminTables()" placeholder="🔍 Set suchen…" class="p-2 rounded-lg text-sm w-40">
+                            <select  aria-label="Verwaltung: Filter Gear-Set-Gruppe" id="adminGreenGroupFilter" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm"><option value="">Gruppe wählen…</option></select>
+                            <input type="text"  aria-label="Verwaltung: Gear-Set-Suche" id="adminGreenFilter" oninput="renderAdminTables()" placeholder="🔍 Set suchen…" class="p-2 rounded-lg text-sm w-40">
                             <button onclick="openGreenForm(null)" class="btn-primary px-3 py-2 rounded-lg text-xs font-bold">+ Neues Gear-Set</button>
                         </div>
                     </div>
@@ -1009,7 +1010,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-gray-800 pb-3">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2">🔧 Mod-Katalog (<span id="adminModCount">0</span>)</h3>
                     <div class="flex gap-2 flex-wrap">
-                        <select id="adminModSlot" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm">
+                        <select  aria-label="Verwaltung: Mod-Slot" id="adminModSlot" onchange="renderAdminTables()" class="p-2 rounded-lg text-sm">
                             <option value="optic">Optik</option>
                             <option value="muzzle">Mündung</option>
                             <option value="underbarrel">Unterlauf</option>
@@ -1024,7 +1025,7 @@
                 <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
                     <span class="text-div-accent">💾</span> Daten sichern &amp; zurücksetzen
                 </h3>
-                <p class="text-xs text-gray-500">Export erzeugt JSON-Dateien im Format der Repository-Datenbanken – diese können direkt ins Projekt übernommen oder später wieder importiert werden.</p>
+                <p class="text-xs text-gray-400">Export erzeugt JSON-Dateien im Format der Repository-Datenbanken – diese können direkt ins Projekt übernommen oder später wieder importiert werden.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div class="space-y-2">
                         <p class="text-xs font-bold uppercase text-gray-400">Export</p>
@@ -1077,7 +1078,7 @@
                 </div>
             </div>
         </div>
-    </div>
+</main>
     <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
         <div class="div-card rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-gray-800 pb-3">
