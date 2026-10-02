@@ -4424,7 +4424,14 @@
                         d.wd += wwd;
                         parts.push(`+${formatGermanNumber(wwd)}% ${brandWeaponTypeLabel[targetWeaponType]}-Schaden`);
                     }
-                    if (parts.length) cache.boni.push(`${brandName} ${tier}p (${parts.join(', ')})`);
+                    const BRAND_BONUS_LABELS = { magSize: 'Magazingr\u00f6\u00dfe', stability: 'Stabilit\u00e4t', hazard: 'Gefahrenschutz', explosiveDmg: 'Explosionsschaden', ammoCap: 'Munitionskapazit\u00e4t', skillDuration: 'Skill-Dauer', statusEffects: 'Statuseffekte', armorOnKill: 'R\u00fcstung bei Kill', totalArmor: 'Gesamtr\u00fcstung', accuracy: 'Pr\u00e4zision', skillHealth: 'Skill-Health', reloadSpeed: 'Nachladetempo', repairSkills: 'Reparatur-Fertigkeiten', skillHaste: 'Skill-Haste', skillDmg: 'Skill-Schaden', skillEff: 'Skill-Effizienz', skillTier: 'Fertigkeitsstufe', explRes: 'Explosionsresistenz', armorRegen: 'R\u00fcstungs-Regeneration', pfe: 'Schutz vor Eliten', threat: 'erh\u00f6hte Bedrohung', pulseRes: 'Pulse-Resistenz', optRange: 'optimale Reichweite' };
+                    Object.keys(BRAND_BONUS_LABELS).forEach(k => {
+                        if (b[k] === undefined) return;
+                        const isTier = k === 'skillTier';
+                        const val = isTier ? b[k] : formatGermanNumber(b[k]) + '%';
+                        const note = (k === 'magSize' || k === 'reloadSpeed' || k === 'accuracy' || k === 'stability' || k === 'optRange') ? ' (Modellierung folgt, Issue #56)' : '';
+                        cache.boni.push(`${brandName} ${tier}p: +${isTier ? '' : ''}${val} ${BRAND_BONUS_LABELS[k]}${note}`);
+                    });
                     if (b.text) cache.boni.push(`${brandName} ${tier}p (${b.text}) — kein Score-Beitrag`);
                 });
             });

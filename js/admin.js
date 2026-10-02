@@ -425,7 +425,13 @@ function deleteGearEntry(idx) {
 const ADMIN_BRAND_GROUPS = { dps: 'DPS', skill: 'Skill', armour: 'Defense' };
 
 // Zusammenfassung der Set-Boni fuer die Admin-Tabelle (1p/2p/3p, PvE)
-const BRAND_BONUS_ATTR_LABELS = { wd: 'WD', chc: 'CHC', chd: 'CHD', hsd: 'HSD', dta: 'DTA', dth: 'DTH', rof: 'RoF', wh: 'WH' };
+const BRAND_BONUS_ATTR_LABELS = { wd: 'WD', chc: 'CHC', chd: 'CHD', hsd: 'HSD', dta: 'DTA', dth: 'DTH', rof: 'RoF', wh: 'WH',
+    magSize: 'Magazingr\u00f6\u00dfe', stability: 'Stabilit\u00e4t', accuracy: 'Pr\u00e4zision', reloadSpeed: 'Nachladetempo',
+    optRange: 'opt. Reichweite', ammoCap: 'Munitionskapazit\u00e4t', threat: 'Bedrohung', hazard: 'Gefahrenschutz',
+    explRes: 'Explosionsresistenz', pulseRes: 'Pulse-Resistenz', pfe: 'Schutz vor Eliten', armorOnKill: 'R\u00fcstung bei Kill',
+    totalArmor: 'Gesamtr\u00fcstung', armorRegen: 'R\u00fcstungs-Reg.', explosiveDmg: 'Explosionsschaden',
+    skillHaste: 'Skill-Haste', skillDmg: 'Skill-Schaden', skillHealth: 'Skill-Health', skillDuration: 'Skill-Dauer',
+    skillEff: 'Skill-Effizienz', statusEffects: 'Statuseffekte', repairSkills: 'Reparatur-Skills', skillTier: 'Fertigkeitsstufe' };
 function brandBonusesSummary(b) {
     const bonuses = b.bonuses_pve;
     if (!bonuses) return b.wd_bonus || '';
@@ -434,9 +440,12 @@ function brandBonusesSummary(b) {
         const x = bonuses[tier];
         if (!x) return;
         const seg = [];
-        ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh'].forEach(k => { if (x[k]) seg.push(`+${x[k]}% ${BRAND_BONUS_ATTR_LABELS[k]}`); });
-        if (x.wd_by_weapon) Object.entries(x.wd_by_weapon).forEach(([wt, v]) => seg.push(`+${v}% ${wt}`));
-        if (x.text) seg.push(x.text);
+        Object.keys(x).forEach(k => {
+            if (k === 'text') seg.push(x[k]);
+            else if (k === 'wd_by_weapon') Object.entries(x[k]).forEach(([wt, v]) => seg.push(`+${v}% ${wt}`));
+            else if (k === 'skillTier') seg.push(`+${x[k]} ${BRAND_BONUS_ATTR_LABELS[k]}`);
+            else if (BRAND_BONUS_ATTR_LABELS[k]) seg.push(`+${x[k]}% ${BRAND_BONUS_ATTR_LABELS[k]}`);
+        });
         if (seg.length) parts.push(`${tier}p: ${seg.join(', ')}`);
     });
     return parts.join(' \u00b7 ');
@@ -475,20 +484,32 @@ function renderBrandsAdmin() {
 // Typisierte Bonus-Attribute (Score-Keys) + waffentypbezogener Schaden
 // fuer den Boni-Editor je Stufe (1p/2p/3p). Reihenfolge = Dropdown-Reihenfolge.
 const BRAND_BONUS_ATTRS = [
-    ['', '\u2014 kein numerischer Bonus \u2014'],
+    ['', '\u2014 kein Bonus (nur Text) \u2014'],
     ['wd', 'Waffenschaden (WD)'], ['chc', 'Kritische Trefferchance (CHC)'], ['chd', 'Kritischer Trefferschaden (CHD)'],
     ['hsd', 'Kopfschussschaden (HSD)'], ['dta', 'Schaden gegen R\u00fcstung (DTA)'], ['dth', 'Schaden gegen Leben (DTH)'],
     ['rof', 'Feuerrate (RoF)'], ['wh', 'Waffenhandhabung (WH)'],
     ['wdw:AR', 'Waffenschaden: AR'], ['wdw:LMG', 'Waffenschaden: LMG'], ['wdw:MP', 'Waffenschaden: MP'],
     ['wdw:Rifle', 'Waffenschaden: Gewehr (Rifle)'], ['wdw:Shotgun', 'Waffenschaden: Schrotflinte'], ['wdw:MMR', 'Waffenschaden: MMR'],
-    ['wdw:Pistol', 'Waffenschaden: Pistole']
+    ['wdw:Pistol', 'Waffenschaden: Pistole'],
+    ['magSize', 'Magazingr\u00f6\u00dfe'], ['stability', 'Stabilit\u00e4t'], ['accuracy', 'Pr\u00e4zision'], ['reloadSpeed', 'Nachladetempo'],
+    ['optRange', 'Optimale Reichweite'], ['ammoCap', 'Munitionskapazit\u00e4t'], ['threat', 'Erh\u00f6hte Bedrohung'],
+    ['hazard', 'Gefahrenschutz'], ['explRes', 'Explosionsresistenz'], ['pulseRes', 'Pulse-Resistenz'],
+    ['pfe', 'Schutz vor Eliten'], ['armorOnKill', 'R\u00fcstung bei Kill'], ['totalArmor', 'Gesamtr\u00fcstung'],
+    ['armorRegen', 'R\u00fcstungs-Regeneration'], ['explosiveDmg', 'Explosionsschaden'],
+    ['skillHaste', 'Skill-Haste'], ['skillDmg', 'Skill-Schaden'], ['skillHealth', 'Skill-Health'],
+    ['skillDuration', 'Skill-Dauer'], ['skillEff', 'Skill-Effizienz'], ['statusEffects', 'Statuseffekte'],
+    ['repairSkills', 'Reparatur-Fertigkeiten'], ['skillTier', 'Fertigkeitsstufe(n)']
 ];
 // Liest den Bonus einer Stufe fuer das Formular: [attrSelectValue, numericVal, textVal]
 function brandTierFormState(bonuses, tier) {
     const b = (bonuses || {})[tier] || {};
+    const typedKeys = ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh',
+        'magSize', 'stability', 'accuracy', 'reloadSpeed', 'optRange', 'ammoCap', 'threat',
+        'hazard', 'explRes', 'pulseRes', 'pfe', 'armorOnKill', 'totalArmor', 'armorRegen', 'explosiveDmg',
+        'skillHaste', 'skillDmg', 'skillHealth', 'skillDuration', 'skillEff', 'statusEffects', 'repairSkills', 'skillTier'];
     let attr = '';
-    for (const k of ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh']) {
-        if (b[k]) { attr = k; break; }
+    for (const k of typedKeys) {
+        if (b[k] !== undefined && b[k] !== null) { attr = k; break; }
     }
     let numVal = 0;
     if (attr) numVal = b[attr] || 0;
@@ -549,9 +570,9 @@ function saveBrandForm(key) {
         const numVal = parseFloat(getVal('abBonusVal' + tier)) || 0;
         const text = (getVal('abBonusText' + tier) || '').trim();
         const b = {};
-        if (attrSel && numVal > 0) {
+        if (attrSel && (numVal > 0 || (attrSel === 'skillTier' && numVal > 0))) {
             if (attrSel.startsWith('wdw:')) b.wd_by_weapon = { [attrSel.slice(4)]: numVal };
-            else b[attrSel] = numVal;
+            else b[attrSel] = attrSel === 'skillTier' ? Math.round(numVal) : numVal;
         }
         if (text) b.text = text;
         if (Object.keys(b).length > 0) bonuses[tier] = b;
