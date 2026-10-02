@@ -6387,21 +6387,21 @@
             "replica": false,
             "source": "table",
             "table_name": "Lullaby",
-            "note": "Exotic - fixed mods · headshot 45%",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic Accuracy/Magazin ReloadSpeed/Underbarrel Range, kein Muzzle); funktional identisch zu Sweet Dreams",
             "stats": {
                 "RPM": 70,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 5.13,
-                "Level 40 Damage": 716012,
-                "DPS (rps*dmg)": 835347.3333,
-                "Sustain DPS (dmg/time)": 477853.319,
-                "Total Mag": 5728096,
-                "Modded Sustain DPS": 477853.319,
-                "Optimal Range": 13,
+                "Empty Reload (secs)": 5.5,
+                "Level 40 Damage": 715832,
+                "DPS (rps*dmg)": 835137.3333,
+                "Sustain DPS (dmg/time)": 463428.8092,
+                "Total Mag": 5726656,
+                "Modded Sustain DPS": 463428.8092,
+                "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 25,
-                "Pellets": "8 × 89,502"
+                "Pellets": "8 × 89479"
             },
             "exotic": {
                 "talent": {
