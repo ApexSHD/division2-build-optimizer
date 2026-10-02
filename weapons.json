@@ -297,16 +297,21 @@
             "source": "table",
             "table_name": "The Bighorn",
             "note": "Exotic - fixed mods · headshot 115%",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/The_Bighorn",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 800,
                 "Base Mag Size": 42,
                 "Modded Mag Size": 42,
-                "Empty Reload (secs)": 1.73,
-                "Level 40 Damage": 57218,
-                "DPS (rps*dmg)": 762906.6667,
-                "Sustain DPS (dmg/time)": 492450,
-                "Total Mag": 2403156,
-                "Modded Sustain DPS": 492450,
+                "Empty Reload (secs)": 2.16,
+                "Modded Reload (secs)": 1.73,
+                "Level 40 Damage": 57206,
+                "DPS (rps*dmg)": 762746.6667,
+                "Sustain DPS (dmg/time)": 452476.8362,
+                "Total Mag": 2402652,
+                "Modded Sustain DPS": 492346.7213,
                 "Optimal Range": 40,
                 "Mod Slots": "N/A",
                 "HSD": 55
@@ -509,6 +514,10 @@
             "source": "table",
             "table_name": "Agitator",
             "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/Agitator",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 850,
                 "Base Mag Size": 30,
@@ -700,16 +709,20 @@
             "source": "table",
             "table_name": "Strega",
             "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/Strega",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 700,
                 "Base Mag Size": 20,
                 "Modded Mag Size": 40,
-                "Empty Reload (secs)": 1.93,
-                "Level 40 Damage": 57646,
-                "DPS (rps*dmg)": 672536.6667,
-                "Sustain DPS (dmg/time)": 316363.7789,
-                "Total Mag": 1152920,
-                "Modded Sustain DPS": 430308.7177,
+                "Empty Reload (secs)": 2.3,
+                "Level 40 Damage": 57634,
+                "DPS (rps*dmg)": 672396.6667,
+                "Sustain DPS (dmg/time)": 287144.484,
+                "Total Mag": 1152680,
+                "Modded Sustain DPS": 402431.9202,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
                 "HSD": 55
@@ -722,13 +735,13 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "chc",
+                        "attr": "chd",
                         "value": 5,
                         "unit": "%"
                     },
                     {
                         "slot": "muzzle",
-                        "attr": "chd",
+                        "attr": "chc",
                         "value": 5,
                         "unit": "%"
                     },
@@ -1254,16 +1267,20 @@
             "source": "table",
             "table_name": "St. Elmo's Engine",
             "note": "Exotic - fixed mods, its built-in magazine gives +30 rounds",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/St._Elmo's_Engine",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 850,
                 "Base Mag Size": 40,
                 "Modded Mag Size": 70,
-                "Empty Reload (secs)": 2.02,
-                "Level 40 Damage": 46918,
-                "DPS (rps*dmg)": 664671.6667,
-                "Sustain DPS (dmg/time)": 387469.5166,
-                "Total Mag": 1876720,
-                "Modded Sustain DPS": 471796.6875,
+                "Empty Reload (secs)": 2.24,
+                "Level 40 Damage": 46908,
+                "DPS (rps*dmg)": 664530,
+                "Sustain DPS (dmg/time)": 370555.7621,
+                "Total Mag": 1876320,
+                "Modded Sustain DPS": 457245.4128,
                 "Optimal Range": 31,
                 "Mod Slots": "N/A",
                 "HSD": 55
@@ -1277,7 +1294,7 @@
                     {
                         "slot": "optic",
                         "attr": "chd",
-                        "value": 15,
+                        "value": 30,
                         "unit": "%"
                     },
                     {
@@ -1289,7 +1306,7 @@
                     {
                         "slot": "underbarrel",
                         "attr": "handling",
-                        "value": 10,
+                        "value": 30,
                         "unit": "%"
                     },
                     {
@@ -1442,7 +1459,7 @@
             }
         },
         {
-            "name": "Caduceus (MK16) (PTS)",
+            "name": "Caduceus (MK16)",
             "type": "Sturmgewehr (AR)",
             "rarity": "exotic",
             "is_exotic": true,
@@ -1451,6 +1468,10 @@
             "source": "table",
             "table_name": "Caduceus",
             "note": "Exotic - fixed mods, its built-in magazine gives +40 rounds",
+            "verified": {
+                "source": "David (In-Game/PTS-Daten), 2026-02-27",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 650,
                 "Base Mag Size": 30,
@@ -1462,13 +1483,13 @@
                 "Total Mag": 1776630,
                 "Modded Sustain DPS": 488763.9216,
                 "Optimal Range": 31,
-                "Mod Slots": "4\\",
-                "HSD": 55
+                "Mod Slots": "N/A",
+                "HSD": 75
             },
             "exotic": {
                 "talent": {
-                    "name": null,
-                    "description": "Critical Hits repair you and your allies for 1.5% of the hit's dealt damage."
+                    "name": "Caduceus",
+                    "description": "Caduceus\nKritische Treffer heilen dich und deine Verbündeten um 3% des zugefügten Schadens."
                 },
                 "fixedMods": [
                     {
@@ -1492,7 +1513,7 @@
                     {
                         "slot": "magazine",
                         "attr": "capacity",
-                        "value": 20,
+                        "value": 40,
                         "unit": "rounds"
                     }
                 ]
@@ -1598,24 +1619,28 @@
             "source": "table",
             "table_name": "Eagle Bearer",
             "note": "Exotic - fixed mods, its built-in magazine gives +30 rounds",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/Eagle_Bearer",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 850,
                 "Base Mag Size": 30,
                 "Modded Mag Size": 60,
-                "Empty Reload (secs)": 2.11,
-                "Level 40 Damage": 47365,
-                "DPS (rps*dmg)": 671004.1667,
-                "Sustain DPS (dmg/time)": 336108.9467,
-                "Total Mag": 1420950,
-                "Modded Sustain DPS": 447875.2202,
+                "Empty Reload (secs)": 2.34,
+                "Level 40 Damage": 47356,
+                "DPS (rps*dmg)": 670876.6667,
+                "Sustain DPS (dmg/time)": 318706.2549,
+                "Total Mag": 1420680,
+                "Modded Sustain DPS": 432126.6774,
                 "Optimal Range": 26,
                 "Mod Slots": "N/A",
                 "HSD": 55
             },
             "exotic": {
                 "talent": {
-                    "name": "Eagle Strike",
-                    "description": "Accuracy increases as you continuously fire, up to 30%.\n\nHeadshot kills grant the Tenacity buff for 15 seconds.\n\nThe strength of Tenacity is increased by 1% for body shots and 5% for headshots. \n\nTenacity\n40-80% of damage taken is delayed until the buff expires."
+                    "name": "Eagle's Strike",
+                    "description": "Eagle's Strike\nAccuracy increases as you continuously fire, up to +30%.\n\nHeadshot kills grant the Tenacity buff for 15s.\n\nThe strength of Tenacity is increased by 1% for body shots and 5% for headshots.\n\nTenacity\n40-80% of damage taken is delayed until the buff expires.\n\nAll of the total delayed damage is reduced for each enemy killed while the buff is active, up to 100% with 3 kills."
                 },
                 "fixedMods": [
                     {
@@ -1760,16 +1785,20 @@
             "source": "table",
             "table_name": "Capacitor",
             "note": "Exotic - fixed mods, its built-in magazine gives +11 rounds",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/Capacitor",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 700,
                 "Base Mag Size": 30,
                 "Modded Mag Size": 41,
-                "Empty Reload (secs)": 1.84,
-                "Level 40 Damage": 57618,
-                "DPS (rps*dmg)": 672210,
-                "Sustain DPS (dmg/time)": 391832.2539,
-                "Total Mag": 1728540,
-                "Modded Sustain DPS": 441205.0694,
+                "Empty Reload (secs)": 2.04,
+                "Level 40 Damage": 57606,
+                "DPS (rps*dmg)": 672070,
+                "Sustain DPS (dmg/time)": 374760.223,
+                "Total Mag": 1728180,
+                "Modded Sustain DPS": 425229.4753,
                 "Optimal Range": 31,
                 "Mod Slots": "N/A",
                 "HSD": 55
@@ -2012,20 +2041,24 @@
             "replica": false,
             "source": "table",
             "table_name": "Chameleon",
-            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds · headshot 70%",
+            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds · headshot 55%",
+            "verified": {
+                "source": "https://thedivision.fandom.com/wiki/Chameleon",
+                "date": "2026-02-27"
+            },
             "stats": {
                 "RPM": 900,
                 "Base Mag Size": 30,
                 "Modded Mag Size": 50,
                 "Empty Reload (secs)": 2.4,
-                "Level 40 Damage": 44671,
-                "DPS (rps*dmg)": 670065,
-                "Sustain DPS (dmg/time)": 304575,
-                "Total Mag": 1340130,
-                "Modded Sustain DPS": 389572.6744,
+                "Level 40 Damage": 44660,
+                "DPS (rps*dmg)": 669900,
+                "Sustain DPS (dmg/time)": 304500,
+                "Total Mag": 1339800,
+                "Modded Sustain DPS": 389476.7442,
                 "Optimal Range": 20,
                 "Mod Slots": "N/A",
-                "HSD": 50
+                "HSD": 55
             },
             "exotic": {
                 "talent": {

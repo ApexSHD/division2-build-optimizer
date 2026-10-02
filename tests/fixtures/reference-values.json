@@ -31,9 +31,9 @@
   },
   "sustain_factor_eagle_bearer": {
     "expression": "weaponSustainFactor({ name: 'Eagle Bearer', type: 'Sturmgewehr', autoMods: false }, 850)",
-    "expected": 0.6675,
+    "expected": 0.6441,
     "tolerance": 0.001,
-    "note": "Modded Mag 60 @850 RPM (4,235s Feuerzeit), Empty Reload 2,11s -> 4,235/(4,235+2,11) = 0,6675"
+    "note": "Modded Mag 60 @850 RPM (4,235s Feuerzeit), Empty Reload 2,34s -> 4,235/(4,235+2,34) = 0,6441 (Reload per Fandom-Verifikation korrigiert, ehemals 2,11s)"
   },
   "effective_mag_stats_eagle_bearer": {
     "expression": "effectiveMagStats({ name: 'Eagle Bearer', type: 'Sturmgewehr', autoMods: false }).mag",

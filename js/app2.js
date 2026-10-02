@@ -974,12 +974,12 @@ const EXOTIC_WEAPONS = {
         ]
     },
     "Caduceus": {
-        talent: { name: null, description: "Critical Hits repair you and your allies for 1.5% of the hit's dealt damage." },
+        talent: { name: "Caduceus", description: "Caduceus\nKritische Treffer heilen dich und deine Verbündeten um 3% des zugefügten Schadens." },
         fixedMods: [
             { slot: "optic", attr: "chc", value: 10, unit: "%" },
             { slot: "muzzle", attr: "chc", value: 5, unit: "%" },
             { slot: "underbarrel", attr: "chd", value: 5, unit: "%" },
-            { slot: "magazine", attr: "capacity", value: 20, unit: "rounds" }
+            { slot: "magazine", attr: "capacity", value: 40, unit: "rounds" }
         ]
     },
     "Eagle Bearer": {
@@ -1321,7 +1321,7 @@ const EXOTIC_WEAPONS = {
         ]
     }
 };
-EXOTIC_WEAPONS['Caduceus (MK16) (PTS)'] = EXOTIC_WEAPONS['Caduceus'];
+EXOTIC_WEAPONS['Caduceus (MK16)'] = EXOTIC_WEAPONS['Caduceus'];
 
 // ========== WAFFEN-SLOT-TYPEN (aus Davids Waffen-/Mod-Tabelle) ==========
 // Je Waffe: welche Mod-Slot-Typen tatsaechlich verfuegbar sind.
