@@ -9694,43 +9694,49 @@
             "replica": false,
             "source": "table",
             "table_name": "Liberty",
-            "note": "Exotic - fixed mods · headshot 125%",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Sight HSD/Grip Handling/Trigger RoF/Customs CHC); Talent 'Liberty or Death' (DB hatte vorher falsche Whiplash-Daten)",
             "stats": {
-                "RPM": 230,
+                "RPM": 200,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 1.9,
-                "Level 40 Damage": 189172,
-                "DPS (rps*dmg)": 725159.3333,
-                "Sustain DPS (dmg/time)": 379581.7666,
-                "Total Mag": 1513376,
-                "Modded Sustain DPS": 379581.7666,
+                "Empty Reload (secs)": 2.24,
+                "Level 40 Damage": 189126,
+                "DPS (rps*dmg)": 630420.0,
+                "Sustain DPS (dmg/time)": 326079.3103,
+                "Total Mag": 1513008,
+                "Modded Sustain DPS": 326079.3103,
                 "Optimal Range": 18,
                 "Mod Slots": "N/A",
-                "HSD": 100
+                "HSD": 105
             },
             "exotic": {
                 "talent": {
-                    "name": "Faster than Reloading",
-                    "description": "Faster than Reloading\n\nHaving this weapon holstered for 5s reloads and primes it. While primed, swapping to this weapon reloads you Primary and Secondary weapons and grants +20% Rate of Fire and +50% Weapon Damage until its magazine is emptied. Reloading or swapping from this weapon before its magazine is emptied will remove its stat bonuses."
+                    "name": "Liberty or Death",
+                    "description": "Liberty or Death\nHits grant +2% weapon damage Stacks up to 30 times.\nHeadshots consume all stacks, repairing your shield for 3% per stack."
                 },
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "chd",
-                        "value": 10,
+                        "attr": "hsd",
+                        "value": 5,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
-                        "attr": "swapSpeed",
-                        "value": 50,
+                        "attr": "handling",
+                        "value": 15,
                         "unit": "%"
                     },
                     {
                         "slot": "magazine",
+                        "attr": "rof",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
                         "attr": "chc",
-                        "value": 10,
+                        "value": 5,
                         "unit": "%"
                     }
                 ]
