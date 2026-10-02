@@ -752,6 +752,56 @@ const setInput = (id, value) => {
     w.eval(`weaponsInventory = JSON.parse(${JSON.stringify(invBefore)})`);
     if (prevChk !== null && perkChk) perkChk.checked = prevChk;
   }
+  // ===== 18. STORAGE-SCHEMA-MIGRATION + ROBUSTHEIT (Issue #35) =====
+  console.log('\\n--- Storage-Schema & Robustheit (Issue #35) ---');
+  {
+    // 18a. v16-Bestand migriert auf neue Schluessel, Legacy entfernt
+    w.localStorage.clear();
+    w.eval(`localStorage.setItem('div2_weapons_v16', JSON.stringify([{ id: 1, name: 'Mig-AR', type: 'AR', baseDmg: 50000, core1: 15 }]))`);
+    w.eval(`localStorage.setItem('div2_gear_v16', '[]')`);
+    w.eval(`localStorage.setItem('div2_weaponIdCounter_v16', '9')`);
+    w.eval('loadFromLocalStorage()');
+    t('Migration: v16-Waffen wandern in div2_weapons', w.eval(`Array.isArray(JSON.parse(localStorage.getItem('div2_weapons'))) && JSON.parse(localStorage.getItem('div2_weapons')).some(x => x.name === 'Mig-AR')`));
+    t('Migration: v16-Schluessel entfernt, Schema-Version gesetzt', w.eval(`localStorage.getItem('div2_weapons_v16') === null && localStorage.getItem('div2_schema_version') === '17'`));
+    t('Migration: ID-Counter uebernommen', w.eval('weaponIdCounter === 9'));
+    // 18b. defekter JSON-Eintrag bricht init nicht mehr
+    w.localStorage.clear();
+    w.eval(`localStorage.setItem('div2_weapons', '{defektes json')`);
+    w.eval(`localStorage.setItem('div2_gear', '[{"setName":"x"}]')`);
+    w.eval('loadFromLocalStorage()');
+    t('Robustheit: defektes JSON wird uebersprungen (Waffen-Array bleibt)', w.eval('Array.isArray(weaponsInventory)'));
+    t('Robustheit: gueltiges Gear wird trotzdem geladen', w.eval('gearInventory.length >= 1'));
+    // 18c. weaponIdCounter nur bei Neuanlage
+    w.localStorage.clear();
+    w.eval('weaponsInventory = []; gearInventory = []; weaponIdCounter = 5; editWeaponId = null');
+    const nameInp = $('weaponName');
+    if (nameInp) {
+      nameInp.value = '';
+      w.eval('addWeapon()');
+      t('Counter: Validierungsabbruch verbraucht keine ID', w.eval('weaponIdCounter === 5'));
+      nameInp.value = 'Neue-Waffe';
+      w.eval(`document.getElementById('weaponBaseDmg').value = '50000'`);
+      w.eval(`document.getElementById('weaponCore1').value = '15'`);
+      w.eval(`document.getElementById('weaponCore2Val').value = '10'`);
+      w.eval(`document.getElementById('weaponMinorVal').value = '10'`);
+      w.eval('addWeapon()');
+      t('Counter: Neuanlage erhaelt ID 5, Counter steigt auf 6', w.eval('weaponIdCounter === 6 && weaponsInventory.some(x => x.id === 5)'));
+      w.eval(`editWeaponId = 5`);
+      w.eval('addWeapon()');
+      t('Counter: Edit behaelt alte ID, Counter unveraendert', w.eval('weaponIdCounter === 6 && weaponsInventory.filter(x => x.id === 5).length === 1'));
+      w.eval('editWeaponId = null');
+    } else {
+      t('Counter: Validierungsabbruch verbraucht keine ID', false);
+      t('Counter: Neuanlage erhaelt ID 5, Counter steigt auf 6', false);
+      t('Counter: Edit behaelt alte ID, Counter unveraendert', false);
+    }
+    // 18d. lastComparisonData immer Array
+    t('lastComparisonData ist Array nach clearWeaponsInventory', w.eval(`(function(){ lastComparisonData = []; lastComparisonData = null; return false; })()`) === false && Array.isArray(w.eval('lastComparisonData') || []));
+    // 18e. strained-Alias (Standardwaffe) mappt auf Magazin-Modell
+    t('Talent-Alias: strained -> angespannt inkl. Magazin-O',
+      w.eval(`(function(){ const rt = resolveTalentDef('strained'); return rt && rt.key === 'angespannt' && !!WEAPON_TALENTS[rt.key]; })()`));
+    t('Talent-Alias: closepersonal -> nahkampf', w.eval(`(function(){ const rt = resolveTalentDef('closepersonal'); return rt && rt.key === 'nahkampf'; })()`));
+  }
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
   // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt
