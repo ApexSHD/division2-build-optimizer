@@ -10880,35 +10880,47 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic - fixed mods, its built-in magazine gives +5 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom/Ubisoft (Optic CHC/Magazin +5/Underbarrel Handling); Dragon's-Breath-Munition (40% Brand-Chance, 50% Statuseffekt-Bonus als Amplified); HSD in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 75,
                 "Base Mag Size": 5,
                 "Modded Mag Size": 10,
-                "Empty Reload (secs)": 7.01,
+                "Empty Reload (secs)": 5.34,
                 "Level 40 Damage": 703676,
-                "DPS (rps*dmg)": 879595,
-                "Sustain DPS (dmg/time)": 319562.2162,
+                "DPS (rps*dmg)": 879595.0,
+                "Sustain DPS (dmg/time)": 376700.2141,
                 "Total Mag": 3518380,
-                "Modded Sustain DPS": 468804.7968,
+                "Modded Sustain DPS": 527493.2534,
                 "Optimal Range": 11,
-                "Mod Slots": null,
+                "Mod Slots": "N/A",
                 "HSD": null,
                 "Pellets": "8 × 87,960"
             },
-            "named": {
+            "exotic": {
                 "talent": {
                     "name": "Dragon's Breath",
-                    "key": "dragons_breath",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 50,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Status-Effekt-Bonus > 0",
-                    "estimated": false,
-                    "description": "Verschießt Dragon's-Breath-Munition: Jeder Schuss hat 40% Chance auf Brand (PvE). Waffenschaden wird um 50% des Statuseffekt-Bonus verstaerkt (PvE) bzw. 10%/10% (PvP)."
-                }
+                    "description": "Dragon's Breath\nThis weapon fires Dragon's Breath shells. Each shot has a 40% chance of applying Burn to the enemy.\nWeapon Damage is Amplified by 50% of your Status Effect bonus.\n\nNote: Burn application is affected by usual Status Effect diminishing returns on enemies."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "capacity",
+                        "value": 5,
+                        "unit": "rounds"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 10,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
