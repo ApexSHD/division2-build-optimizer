@@ -478,7 +478,7 @@ function renderBrandsAdmin() {
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
             <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Set-Boni</th><th class="py-2 px-3">Aktionen</th>
-        </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+        </tr></thead><tbody>${rows || '<tr><td colspan="7" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
 // Typisierte Bonus-Attribute (Score-Keys) + waffentypbezogener Schaden
@@ -598,6 +598,53 @@ function deleteBrandEntry(key) {
 }
 
 const ADMIN_GREEN_GROUPS = { dps: 'DPS-Sets', armour: 'Rüstungs-Sets', skill: 'Fertigkeits-Sets' };
+// Typisierte Bonus-Attribute fuer Gear-Sets (inkl. Gear-Set-only Keys)
+const GREEN_BONUS_ATTRS = BRAND_BONUS_ATTRS.filter(x => !x[0].startsWith('wdw:')).concat([
+    ['healthOnKill', 'Leben bei Kill'], ['health', 'Leben'], ['shieldHp', 'Schild-HP'],
+    ['burnDuration', 'Brand-Dauer'], ['burnDmg', 'Brand-Schaden'], ['disruptRes', 'Disrupt-Resistenz'],
+    ['signatureDmg', 'Signatur-Schaden']
+]);
+const GREEN_BONUS_WEAPONS = [['', '— alle Waffen —'], ['AR', 'AR'], ['LMG', 'LMG'], ['MP', 'MP'],
+    ['Rifle', 'Gewehr (Rifle)'], ['Shotgun', 'Schrotflinte'], ['MMR', 'MMR'], ['Pistol', 'Pistole']];
+const GREEN_BONUS_ROWS_PER_TIER = 3;
+// Liest die Bonus-Liste einer Stufe fuer das Formular: Array von [attr, numVal, weapon]
+function greenTierFormState(bonuses, tier) {
+    const list = (bonuses || {})[tier] || [];
+    const rows = [];
+    for (let i = 0; i < GREEN_BONUS_ROWS_PER_TIER; i++) {
+        const b = list[i] || {};
+        rows.push([b.attr || '', b.val || '', b.weapon || '']);
+    }
+    return rows;
+}
+function greenBonusRow(tier, idx, state) {
+    const [attr, numVal, weapon] = state;
+    return `<div class="grid grid-cols-1 md:grid-cols-3 gap-2 p-2 rounded-lg bg-zinc-900/80 border border-gray-800">
+        ${modalInput('agBonusAttr' + tier + '_' + idx, 'Attribut', attr, { type: 'select', options: GREEN_BONUS_ATTRS })}
+        ${modalInput('agBonusVal' + tier + '_' + idx, 'Wert (%)', numVal === '' ? '' : numVal, { type: 'number', step: 'any', placeholder: 'z.B. 30' })}
+        ${modalInput('agBonusWeapon' + tier + '_' + idx, 'Waffe (optional)', weapon, { type: 'select', options: GREEN_BONUS_WEAPONS })}
+    </div>`;
+}
+function greenBonusSection(tier, label, bonuses) {
+    const rows = greenTierFormState(bonuses, tier);
+    return `<div class="space-y-2">
+        <p class="text-xs font-bold uppercase text-div-accent">${label}</p>
+        ${rows.map((r, i) => greenBonusRow(tier, i, r)).join('')}
+    </div>`;
+}
+// Zusammenfassung der typisierten Boni fuer die Admin-Tabelle
+function greenBonusesSummary(g) {
+    const bonuses = g.bonuses;
+    if (!bonuses) return '';
+    const parts = [];
+    ['2', '3'].forEach(tier => {
+        const list = bonuses[tier];
+        if (!list || !list.length) return;
+        const seg = list.map(b => `+${b.val}${b.weapon ? ' (' + b.weapon + ')' : ''}% ${BRAND_BONUS_ATTR_LABELS[b.attr] || (GREEN_BONUS_ATTRS.find(x => x[0] === b.attr) || [])[1] || b.attr}`);
+        parts.push(`${tier}p: ${seg.join(', ')}`);
+    });
+    return parts.join(' · ');
+}
 
 function populateGreenGroupFilter() {
     const groups = [...new Set(Object.values(GREEN_SET_INFO).map(g => g.group).filter(Boolean))].sort();
@@ -623,11 +670,12 @@ function renderGreensAdmin() {
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n2 || '')}">${esc(g.n2 || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n3 || '')}">${esc(g.n3 || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n4 || '')}">${esc(g.n4 || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(greenBonusesSummary(g) || '')}">${esc(greenBonusesSummary(g) || '—')}</td>
         <td class="py-2 px-3">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
-            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Aktionen</th>
+            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Typisierte Boni</th><th class="py-2 px-3">Aktionen</th>
         </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
@@ -645,6 +693,9 @@ function openGreenForm(key) {
         ${modalInput('ag2N3', '3p-Bonus', g.n3 || '')}
         ${modalInput('ag2N4', '4p-Bonus (Chest/Backpack-Talent)', g.n4 || '', { type: 'textarea', rows: 2 })}
         ${modalInput('ag2Modeled', 'Modellierung-Hinweis (optional)', g.modeled || '', { placeholder: 'z.B. 3p numerisch (Feuerrate)' })}
+        <p class="text-xs font-semibold uppercase text-gray-400 pt-1">Typisierte Set-Boni (2p/3p) — je Stufe bis zu 3 Boni, Waffenbindung optional</p>
+        ${greenBonusSection('2', '2 Stücke (2p)', g.bonuses || {})}
+        ${greenBonusSection('3', '3 Stücke (3p)', g.bonuses || {})}
         <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
             <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
             <button onclick="saveGreenForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
@@ -657,6 +708,23 @@ function saveGreenForm(key) {
     if (!newKey || !name) { adminToast('Bitte Schlüssel und Namen angeben.', 'error'); return; }
     const entry = { name, group: getVal('ag2Group') || 'dps', n2: getVal('ag2N2') || '', n3: getVal('ag2N3') || '', n4: getVal('ag2N4') || '' };
     const md = getVal('ag2Modeled').trim(); if (md) entry.modeled = md;
+    const bonuses = {};
+    [2, 3].forEach(tier => {
+        const list = [];
+        for (let i = 0; i < GREEN_BONUS_ROWS_PER_TIER; i++) {
+            const attr = getVal('agBonusAttr' + tier + '_' + i) || '';
+            const valRaw = getVal('agBonusVal' + tier + '_' + i);
+            const weapon = getVal('agBonusWeapon' + tier + '_' + i) || '';
+            if (!attr || (valRaw || '').trim() === '') continue;
+            const numVal = attr === 'skillTier' ? Math.round(parseFloat(valRaw) || 0) : (parseFloat(valRaw) || 0);
+            if (!numVal) continue;
+            const b = { attr, val: numVal };
+            if (weapon) b.weapon = weapon;
+            list.push(b);
+        }
+        if (list.length) bonuses[tier] = list;
+    });
+    if (Object.keys(bonuses).length > 0) entry.bonuses = bonuses;
     const oldKey = (key && key !== 'null') ? key : null;
     if (oldKey && oldKey !== newKey) {
         const newObj = {};

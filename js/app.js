@@ -4296,26 +4296,22 @@
             const gsInfo = GREEN_SET_INFO[targetGreenSet];
             const targetSetCount = getBrandCount(build, targetGreenSet);
             cache.targetSetCount = targetSetCount;
-            if (targetSetCount >= 2) {
-                cache.boni.push(`${gsInfo.name} 2p (${gsInfo.n2})`);
-                if (targetGreenSet === 'negotiator') d.chc += 15;
-                if (targetGreenSet === 'umbra') d.chc += 15;
-                if (targetGreenSet === 'huntersfury' && (targetWeaponType === 'Shotgun' || targetWeaponType === 'MP')) d.wd += 15;
-                if (targetGreenSet === 'heartbreaker' && (targetWeaponType === 'AR' || targetWeaponType === 'LMG')) d.wd += 15;
-                if (targetGreenSet === 'hotshot' && targetWeaponType === 'MMR') d.wd += 30;
-                if (targetGreenSet === 'acesandeights' && (targetWeaponType === 'MMR' || targetWeaponType === 'Rifle')) d.wd += 30;
-                if (targetGreenSet === 'breakingpoint' && (targetWeaponType === 'MMR' || targetWeaponType === 'Rifle')) d.wd += 30;
-                if (targetGreenSet === 'concentratedcompany') d.wd += 10;
-            }
-            if (targetSetCount >= 3) {
-                cache.boni.push(`${gsInfo.name} 3p (${gsInfo.n3})`);
-                if (targetGreenSet === 'striker') d.rof += 15;
-                if (targetGreenSet === 'negotiator') d.chd += 20;
-                if (targetGreenSet === 'tipofthespear') d.wd += 10;
-                if (targetGreenSet === 'virtuoso') d.wd += 15;
-                if (targetGreenSet === 'tippingscales' && targetWeaponType === 'LMG') d.wd += 30;
-                if (targetGreenSet === 'corestrength') d.wd += 5;
-            }
+            [2, 3].forEach(tier => {
+                if (targetSetCount < tier) return;
+                const tierBonuses = (gsInfo.bonuses && gsInfo.bonuses[String(tier)]) || [];
+                let bonusText = gsInfo['n' + tier] || '';
+                const appliedParts = [];
+                tierBonuses.forEach(b => {
+                    const isScore = ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh'].includes(b.attr);
+                    const weaponOk = !b.weapon || b.weapon === targetWeaponType;
+                    if (isScore && weaponOk) {
+                        d[b.attr] += b.val;
+                        appliedParts.push(`${b.val}${b.weapon ? ' (' + b.weapon + ')' : ''}% ${b.attr}`);
+                    }
+                });
+                if (appliedParts.length) cache.boni.push(`${gsInfo.name} ${tier}p (${bonusText}) [angewendet: ${appliedParts.join(', ')}]`);
+                else cache.boni.push(`${gsInfo.name} ${tier}p (${bonusText})`);
+            });
             if (targetSetCount >= 4) cache.boni.push(`${gsInfo.name} 4p (${gsInfo.n4})`);
 
             // 4p-Stack-Schaden (z.B. Striker's Gamble) inkl. Westen-/Rucksack-Talent
