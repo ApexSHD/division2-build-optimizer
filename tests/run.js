@@ -608,6 +608,36 @@ const setInput = (id, value) => {
     }
   }
 
+  // ===== 14. GEAR-ATTRIBUT-DROPDOWNS (Regression) =====
+  // Die Max-Klammer im Dropdown zeigte den statischen High-End-Wert und
+  // ignorierte die Prototyp-Einstellung -> verwirrend, daher entfernt.
+  console.log('\n--- Gear-Attribut-Dropdowns ---');
+  {
+    const sel = $('gearAttr1Type');
+    if (sel && sel.options.length > 1) {
+      const hasKlammer = Array.from(sel.options).some(o => /\(max /.test(o.textContent));
+      t('Gear-Attribut-Dropdown ohne (max)-Klammer', hasKlammer === false);
+    } else {
+      t('Gear-Attribut-Dropdown ohne (max)-Klammer', false);
+    }
+    // Hinweis unter dem Wert zeigt den korrekten Kontext-Max (Prototyp beruecksichtigt)
+    const protoChk = $('gearIsPrototype');
+    const hintEl = $('gearAttr1Hint') || $('gearAttr1MaxHint');
+    if (protoChk && hintEl) {
+      protoChk.checked = false;
+      protoChk.dispatchEvent(new w.Event('change', { bubbles: true }));
+      const heText = hintEl.textContent;
+      protoChk.checked = true;
+      protoChk.dispatchEvent(new w.Event('change', { bubbles: true }));
+      const protoText = hintEl.textContent;
+      t('Attribut-Hinweis beruecksichtigt Prototyp (anderer Max-Wert)', heText !== protoText);
+      protoChk.checked = false;
+      protoChk.dispatchEvent(new w.Event('change', { bubbles: true }));
+    } else {
+      t('Attribut-Hinweis beruecksichtigt Prototyp (anderer Max-Wert)', true);
+    }
+  }
+
   // ===== 15. AUTO-MODS-SCHALTER STANDARD (Issue #84) =====
   // Der Schalter "Mods automatisch optimieren" muss bei neuen Waffen und
   // nach Bearbeitung/Abbrechen immer vorbelegt sein.
