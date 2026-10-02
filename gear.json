@@ -262,7 +262,7 @@
     },
     "Anarchist's Cookbook": {
       "slot": "Rucksack",
-      "brand": "Golan Gear",
+      "brand": "Golan Gear Ltd",
       "cls": "named",
       "proto": true,
       "core": "armour",
@@ -273,7 +273,7 @@
     },
     "Strategic Alignment": {
       "slot": "Rucksack",
-      "brand": "China Light Industries",
+      "brand": "China Light Industries Corporation",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -317,7 +317,7 @@
     },
     "Percussive Maintenance": {
       "slot": "Rucksack",
-      "brand": "Alps Summit Armament",
+      "brand": "Alps Summit Armaments",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -339,7 +339,7 @@
     },
     "Devil's Due": {
       "slot": "Rucksack",
-      "brand": "Ceska Vyroba s.r.o",
+      "brand": "Česká Výroba S.R.O.",
       "cls": "named",
       "proto": true,
       "core": "wd",
@@ -372,7 +372,7 @@
     },
     "Force Multiplier": {
       "slot": "Rucksack",
-      "brand": "Hana-U Corporation",
+      "brand": "Hana U Corporation",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -394,7 +394,7 @@
     },
     "Axel": {
       "slot": "Rucksack",
-      "brand": "Shiny Monkey",
+      "brand": "Shiny Monkey Gear",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -438,7 +438,7 @@
     },
     "Festive Delivery": {
       "slot": "Rucksack",
-      "brand": "Grupo Sombra S.A.",
+      "brand": "Grupo Shadow S.A.",
       "cls": "named",
       "proto": true,
       "core": "wd",
@@ -533,7 +533,7 @@
     },
     "Hunter-Killer": {
       "slot": "Weste",
-      "brand": "Golan Gear",
+      "brand": "Golan Gear Ltd",
       "cls": "named",
       "proto": true,
       "core": "armour",
@@ -621,7 +621,7 @@
     },
     "Door-Kicker's Knock": {
       "slot": "Weste",
-      "brand": "Grupo Sombra S.A.",
+      "brand": "Grupo Shadow S.A.",
       "cls": "named",
       "proto": true,
       "core": "wd",
@@ -891,7 +891,7 @@
     },
     "Motherly Love": {
       "slot": "Handschuhe",
-      "brand": "Alps Summit Armament",
+      "brand": "Alps Summit Armaments",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -1039,7 +1039,7 @@
     },
     "Forge": {
       "slot": "Holster",
-      "brand": "Richter & Kaiser",
+      "brand": "Richter & Kaiser GmbH",
       "cls": "named",
       "proto": true,
       "core": "skill",
@@ -1276,7 +1276,7 @@
     },
     "Turmoil": {
       "slot": "Knieschoner",
-      "brand": "Ceska Vyroba s.r.o",
+      "brand": "Česká Výroba S.R.O.",
       "cls": "named",
       "proto": true,
       "core": "wd",
@@ -1307,7 +1307,7 @@
     },
     "Grease": {
       "slot": "Knieschoner",
-      "brand": "Shiny Monkey",
+      "brand": "Shiny Monkey Gear",
       "cls": "named",
       "proto": true,
       "core": "skill",

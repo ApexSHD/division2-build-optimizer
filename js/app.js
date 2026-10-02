@@ -4939,6 +4939,15 @@
             key = key.toLowerCase().replace(/’/g, "'");
             name = name.toLowerCase().replace(/’/g, "'");
             key = BRAND_KEY_ALIAS[key] || key;
+            // Named-Items: Marken-Zuordnung ueber GEAR_DB (brand-Name -> Brand-Key).
+            // Im Spiel zaehlen Named-Teile fuer den Marken-Set-Bonus mit.
+            const dbKey = (typeof GEAR_DB !== 'undefined') && Object.keys(GEAR_DB).find(n => n.toLowerCase() === name);
+            const dbEntry = dbKey && GEAR_DB[dbKey];
+            if (dbEntry && dbEntry.brand) {
+                const brandKey = (typeof BRAND_SET_INFO !== 'undefined') && Object.keys(BRAND_SET_INFO).find(k => (BRAND_SET_INFO[k].name || '').toLowerCase() === dbEntry.brand.toLowerCase());
+                if (brandKey === key) return true;
+                return false;
+            }
             // Brand-Sets: Fragment-Abgleich aus BRAND_SET_INFO (z.B. Y8S3-Brands)
             const bInfo = (typeof BRAND_SET_INFO !== 'undefined') && BRAND_SET_INFO[key];
             if (bInfo && Array.isArray(bInfo.fragments) && bInfo.fragments.length > 0) {
