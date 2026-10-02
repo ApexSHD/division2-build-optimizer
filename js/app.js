@@ -4021,12 +4021,17 @@
             let armor = readVal('enemyArmorShareInput');
             let health = readVal('enemyHealthShareInput');
             const ooc = readVal('enemyOocShareInput');
+            // Kopfschuss-Anteil (#108): Anteil der Treffer, die auf den Kopf
+            // treffen. 0% = Bodyshots only (HSD wirkungslos), 100% = reiner
+            // Scharfschuetzen-Betrieb. Unabhaengig von Armor/Health-Summe.
+            let headshot = readVal('headshotShareInput');
+            if (isNaN(headshot) || headshot < 0) headshot = 0;
             // Armor + Health sollen zusammen 100% ergeben -> automatisch normieren
             if (armor + health <= 0) { armor = 0.8; health = 0.2; }
             const sum = armor + health;
             armor = armor / sum;
             health = 1 - armor;
-            return { armor: armor, health: health, ooc: ooc };
+            return { armor: armor, health: health, ooc: ooc, headshot: headshot };
         }
 
         // Slider + Zahlenfelder fuer Gegnerprofil synchron halten.
@@ -4053,6 +4058,12 @@
                 const h = get('enemyHealthShare');
                 set('enemyHealthShare', h);
                 set('enemyArmorShare', 100 - h);
+            } else if (which === 'headshot') {
+                // Quelle ist das Eingabefeld (idInput), wie bei den oninput-
+                // Handlern der anderen Anteile; der Slider wird mitgesetzt.
+                const h = get('headshotShareInput');
+                set('headshotShare', h);
+                set('headshotShareInput', h);
             } else {
                 set('enemyOocShare', get('enemyOocShare'));
             }
@@ -4913,6 +4924,7 @@
             // 4. Spezialisierung
             let specWd = 15;
             let specRof = 0;
+            let specHsd = 0;
             let specDttoocBonus = 0;
             let specDmgAmp = 1.0;
             let specName = "";
@@ -4927,6 +4939,7 @@
                 specDttoocBonus += 5;
                 specName = "Zerstörungsexperte (+15% WD, +5% DTToOC)";
             } else if (specialization === 'sharpshooter') {
+                specHsd += 15;
                 specName = "Präzisionsschütze (+15% WD, +15% HSD)";
             } else if (specialization === 'survivalist') {
                 specName = "Überlebensexperte (+15% WD, +10% vs Status)";
@@ -5019,11 +5032,19 @@
                     const sf = rpmInfo.rpm ? weaponSustainFactor(weapon, rpmInfo.rpm, buildWh) : null;
                     if (sf) sustainMult = sf;
                 }
-                let hsdMult = 1 + (totalHsd / 100); // HSD: bewusst noch nicht multipliziert (Kopfschuss-Modell folgt später)
+                // Kopfschuss-Modell (#108): HSD wirkt nur auf dem Kopfschuss-
+                // Anteil epHsd. Der Basis-HSD der Waffe (DB) stapelt
+                // multiplikativ mit den Prozent-Boni (Kern 2, Mods, Exot,
+                // Scharfschuetze +15%) auf dem Kopfschuss-Treffer.
+                const dbEntryHsd = (typeof getWeaponDbEntry === 'function') ? getWeaponDbEntry(weapon) : null;
+                const dbHsd = (dbEntryHsd && dbEntryHsd.stats && dbEntryHsd.stats.HSD) ? dbEntryHsd.stats.HSD : 0;
+                const epHsd = ep.headshot || 0;
+                let hsdMult = 1 + (totalHsd / 100) * epHsd;
 
                 let knowHowMult = 1 + (knowHowLevel / 100);
                 let rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * specDmgAmp;
-                let nonCritHit = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult * setAmpMult;
+                let nonCritBody = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult * setAmpMult;
+                let nonCritHit = nonCritBody * ((1 - epHsd) + epHsd * (1 + (totalHsd + dbHsd) / 100));
                 let critHit = nonCritHit * (1 + (finalChd / 100));
 
                 let avgBulletDmg = (nonCritHit * (1 - cappedChc / 100)) + (critHit * (cappedChc / 100));
@@ -5552,7 +5573,7 @@ function prefilterItemScore(item, targetWeaponType) {
                     // Nummer 1 (SOCOM Mk16 / Angespannt bei Striker+AR)
                     // nicht unter den Top-3 landete.
                     let totalWd = weapon.core1;
-                    let totalChc = 0, totalChd = 0, totalDttooc = 0, totalDta = 0, totalDth = 0, totalRof = 0;
+                    let totalChc = 0, totalChd = 0, totalDttooc = 0, totalDta = 0, totalDth = 0, totalRof = 0, totalHsd = 0;
                     [[weapon.core2Type, weapon.core2Val], [weapon.minorType, weapon.minorVal]].forEach(([type, val]) => {
                         if (type === 'chc') totalChc += (val || 0);
                         else if (type === 'chd') totalChd += (val || 0);
@@ -5560,9 +5581,11 @@ function prefilterItemScore(item, targetWeaponType) {
                         else if (type === 'dta') totalDta += (val || 0);
                         else if (type === 'dth') totalDth += (val || 0);
                         else if (type === 'rof') totalRof += (val || 0);
+                        else if (type === 'hsd') totalHsd += (val || 0);
                     });
                     Object.values(getEffectiveMods(weapon)).forEach(mod => {
                         if (mod.type === 'wd') totalWd += mod.val;
+                        else if (mod.type === 'hsd') totalHsd += mod.val;
                         else if (mod.type === 'chc') totalChc += mod.val;
                         else if (mod.type === 'chd') totalChd += mod.val;
                         else if (mod.type === 'dttooc') totalDttooc += mod.val;
@@ -5605,10 +5628,17 @@ function prefilterItemScore(item, targetWeaponType) {
                         talentAmp += exoW3.amp;
                     }
                     const rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * (1 + (talentAmp / 100));
-                    const nonCritHit = rawHit
+                    // Kopfschuss-Modell (#108): identisch zum Hauptvergleich –
+                    // Basis-HSD der Waffe + HSD-Boni, gewichtet mit dem
+                    // Kopfschuss-Anteil des Gegnerprofils.
+                    const dbEntryHsd = (typeof getWeaponDbEntry === 'function') ? getWeaponDbEntry(weapon) : null;
+                    const dbHsd = (dbEntryHsd && dbEntryHsd.stats && dbEntryHsd.stats.HSD) ? dbEntryHsd.stats.HSD : 0;
+                    const epHsd = ep.headshot || 0;
+                    const nonCritBody = rawHit
                         * (1 + (totalDta / 100) * ep.armor)
                         * (1 + (totalDttooc / 100) * ep.ooc)
                         * (1 + (totalDth / 100) * ep.health);
+                    const nonCritHit = nonCritBody * ((1 - epHsd) + epHsd * (1 + (totalHsd + dbHsd) / 100));
                     const cappedChc = Math.min(Math.max(totalChc, 0), 60);
                     const critHit = nonCritHit * (1 + (totalChd / 100));
                     const avgDmg = (nonCritHit * (1 - cappedChc / 100)) + (critHit * (cappedChc / 100));
@@ -5620,7 +5650,16 @@ function prefilterItemScore(item, targetWeaponType) {
                     const modRof = modAttrTotal(weapon, 'rof') || 0;
                     const talentRof = Math.max(0, totalRof - modRof);
                     const rpmInfo = weaponEffectiveRpm(weapon, talentRof);
-                    const effDPS = (rpmInfo && rpmInfo.rpm) ? avgDmg * (rpmInfo.rpm / 60) : avgDmg * 10;
+                    // Reload/Magazin (#108): Sustain-Faktor (Feuerzeit vs.
+                    // Feuerzeit + Nachladezeit) auch im Waffen-Vorranking,
+                    // damit z.B. kleinem Magazin + langem Reload nicht mehr
+                    // Burst-DPS das Ranking diktieren.
+                    let sustainMult = 1;
+                    if (rpmInfo && rpmInfo.rpm && typeof weaponSustainFactor === 'function') {
+                        const sf = weaponSustainFactor(weapon, rpmInfo.rpm, 0);
+                        if (sf) sustainMult = sf;
+                    }
+                    const effDPS = (rpmInfo && rpmInfo.rpm) ? avgDmg * (rpmInfo.rpm / 60) * sustainMult : avgDmg * 10;
 
                     return {
                         ...weapon,

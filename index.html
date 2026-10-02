@@ -869,7 +869,12 @@
                             <input type="range"  aria-label="Gegnerprofil: Ungedeckt-Anteil" id="enemyOocShare" min="0" max="100" value="70" oninput="syncEnemySliders('ooc')" class="flex-1 accent-orange-500 cursor-pointer">
                             <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ungedeckt-Anteil (Eingabe)" id="enemyOocShareInput" value="70" oninput="syncEnemySliders('ooc')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
                         </div>
-                        <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt.</p>
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Kopfschuss-Anteil (%)</label>
+                            <input type="range"  aria-label="Gegnerprofil: Kopfschuss-Anteil" id="headshotShare" min="0" max="100" value="0" oninput="syncEnemySliders('headshot')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Kopfschuss-Anteil (Eingabe)" id="headshotShareInput" value="0" oninput="syncEnemySliders('headshot')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                        <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt / 0 % Kopfschüsse (HSD neutral).</p>
                     </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                             <label class="block">

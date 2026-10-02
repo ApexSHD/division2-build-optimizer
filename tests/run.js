@@ -905,6 +905,71 @@ const setInput = (id, value) => {
     w.eval('switchTab("weapons")');
   }
 
+  // ===== 21. HSD-MODELL & RELOAD-DPS (Issue #108) =====
+  console.log('\n--- HSD-Modell & Reload-DPS ---');
+  {
+    // Block 12 (DB-Migration) hat weaponsData durch einen Fake-Bestand
+    // ersetzt -> echte Waffen-DB aus weapons.json wiederherstellen.
+    const realWeapons = JSON.parse(read('weapons.json'));
+    w.eval(`weaponsData = ${JSON.stringify(realWeapons)}`);
+    w.eval('localStorage.clear(); loadSavedWeaponDb();');
+    // UI: Kopfschuss-Anteil-Slider existiert mit Standard 0
+    const hsInput = w.eval(`document.getElementById('headshotShare')`);
+    t('Gegnerprofil: Kopfschuss-Anteil-Slider vorhanden', hsInput !== null);
+    t('Gegnerprofil: Kopfschuss-Anteil Standard 0% (HSD neutral)', w.eval(`document.getElementById('headshotShareInput').value === '0'`));
+
+    // enemyProfile liefert headshot-Anteil
+    t('enemyProfile: headshot 0 bei Standard', w.eval('enemyProfile().headshot === 0'));
+    w.eval(`document.getElementById('headshotShareInput').value = '40'; syncEnemySliders('headshot');`);
+    t('enemyProfile: headshot 0.4 nach Slider-Eingabe', w.eval('Math.abs(enemyProfile().headshot - 0.4) < 1e-9'));
+    w.eval(`document.getElementById('headshotShareInput').value = '0'; syncEnemySliders('headshot');`);
+
+    // Basis-HSD der Waffe aus der DB (ACR hat HSD 55)
+    const hsdCalc = w.eval(`(function () {
+      const dbE = getWeaponDbEntry({ name: 'ACR' });
+      return { dbHsd: dbE && dbE.stats && dbE.stats.HSD ? dbE.stats.HSD : 0 };
+    })()`);
+    t('Waffen-DB: ACR hat Basis-HSD erfasst (55)', hsdCalc.dbHsd === 55);
+
+    // Sustain-Faktor greift im Waffen-Ranking (Reload/Magazin)
+    const sustain = w.eval(`(function () {
+      const w1 = { name: 'ACR', type: 'AR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, isExotic: false, mods: {} };
+      const rpm = weaponEffectiveRpm(w1, 0);
+      const sf = rpm.rpm ? weaponSustainFactor(w1, rpm.rpm, 0) : null;
+      return { hasRpm: !!rpm.rpm, sf: sf };
+    })()`);
+    t('Sustain: ACR hat RPM aus DB', sustain.hasRpm);
+    t('Sustain: Faktor < 1 (Nachladezeit senkt anhaltenden DPS)', sustain.sf !== null && sustain.sf > 0 && sustain.sf < 1);
+
+    // Sharpshooter-Bugfix: +15% HSD fliessen in totalHsd (via specHsd)
+    // Pruefung ueber calculateWeaponWithBuild mit scharfschuetzen-Einstellung
+    const specHsdCheck = w.eval(`(function () {
+      const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, mods: {} };
+      const settings = { targetWeaponType: 'MMR', specialization: 'sharpshooter', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      // Zwei Laeufe: headshot 0 vs 100 -> mit sharpshooter muss der DPS bei 100 steigen
+      document.getElementById('headshotShareInput').value = '0';
+      const r0 = calculateWeaponWithBuild(fake, [], settings);
+      document.getElementById('headshotShareInput').value = '100';
+      const r100 = calculateWeaponWithBuild(fake, [], settings);
+      document.getElementById('headshotShareInput').value = '0';
+      return { d0: r0.effectiveDPS, d100: r100.effectiveDPS };
+    })()`);
+    t('HSD-Modell: DPS steigt mit Kopfschuss-Anteil (Scharfschuetze +15% HSD)', specHsdCheck.d100 > specHsdCheck.d0);
+
+    // Bodyshot-Modell: Bei headshot 0 darf HSD nichts aendern
+    const neutralCheck = w.eval(`(function () {
+      const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: 'hsd', core2Val: 50, minorType: null, minorVal: 0, type: 'AR', isExotic: false, mods: {} };
+      const settings = { targetWeaponType: 'MMR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      document.getElementById('headshotShareInput').value = '0';
+      const base = calculateWeaponWithBuild(fake, [], settings).effectiveDPS;
+      // Bei 0% Kopfschuss muss Kern2=hsd+50 den DPS nicht erhoehen
+      const fake2 = { ...fake, core2Type: null, core2Val: 0 };
+      const base2 = calculateWeaponWithBuild(fake2, [], settings).effectiveDPS;
+      return { a: base, b: base2 };
+    })()`);
+    t('HSD neutral bei 0% Kopfschuss (Kern-2-HSD aendert DPS nicht)', Math.abs(neutralCheck.a - neutralCheck.b) < 1e-6);
+  }
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {
