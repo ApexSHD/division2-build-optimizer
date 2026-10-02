@@ -39,6 +39,12 @@ function closeAdminModal() {
     document.getElementById('adminModal').classList.add('hidden');
     document.getElementById('adminModalBody').innerHTML = '';
 }
+document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && !document.getElementById('adminModal').classList.contains('hidden')) {
+        ev.preventDefault();
+        closeAdminModal();
+    }
+});
 
 function modalInput(id, label, value, opts) {
     opts = opts || {};
@@ -664,19 +670,25 @@ function renderGreensAdmin() {
         el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst eine Gruppe auswählen.</p>';
         return;
     }
-    const rows = entries.map(([key, g]) => `<tr class="border-t border-gray-800 align-top">
-        <td class="py-2 px-3 text-sm font-semibold whitespace-nowrap">${esc(key)}</td>
-        <td class="py-2 px-3 text-sm text-gray-400 whitespace-nowrap">${esc(g.name)}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 min-w-[10rem] break-words" title="${esc(g.n2 || '')}">${esc(g.n2 || '\u2014')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 min-w-[10rem] break-words" title="${esc(g.n3 || '')}">${esc(g.n3 || '\u2014')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 min-w-[12rem] break-words" title="${esc(g.n4 || '')}">${esc(g.n4 || '\u2014')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 min-w-[12rem] break-words" title="${esc(greenBonusesSummary(g) || '')}">${esc(greenBonusesSummary(g) || '\u2014')}</td>
-        <td class="py-2 px-3 whitespace-nowrap">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
-    </tr>`).join('');
-    el.innerHTML = `<table class="w-full text-left">
-        <thead><tr class="text-xs uppercase text-gray-500">
-            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Typisierte Boni</th><th class="py-2 px-3">Aktionen</th>
-        </tr></thead><tbody>${rows || '<tr><td colspan="7" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+    const cards = entries.map(([key, g]) => {
+        const summary = greenBonusesSummary(g);
+        return `<div class="border border-gray-800 rounded-lg p-3 space-y-2 bg-zinc-900/40">
+            <div class="flex justify-between items-start gap-2">
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold break-words">${esc(key)} <span class="text-gray-400 font-normal">· ${esc(g.name)}</span></p>
+                    <p class="text-xs text-gray-500">${esc(ADMIN_GREEN_GROUPS[g.group] || g.group || '')}${g.modeled ? ' · ' + esc(g.modeled) : ''}</p>
+                </div>
+                <div class="shrink-0">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                <p class="text-gray-500"><span class="text-gray-400 font-semibold">2p:</span> ${esc(g.n2 || '—')}</p>
+                <p class="text-gray-500"><span class="text-gray-400 font-semibold">3p:</span> ${esc(g.n3 || '—')}</p>
+                <p class="text-gray-500 md:col-span-2"><span class="text-gray-400 font-semibold">4p:</span> ${esc(g.n4 || '—')}</p>
+                ${summary ? `<p class="text-gray-500 md:col-span-2"><span class="text-div-accent font-semibold">Typisiert:</span> ${esc(summary)}</p>` : ''}
+            </div>
+        </div>`;
+    }).join('');
+    el.innerHTML = `<div class="space-y-2">${cards || '<p class="py-4 text-center text-gray-500">Keine Treffer</p>'}</div>`;
 }
 
 function openGreenForm(key) {
