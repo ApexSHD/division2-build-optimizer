@@ -719,14 +719,16 @@
             document.getElementById('weaponCore1Label').textContent = cfg.core1Label;
             document.getElementById('weaponCore2Label').textContent = cfg.core2Label;
             const hint = document.getElementById('weaponCoreHint');
-            if (isExoticFormActive()) {
-                // Exote: Kern 2 ist fix/besonders – kein Gattungs-Zwang, Auswahl sichtbar
+            if (isExoticFormActive() && !cfg.core2) {
+                // Exote ohne gattungsfestes Kern 2 (Pistole): frei waehlbar
                 core2Sel.classList.remove('hidden');
-                if (hint) hint.textContent = 'Exotische Waffe – Kern 2 ist fix (aus der Waffen-DB), kein Gattungs-Zwang. Attribut 3 darf dennoch nicht Kern 2 duplizieren.';
+                if (hint) hint.textContent = 'Exotische Waffe – hier ist Kern 2 frei waehlbar. Attribut 3 darf dennoch nicht Kern 2 duplizieren.';
             } else if (cfg.core2) {
                 core2Sel.value = cfg.core2;
                 core2Sel.classList.add('hidden');
-                if (hint) hint.textContent = 'Kern 2 wird durch die Waffengattung automatisch festgelegt.';
+                if (hint) hint.textContent = isExoticFormActive()
+                    ? 'Exotische Waffe – Kern 2 ist gattungsfest (Wert anpassbar). Attribut 3 darf nicht Kern 2 duplizieren.'
+                    : 'Kern 2 wird durch die Waffengattung automatisch festgelegt.';
             } else {
                 core2Sel.classList.remove('hidden');
                 if (hint) hint.textContent = 'Pistolen haben kein festes zweites Kernattribut – Attribut frei wählbar.';
@@ -1440,7 +1442,7 @@
                 type: document.getElementById('weaponType').value,
                 baseDmg: parseLocalizedFloat(document.getElementById('weaponBaseDmg').value),
                 core1: parseLocalizedFloat(document.getElementById('weaponCore1').value),
-                core2Type: document.getElementById('weaponCore2Type').value,
+                core2Type: (WEAPON_CORE_ATTRIBUTES[document.getElementById('weaponType').value] || WEAPON_CORE_ATTRIBUTES['AR']).core2 || document.getElementById('weaponCore2Type').value,
                 core2Val: parseLocalizedFloat(document.getElementById('weaponCore2Val').value),
                 minorType: document.getElementById('weaponMinorType').value,
                 minorVal: parseLocalizedFloat(document.getElementById('weaponMinorVal').value),
