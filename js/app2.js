@@ -1715,11 +1715,11 @@ function resolveTalentDef(nameOrKey) {
 
 // Schreibt die fixen Mods einer exotischen Waffe in die Mod-Felder:
 // belegte Slots werden gefüllt & gesperrt, unbelegte versteckt.
-// EXOTEN-SPERRE: Bei exotischen Waffen sind Basis-Schaden, Kernattribute und
-// Attribut 3 fix (keine freien Rollen) – die Felder werden gesperrt, damit sie
-// nicht versehentlich manipuliert werden. on='true' sperren, on='false' freigeben.
+// EXOTEN-SPERRE: Bei exotischen Waffen ist der Basis-Schaden aus der DB fix
+// und wird gesperrt. Kern 1/2 und Attribut 3 liefert die DB nicht – die
+// Felder bleiben editierbar (In-Game-Werte eintragen). on='true' sperren, on='false' freigeben.
 function lockExoticAttributes(on) {
-    const ids = ['weaponBaseDmg', 'weaponCore1', 'weaponCore2Type', 'weaponCore2Val', 'weaponMinorType', 'weaponMinorVal'];
+    const ids = ['weaponBaseDmg'];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.disabled = !!on;
