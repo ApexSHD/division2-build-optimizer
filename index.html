@@ -72,6 +72,9 @@
             <button id="tabAdmin" class="tab-btn px-4 py-2 text-sm font-bold" onclick="switchTab('admin')">
                 🗂️ Verwaltung
             </button>
+            <button id="tabGlobal" class="tab-btn px-4 py-2 text-sm font-bold" onclick="switchTab('global')">
+                ⚙️ Globale Einstellungen
+            </button>
         </div>
 
         <!-- Waffen-Inventar -->
@@ -743,44 +746,6 @@
                         </div>
                     </div>
 
-                    <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold uppercase text-div-accent">Know-How-Level (Kenntnisstufe 0 - 30)</label>
-                            <span id="knowHowBonusDisplay" class="text-xs bg-div-accent/20 text-div-accent font-mono px-2 py-0.5 rounded border border-div-accent/30">+30% Waffenschaden</span>
-                        </div>
-                        <div class="flex items-center gap-3 pt-1">
-                            <input type="range" id="knowHowLevel" min="0" max="30" value="30" oninput="updateKnowHowDisplay()" class="w-full accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric" id="knowHowInput" value="30" oninput="syncKnowHowInput(this.value)" class="w-16 p-1.5 text-center text-sm font-bold rounded">
-                        </div>
-                    </div>
-
-                    <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold uppercase text-div-accent">SHD-Level</label>
-                            <span class="text-xs bg-div-accent/20 text-div-accent font-mono px-2 py-0.5 rounded border border-div-accent/30">SHD Watch</span>
-                        </div>
-                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="shdMax" checked onchange="toggleShdInputs()" class="rounded accent-orange-500 w-4 h-4">
-                            <span>SHD-Level ≥ 1.000 (Max. Uhr)</span>
-                        </label>
-                        <p class="text-xs text-gray-400">
-                            Ab SHD 1.000 maxed: <span class="text-emerald-400 font-medium">+10% CHC</span>, <span class="text-div-accent font-medium">+20% CHD</span>, <span class="text-white font-medium">+10% WD</span>.
-                        </p>
-                        <div id="customShdContainer" class="hidden grid grid-cols-3 gap-2 pt-2 border-t border-gray-800 text-xs">
-                            <div>
-                                <label class="block text-gray-400 mb-1">Uhr WD (%)</label>
-                                <input type="text" inputmode="decimal" id="shdCustomWd" value="0" class="w-full p-1.5 rounded text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-gray-400 mb-1">Uhr CHC (%)</label>
-                                <input type="text" inputmode="decimal" id="shdCustomChc" value="0" class="w-full p-1.5 rounded text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-gray-400 mb-1">Uhr CHD (%)</label>
-                                <input type="text" inputmode="decimal" id="shdCustomChd" value="0" class="w-full p-1.5 rounded text-xs">
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
                         <div class="flex items-center justify-between">
@@ -927,11 +892,6 @@
                             </label>
                         </div>
                         <p class="text-[11px] text-gray-500">Erzwingt ein bestimmtes exotisches Gear-Teil bzw. eine exotische Waffe in allen Vergleichs-Builds — so siehst du direkt, wie sich der Exot gegen die freie Optimierung schlägt. Die Waffen-Gattung wird bei erzwungener Waffe ignoriert.</p>
-                        <div class="flex items-center gap-2 pt-1">
-                            <label class="block text-xs font-semibold uppercase text-gray-400 whitespace-nowrap">Mindest-CHC (%)</label>
-                            <input type="number" id="targetChc" min="0" max="100" value="50" class="w-16 p-1.5 rounded-lg text-xs text-center font-bold">
-                            <span class="text-[11px] text-gray-500">Mod-Konfigurationen unterhalb dieses CHC-Werts werden bei der Optimierung übersprungen. Ist das Minimum mit keiner Konfiguration erreichbar, greift automatisch die beste verfügbare (mit Hinweis im Ergebnis).</span>
-                        </div>
                     </div>
                 </div>
 
@@ -941,6 +901,59 @@
                 </button>
             </div>
         </div>
+
+        <!-- Globale Einstellungen -->
+        <div id="contentGlobal" class="tab-content space-y-6">
+            <div class="div-card p-6 rounded-xl space-y-6">
+                <h2 class="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
+                <span class="text-div-accent">⚙️</span> Globale Einstellungen
+                </h2>
+                <p class="text-xs text-gray-500">Diese Einstellungen gelten global für alle Berechnungen: Optimierung, Vergleich und Empfehlungs-Scores.</p>
+                <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold uppercase text-div-accent">Know-How-Level (Kenntnisstufe 0 - 30)</label>
+                        <span id="knowHowBonusDisplay" class="text-xs bg-div-accent/20 text-div-accent font-mono px-2 py-0.5 rounded border border-div-accent/30">+30% Waffenschaden</span>
+                        </div>
+                    <div class="flex items-center gap-3 pt-1">
+                        <input type="range" id="knowHowLevel" min="0" max="30" value="30" oninput="updateKnowHowDisplay()" class="w-full accent-orange-500 cursor-pointer">
+                        <input type="text" inputmode="numeric" id="knowHowInput" value="30" oninput="syncKnowHowInput(this.value)" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                    </div>
+                <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-bold uppercase text-div-accent">SHD-Level</label>
+                        <span class="text-xs bg-div-accent/20 text-div-accent font-mono px-2 py-0.5 rounded border border-div-accent/30">SHD Watch</span>
+                        </div>
+                    <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
+                    <input type="checkbox" id="shdMax" checked onchange="toggleShdInputs()" class="rounded accent-orange-500 w-4 h-4">
+                    <span>SHD-Level ≥ 1.000 (Max. Uhr)</span>
+                    </label>
+                    <p class="text-xs text-gray-400">
+                    Ab SHD 1.000 maxed: <span class="text-emerald-400 font-medium">+10% CHC</span>, <span class="text-div-accent font-medium">+20% CHD</span>, <span class="text-white font-medium">+10% WD</span>.
+                    </p>
+                    <div id="customShdContainer" class="hidden grid grid-cols-3 gap-2 pt-2 border-t border-gray-800 text-xs">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Uhr WD (%)</label>
+                            <input type="text" inputmode="decimal" id="shdCustomWd" value="0" class="w-full p-1.5 rounded text-xs">
+                            </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Uhr CHC (%)</label>
+                            <input type="text" inputmode="decimal" id="shdCustomChc" value="0" class="w-full p-1.5 rounded text-xs">
+                            </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Uhr CHD (%)</label>
+                            <input type="text" inputmode="decimal" id="shdCustomChd" value="0" class="w-full p-1.5 rounded text-xs">
+                            </div>
+                        </div>
+                    </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <label class="block text-xs font-semibold uppercase text-gray-400 whitespace-nowrap">Mindest-CHC (%)</label>
+                    <input type="number" id="targetChc" min="0" max="100" value="50" class="w-16 p-1.5 rounded-lg text-xs text-center font-bold">
+                    <span class="text-[11px] text-gray-500">Mod-Konfigurationen unterhalb dieses CHC-Werts werden bei der Optimierung übersprungen. Ist das Minimum mit keiner Konfiguration erreichbar, greift automatisch die beste verfügbare (mit Hinweis im Ergebnis).</span>
+                    </div>
+                </div>
+            </div>
 
         <!-- Vergleichsansicht -->
         <div id="contentAdmin" class="tab-content space-y-6">
