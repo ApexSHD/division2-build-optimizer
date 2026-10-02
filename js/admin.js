@@ -28,7 +28,8 @@ function applyAdminOverrides() {
 }
 
 // ---------- Helpers ----------
-function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttrJs(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function adminToast(msg, type) { if (typeof showToast === 'function') showToast(msg, type || 'success'); }
 
 function openAdminModal(title) {
@@ -270,7 +271,7 @@ function renderModsAdmin() {
             <td class="py-2 px-3 text-sm text-gray-400">${esc((m.slotTypes || []).join(', '))}</td>
             <td class="py-2 px-3 text-sm text-emerald-400">${esc(b)}</td>
             <td class="py-2 px-3 text-sm text-red-400">${esc(p)}</td>
-            <td class="py-2 px-3">${actionBtns(`openModForm('${slot}', ${i})`, `deleteModEntry('${slot}', ${i})`, 'Bearbeiten', 'Löschen')}</td>
+            <td class="py-2 px-3">${actionBtns(`openModForm('${escAttrJs(slot)}', ${i})`, `deleteModEntry('${escAttrJs(slot)}', ${i})`, 'Bearbeiten', 'Löschen')}</td>
         </tr>`;
     }).join('');
     el.innerHTML = `<table class="w-full text-left">
@@ -492,7 +493,7 @@ function renderBrandsAdmin() {
         <td class="py-2 px-3 text-sm">${esc(ADMIN_BRAND_GROUPS[b.group] || b.group || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(b.weapon_hint || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(brandBonusesSummary(b) || '')}">${esc(brandBonusesSummary(b) || '—')}</td>
-        <td class="py-2 px-3">${actionBtns(`openBrandForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteBrandEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
+        <td class="py-2 px-3">${actionBtns(`openBrandForm('${escAttrJs(key)}')`, `deleteBrandEntry('${escAttrJs(key)}')`, 'Bearbeiten', 'Löschen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
@@ -569,7 +570,7 @@ function openBrandForm(key) {
         ${brandBonusRow(3, '3 St\u00fccke (3p)', brandTierFormState(bonuses, '3'))}
         <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
             <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
-            <button onclick="saveBrandForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+            <button onclick="saveBrandForm(${isNew ? 'null' : `'${escAttrJs(key)}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
         </div>`;
 }
 
@@ -691,7 +692,7 @@ function renderGreensAdmin() {
                     <p class="text-sm font-semibold break-words">${esc(key)} <span class="text-gray-400 font-normal">· ${esc(g.name)}</span></p>
                     <p class="text-xs text-gray-500">${esc(ADMIN_GREEN_GROUPS[g.group] || g.group || '')}${g.modeled ? ' · ' + esc(g.modeled) : ''}</p>
                 </div>
-                <div class="shrink-0">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</div>
+                <div class="shrink-0">${actionBtns(`openGreenForm('${escAttrJs(key)}')`, `deleteGreenEntry('${escAttrJs(key)}')`, 'Bearbeiten', 'Löschen')}</div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1 text-sm">
                 <p class="text-gray-500"><span class="text-gray-400 font-semibold">2p:</span> ${esc(g.n2 || '—')}</p>
@@ -723,7 +724,7 @@ function openGreenForm(key) {
         ${greenBonusSection('3', '3 Stücke (3p)', g.bonuses || {})}
         <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
             <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
-            <button onclick="saveGreenForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
+            <button onclick="saveGreenForm(${isNew ? 'null' : `'${escAttrJs(key)}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
         </div>`;
 }
 
