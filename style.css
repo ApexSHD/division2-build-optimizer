@@ -74,3 +74,7 @@ body {
         .stack-chart-value { fill: #f3f4f6; font-size: 11px; font-weight: 700; font-family: Inter, sans-serif; }
         .comparison-card { transition: transform 0.2s ease; }
         .comparison-card:hover { transform: translateY(-2px); }
+
+/* Issue #79: horizontal scrollbare Tab-Leiste ohne sichtbare Scrollbar */
+.tabbar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+.tabbar-scroll::-webkit-scrollbar { display: none; }

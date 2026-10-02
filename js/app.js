@@ -7,7 +7,7 @@
         let currentWeaponSortAsc = true;
         let currentGearSortField = 'slot';
         let currentGearSortAsc = true;
-        let lastComparisonData = [];
+        let lastComparisonData = []; // Issue #35: immer Array, nie null
         // Ergebnis des optionalen manuellen Spiel-Builds (Einstellungen)
         let manualBuildResult = null;
         // true = Inventar hat sich seit der letzten Berechnung geändert ->
@@ -1610,7 +1610,6 @@
             }
 
             const weapon = {
-                id: weaponIdCounter++,
                 name: document.getElementById('weaponName').value.trim(),
                 type: document.getElementById('weaponType').value,
                 baseDmg: parseLocalizedFloat(document.getElementById('weaponBaseDmg').value),
@@ -1659,6 +1658,10 @@
                 showToast('Bitte gib einen Waffen-Namen ein.', 'error');
                 return;
             }
+            // Issue #35: ID-Counter nur fuer wirklich NEUE Waffen erhoehen
+            // (Edit behaelt die alte ID; Validierungsabbruch liegt davor).
+            if (editWeaponId !== null) weapon.id = editWeaponId;
+            else weapon.id = weaponIdCounter++;
 
             if (editWeaponId !== null) {
                 // Bearbeitungsmodus: vorhandene Waffe aktualisieren (ID bleibt)
@@ -6328,32 +6331,71 @@ function prefilterItemScore(item, targetWeaponType) {
         }
 
         // ========== LOCALSTORAGE ==========
-        function saveToLocalStorage() {
-            localStorage.setItem('div2_weapons_v16', JSON.stringify(weaponsInventory));
-            localStorage.setItem('div2_gear_v16', JSON.stringify(gearInventory));
-            localStorage.setItem('div2_weaponIdCounter_v16', weaponIdCounter);
-            localStorage.setItem('div2_gearIdCounter_v16', gearIdCounter);
+        // Issue #35: Inventar-Persistenz mit Schema-Version und Migration.
+        // STORAGE_SCHEMA_VERSION 17 = aktueller Stand; aeltere Bestaende
+        // (v16-Schluessel ohne Version) werden einmalig migriert. Defekte
+        // Eintraege werden uebersprungen statt die initApp zu brechen.
+        const STORAGE_SCHEMA_VERSION = 17;
+        function storageGet(key) {
+            try { return localStorage.getItem(key); } catch (e) { return null; }
         }
-
+        function storageSet(key, val) {
+            try { localStorage.setItem(key, val); return true; }
+            catch (e) {
+                if (typeof showToast === 'function') showToast('\u26a0\ufe0f Speichern fehlgeschlagen (Browser-Speicher voll?) \u2013 \u00c4nderungen gehen beim Neuladen verloren.', 'error');
+                return false;
+            }
+        }
+        function parseStorageJson(key, fallback) {
+            const raw = storageGet(key);
+            if (raw === null || raw === '') return fallback;
+            try { return JSON.parse(raw); } catch (e) { return fallback; }
+        }
+        function saveToLocalStorage() {
+            storageSet('div2_weapons', JSON.stringify(weaponsInventory));
+            storageSet('div2_gear', JSON.stringify(gearInventory));
+            storageSet('div2_weaponIdCounter', weaponIdCounter);
+            storageSet('div2_gearIdCounter', gearIdCounter);
+            storageSet('div2_schema_version', String(STORAGE_SCHEMA_VERSION));
+        }
+        // Einmalige Migration alter v16-Schluessel auf das neue Schema.
+        // Datensatzstruktur unveraendert, nur die Schluessel wandern.
+        function migrateStorage() {
+            const version = parseInt(storageGet('div2_schema_version') || '0', 10) || 0;
+            if (version >= STORAGE_SCHEMA_VERSION) return;
+            const legacy = [
+                ['div2_weapons_v16', 'div2_weapons'],
+                ['div2_gear_v16', 'div2_gear'],
+                ['div2_weaponIdCounter_v16', 'div2_weaponIdCounter'],
+                ['div2_gearIdCounter_v16', 'div2_gearIdCounter'],
+                ['div2_initialized_v16', 'div2_initialized']
+            ];
+            legacy.forEach(([oldKey, newKey]) => {
+                if (storageGet(oldKey) !== null && storageGet(newKey) === null) {
+                    storageSet(newKey, storageGet(oldKey));
+                }
+                try { localStorage.removeItem(oldKey); } catch (e) {}
+            });
+            storageSet('div2_schema_version', String(STORAGE_SCHEMA_VERSION));
+        }
         function loadFromLocalStorage() {
-            const weapons = localStorage.getItem('div2_weapons_v16');
-            const gear = localStorage.getItem('div2_gear_v16');
-            const weaponCounter = localStorage.getItem('div2_weaponIdCounter_v16');
-            const gearCounter = localStorage.getItem('div2_gearIdCounter_v16');
-
-            if (weapons) weaponsInventory = JSON.parse(weapons);
-            if (gear) gearInventory = JSON.parse(gear).map(normalizeGearItem);
-            if (weaponCounter) weaponIdCounter = parseInt(weaponCounter);
-            if (gearCounter) gearIdCounter = parseInt(gearCounter);
+            migrateStorage();
+            const weapons = parseStorageJson('div2_weapons', null);
+            const gear = parseStorageJson('div2_gear', null);
+            const weaponCounter = storageGet('div2_weaponIdCounter');
+            const gearCounter = storageGet('div2_gearIdCounter');
+            if (Array.isArray(weapons)) weaponsInventory = weapons;
+            if (Array.isArray(gear)) gearInventory = gear.map(normalizeGearItem);
+            if (weaponCounter && !isNaN(parseInt(weaponCounter, 10))) weaponIdCounter = parseInt(weaponCounter, 10);
+            if (gearCounter && !isNaN(parseInt(gearCounter, 10))) gearIdCounter = parseInt(gearCounter, 10);
 
             // Persistenz-Fix: „noch nie gespeichert" (Erststart) von „Nutzer hat
             // bewusst alles geleert" unterscheiden. Nur beim allerersten Start
             // (Initialisierungs-Marker fehlt) werden die Standardwerte angelegt.
             // Danach bleibt ein geleertes Inventar nach einem Reload leer.
-            let initialized = null;
-            try { initialized = localStorage.getItem('div2_initialized_v16'); } catch (e) {}
+            const initialized = storageGet('div2_initialized');
             if (!initialized) {
-                try { localStorage.setItem('div2_initialized_v16', '1'); } catch (e) {}
+                storageSet('div2_initialized', '1');
                 if (weaponsInventory.length === 0 && gearInventory.length === 0) {
                     loadDefaultWeapons();
                     loadDefaultGear();
@@ -6369,7 +6411,7 @@ function prefilterItemScore(item, targetWeaponType) {
             }
             if (confirm(`Möchtest du wirklich alle ${weaponsInventory.length} Waffen aus dem Inventar löschen?\n\nDie Ausrüstungs-Inventar bleibt unberührt.`)) {
                 weaponsInventory = [];
-                lastComparisonData = null;
+                lastComparisonData = [];
                 comparisonStale = false; // geleert -> kein Veraltet-Hinweis mehr
                 // Laufende Bearbeitung abbrechen (Ziel-Waffe existiert nicht mehr)
                 if (editWeaponId !== null) { editWeaponId = null; setEditUi(false); }
@@ -6386,7 +6428,7 @@ function prefilterItemScore(item, targetWeaponType) {
                 gearInventory = [];
                 weaponIdCounter = 1;
                 gearIdCounter = 1;
-                lastComparisonData = null;
+                lastComparisonData = [];
                 comparisonStale = false; // geleert -> kein Veraltet-Hinweis mehr
                 if (typeof editGearId !== 'undefined' && editGearId !== null) { editGearId = null; setGearEditUi(false); }
                 saveToLocalStorage();
