@@ -513,7 +513,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Agitator",
-            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic/Muzzle/Magazin, kein Underbarrel); eingebautes Magazin +20 Schuss",
             "verified": {
                 "source": "https://thedivision.fandom.com/wiki/Agitator",
                 "date": "2026-02-27"
@@ -708,7 +708,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Strega",
-            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Optic CHD/Magazin +20/Grip Handling/Muzzle CHC)",
             "verified": {
                 "source": "https://thedivision.fandom.com/wiki/Strega",
                 "date": "2026-02-27"
@@ -729,8 +729,8 @@
             },
             "exotic": {
                 "talent": {
-                    "name": "Talent Unnerve",
-                    "description": "Talent Unnerve\nKilling an enemy will apply a mark on every enemy within 20m of it. Multiple marks can be applied to the same enemy. Max number of marks that can be applied to an enemy is 5. all marks on an enemy will disappear 10s after the last one has been applied. Deal +15% Amplified Damage per mark to marked enemies."
+                    "name": "Unnerve",
+                    "description": "Unnerve\nKilling an enemy will apply a mark on every enemy within 20m of it. Multiple marks can be applied to the same enemy. Max number of marks that can be applied to an enemy is 5.\nDeal +15% Amplified Damage per mark to marked enemies."
                 },
                 "fixedMods": [
                     {
@@ -2799,17 +2799,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Pestilence",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Magazin RoF/Muzzle Accuracy/Underbarrel Stability, kein Optic); Fandom-RPM 850 laut Core Stats",
             "stats": {
-                "RPM": 935,
+                "RPM": 850,
                 "Base Mag Size": 100,
                 "Modded Mag Size": 100,
                 "Empty Reload (secs)": 4.54,
-                "Level 40 Damage": 48300,
-                "DPS (rps*dmg)": 752675,
-                "Sustain DPS (dmg/time)": 440809.5735,
-                "Total Mag": 4830000,
-                "Modded Sustain DPS": 440809.5735,
+                "Level 40 Damage": 48289,
+                "DPS (rps*dmg)": 684094.1667,
+                "Sustain DPS (dmg/time)": 416326.7066,
+                "Total Mag": 4828900,
+                "Modded Sustain DPS": 416326.7066,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
                 "HSD": 65
@@ -3405,17 +3405,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Iron Lung",
-            "note": "Exotic - fixed mods, its built-in magazine gives +35 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic CHC/Magazin +35/Underbarrel CHD, kein Muzzle)",
             "stats": {
                 "RPM": 800,
                 "Base Mag Size": 50,
                 "Modded Mag Size": 85,
                 "Empty Reload (secs)": 2.96,
-                "Level 40 Damage": 54322,
-                "DPS (rps*dmg)": 724293.3333,
-                "Sustain DPS (dmg/time)": 404783.9046,
-                "Total Mag": 2716100,
-                "Modded Sustain DPS": 494629.8875,
+                "Level 40 Damage": 54310,
+                "DPS (rps*dmg)": 724133.3333,
+                "Sustain DPS (dmg/time)": 404694.4858,
+                "Total Mag": 2715500,
+                "Modded Sustain DPS": 494520.6213,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
                 "HSD": 65
@@ -3428,14 +3428,14 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "chd",
+                        "attr": "chc",
                         "value": 10,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
                         "attr": "chd",
-                        "value": 10,
+                        "value": 20,
                         "unit": "%"
                     },
                     {
@@ -3551,17 +3551,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Bullet King",
-            "note": "Exotic - fixed mods; its talent takes the magazine to 1,000",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Muzzle CHC/Underbarrel Stability/Mag-of-Holding-Sondermod, kein Optic); kein Nachladen (Talent: 1.000-Schuss-Magazin, Munitions-Refund alle 100 Treffer)",
             "stats": {
                 "RPM": 750,
                 "Base Mag Size": 1000,
                 "Modded Mag Size": 1000,
-                "Empty Reload (secs)": 4.76,
-                "Level 40 Damage": 54604,
-                "DPS (rps*dmg)": 682550,
-                "Sustain DPS (dmg/time)": 644218.9712,
-                "Total Mag": 54604000,
-                "Modded Sustain DPS": 644218.9712,
+                "Empty Reload (secs)": "N/A",
+                "Level 40 Damage": 54595,
+                "DPS (rps*dmg)": 682437.5,
+                "Sustain DPS (dmg/time)": 682437.5,
+                "Total Mag": 54595000,
+                "Modded Sustain DPS": 682437.5,
                 "Optimal Range": 40,
                 "Mod Slots": "N/A",
                 "HSD": 65
@@ -3839,7 +3839,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Big Alejandro",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - keine Mod-Slots (nur Skin-Slot); 10th Anniversary Event (03.03.-02.04.2026)",
             "stats": {
                 "RPM": 1100,
                 "Base Mag Size": 200,
@@ -3852,12 +3852,12 @@
                 "Modded Sustain DPS": 525855.2912,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 65
+                "HSD": 85
             },
             "exotic": {
                 "talent": {
                     "name": "Cover Shooter",
-                    "description": "Cover Shooter\nEvery bullet fired while in cover increases weapon damage by 1% up to 100%. The bonus lasts for 15 seconds.\n\nGetting a kill with this weapon while in cover resets the duration.\n\nThe bonus damage is canceled by reloading, swapping weapons, or exiting combat."
+                    "description": "Cover Shooter\nEvery bullet fired while in cover increases Weapon Damage by 1% up to 100%. The bonus lasts for 15s.\nGetting a kill with this weapon while in cover resets the duration.\nThe bonus damage is cancelled by reloading, swapping weapons or exiting combat."
                 },
                 "fixedMods": []
             }
@@ -4780,17 +4780,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Oxpecker",
-            "note": "Exotic - fixed mods, its built-in magazine gives +10 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic Range/Muzzle +10 Schuss/Underbarrel CHC, kein Magazine-Slot)",
             "stats": {
                 "RPM": 950,
                 "Base Mag Size": 40,
                 "Modded Mag Size": 50,
                 "Empty Reload (secs)": 1.6,
-                "Level 40 Damage": 46406,
-                "DPS (rps*dmg)": 734761.6667,
-                "Sustain DPS (dmg/time)": 449854.0816,
-                "Total Mag": 1856240,
-                "Modded Sustain DPS": 487673.6726,
+                "Level 40 Damage": 46395,
+                "DPS (rps*dmg)": 734587.5,
+                "Sustain DPS (dmg/time)": 449747.449,
+                "Total Mag": 1855800,
+                "Modded Sustain DPS": 487558.0752,
                 "Optimal Range": 32,
                 "Mod Slots": "N/A",
                 "HSD": 50
@@ -5143,7 +5143,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Underboss",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - Optic CHC lt. Kingboost; weitere fixe Mods (Muzzle/Underbarrel/Magazin) noch nicht dokumentiert - im Spiel pruefen; HSD in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 900,
                 "Base Mag Size": 50,
@@ -5155,22 +5155,22 @@
                 "Total Mag": 2531350,
                 "Modded Sustain DPS": 519428.8646,
                 "Optimal Range": 19,
-                "Mod Slots": null,
+                "Mod Slots": "N/A",
                 "HSD": null
             },
-            "named": {
+            "exotic": {
                 "talent": {
                     "name": "Gangland Hit",
-                    "key": "gangland_hit",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 20,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Ziel markiert (max. 4 Marken, +5% je zusaetzlicher Marke)",
-                    "estimated": false,
-                    "description": "Beschuss markiert das Ziel (max. 4 Marken). +20% verstaerkter Schaden gegen markierte Ziele, +5% je zusaetzlicher Fremd-Marke. Y8S3-Live: max. 4 Marken, +20%, +5% (PvE) bzw. max. 2, +14%, +2% (PvP)."
-                }
+                    "description": "Gangland Hit\nBeschuss markiert das Ziel (max. 4 Marken). +20% verstaerkter Schaden gegen markierte Ziele, +5% je zusaetzlicher Marke. Marken sind zwischen Gegnern uebertragbar.\nY8S3-Live: max. 4 Marken, +20%, +5% (PvE) bzw. max. 2, +14%, +2% (PvP)."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
@@ -5885,21 +5885,21 @@
             "replica": false,
             "source": "table",
             "table_name": "Overlord",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic CHD/Magazin ReloadSpeed/Underbarrel Stability, kein Muzzle)",
             "stats": {
                 "RPM": 70,
                 "Base Mag Size": 12,
                 "Modded Mag Size": 12,
-                "Empty Reload (secs)": 7.21,
-                "Level 40 Damage": 678929,
-                "DPS (rps*dmg)": 792083.8333,
-                "Sustain DPS (dmg/time)": 465665.3548,
-                "Total Mag": 8147148,
-                "Modded Sustain DPS": 465665.3548,
+                "Empty Reload (secs)": 7.99,
+                "Level 40 Damage": 678760,
+                "DPS (rps*dmg)": 791886.6667,
+                "Sustain DPS (dmg/time)": 445679.9812,
+                "Total Mag": 8145120,
+                "Modded Sustain DPS": 445679.9812,
                 "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 45,
-                "Pellets": "8 × 84,866"
+                "Pellets": "8 × 84845"
             },
             "exotic": {
                 "talent": {
@@ -6387,21 +6387,21 @@
             "replica": false,
             "source": "table",
             "table_name": "Lullaby",
-            "note": "Exotic - fixed mods · headshot 45%",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic Accuracy/Magazin ReloadSpeed/Underbarrel Range, kein Muzzle); funktional identisch zu Sweet Dreams",
             "stats": {
                 "RPM": 70,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 5.13,
-                "Level 40 Damage": 716012,
-                "DPS (rps*dmg)": 835347.3333,
-                "Sustain DPS (dmg/time)": 477853.319,
-                "Total Mag": 5728096,
-                "Modded Sustain DPS": 477853.319,
-                "Optimal Range": 13,
+                "Empty Reload (secs)": 5.5,
+                "Level 40 Damage": 715832,
+                "DPS (rps*dmg)": 835137.3333,
+                "Sustain DPS (dmg/time)": 463428.8092,
+                "Total Mag": 5726656,
+                "Modded Sustain DPS": 463428.8092,
+                "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 25,
-                "Pellets": "8 × 89,502"
+                "Pellets": "8 × 89479"
             },
             "exotic": {
                 "talent": {
@@ -6439,21 +6439,21 @@
             "replica": false,
             "source": "table",
             "table_name": "Sweet Dreams",
-            "note": "Exotic - fixed mods · headshot 45%",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic Accuracy/Magazin ReloadSpeed/Underbarrel Range, kein Muzzle); funktional identisch zu Lullaby",
             "stats": {
                 "RPM": 70,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 5.13,
-                "Level 40 Damage": 716012,
-                "DPS (rps*dmg)": 835347.3333,
-                "Sustain DPS (dmg/time)": 477853.319,
-                "Total Mag": 5728096,
-                "Modded Sustain DPS": 477853.319,
-                "Optimal Range": 13,
+                "Empty Reload (secs)": 5.5,
+                "Level 40 Damage": 715832,
+                "DPS (rps*dmg)": 835137.3333,
+                "Sustain DPS (dmg/time)": 463428.8092,
+                "Total Mag": 5726656,
+                "Modded Sustain DPS": 463428.8092,
+                "Optimal Range": 16,
                 "Mod Slots": null,
                 "HSD": 25,
-                "Pellets": "8 × 89,502"
+                "Pellets": "8 × 89479"
             },
             "exotic": {
                 "talent": {
@@ -6468,7 +6468,7 @@
                         "unit": "%"
                     },
                     {
-                        "slot": "muzzle",
+                        "slot": "magazine",
                         "attr": "reloadSpeed",
                         "value": 15,
                         "unit": "%"
@@ -6662,26 +6662,26 @@
             "replica": false,
             "source": "table",
             "table_name": "Sheriff",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - keine Mod-Slots (nur Skin-Slot); Bonuse des Talents sind in die Basiswerte eingerechnet",
             "stats": {
                 "RPM": 160,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 3.65,
-                "Level 40 Damage": 526414,
-                "DPS (rps*dmg)": 1403770.6667,
-                "Sustain DPS (dmg/time)": 633280,
-                "Total Mag": 4211312,
-                "Modded Sustain DPS": 633280,
+                "Empty Reload (secs)": 2.92,
+                "Level 40 Damage": 939650,
+                "DPS (rps*dmg)": 2505733.3333,
+                "Sustain DPS (dmg/time)": 1269797.2973,
+                "Total Mag": 7517200,
+                "Modded Sustain DPS": 1269797.2973,
                 "Optimal Range": 100,
                 "Mod Slots": "N/A",
-                "HSD": 55,
-                "Pellets": "8 × 65,802"
+                "HSD": 65,
+                "Pellets": "8 × 117456"
             },
             "exotic": {
                 "talent": {
                     "name": "Autentico",
-                    "description": "Autentico +35 Weapon Damage. +100% accuracy. No Damage Drop Off. These bonus are built into the weapons base stats"
+                    "description": "Autentico\n+35% Weapon Damage/+100% Accuracy/No Damage Drop Off\nThese bonuses are built into the weapon's base stats"
                 },
                 "fixedMods": []
             }
@@ -7355,17 +7355,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Bittersweet",
-            "note": "Exotic - fixed mods, its built-in magazine gives +10 rounds · headshot 90%",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic HSD/Underbarrel HSD/Magazin +10, kein Muzzle); HSD in Fandom nicht gelistet (DB-Annahme 70%) - im Spiel pruefen",
             "stats": {
-                "RPM": 180,
-                "Base Mag Size": 10,
+                "RPM": 320,
+                "Base Mag Size": 20,
                 "Modded Mag Size": 20,
-                "Empty Reload (secs)": 2.6,
+                "Empty Reload (secs)": 2.32,
                 "Level 40 Damage": 231346,
-                "DPS (rps*dmg)": 694038,
-                "Sustain DPS (dmg/time)": 389908.9888,
-                "Total Mag": 2313460,
-                "Modded Sustain DPS": 499307.9137,
+                "DPS (rps*dmg)": 1233845.3333,
+                "Sustain DPS (dmg/time)": 762260.2965,
+                "Total Mag": 4626920,
+                "Modded Sustain DPS": 762260.2965,
                 "Optimal Range": 60,
                 "Mod Slots": "N/A",
                 "HSD": 70
@@ -9584,17 +9584,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Tempest",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 2 fixe Mods lt. Fandom (Muzzle CHC/Magazin Stability); Mag 15+1 (Kammer); HSD in Fandom nicht gelistet (DB-Annahme 100%) - im Spiel pruefen",
             "stats": {
                 "RPM": 700,
-                "Base Mag Size": 30,
-                "Modded Mag Size": 30,
+                "Base Mag Size": 15,
+                "Modded Mag Size": 15,
                 "Empty Reload (secs)": 2.38,
                 "Level 40 Damage": 62714,
                 "DPS (rps*dmg)": 731663.3333,
-                "Sustain DPS (dmg/time)": 379975.1875,
-                "Total Mag": 1881420,
-                "Modded Sustain DPS": 379975.1875,
+                "Sustain DPS (dmg/time)": 256623.9283,
+                "Total Mag": 940710,
+                "Modded Sustain DPS": 256623.9283,
                 "Optimal Range": 12,
                 "Mod Slots": "N/A",
                 "HSD": 100
@@ -9694,43 +9694,49 @@
             "replica": false,
             "source": "table",
             "table_name": "Liberty",
-            "note": "Exotic - fixed mods · headshot 125%",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Sight HSD/Grip Handling/Trigger RoF/Customs CHC); Talent 'Liberty or Death' (DB hatte vorher falsche Whiplash-Daten)",
             "stats": {
-                "RPM": 230,
+                "RPM": 200,
                 "Base Mag Size": 8,
                 "Modded Mag Size": 8,
-                "Empty Reload (secs)": 1.9,
-                "Level 40 Damage": 189172,
-                "DPS (rps*dmg)": 725159.3333,
-                "Sustain DPS (dmg/time)": 379581.7666,
-                "Total Mag": 1513376,
-                "Modded Sustain DPS": 379581.7666,
+                "Empty Reload (secs)": 2.24,
+                "Level 40 Damage": 189126,
+                "DPS (rps*dmg)": 630420.0,
+                "Sustain DPS (dmg/time)": 326079.3103,
+                "Total Mag": 1513008,
+                "Modded Sustain DPS": 326079.3103,
                 "Optimal Range": 18,
                 "Mod Slots": "N/A",
-                "HSD": 100
+                "HSD": 105
             },
             "exotic": {
                 "talent": {
-                    "name": "Faster than Reloading",
-                    "description": "Faster than Reloading\n\nHaving this weapon holstered for 5s reloads and primes it. While primed, swapping to this weapon reloads you Primary and Secondary weapons and grants +20% Rate of Fire and +50% Weapon Damage until its magazine is emptied. Reloading or swapping from this weapon before its magazine is emptied will remove its stat bonuses."
+                    "name": "Liberty or Death",
+                    "description": "Liberty or Death\nHits grant +2% weapon damage Stacks up to 30 times.\nHeadshots consume all stacks, repairing your shield for 3% per stack."
                 },
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "chd",
-                        "value": 10,
+                        "attr": "hsd",
+                        "value": 5,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
-                        "attr": "swapSpeed",
-                        "value": 50,
+                        "attr": "handling",
+                        "value": 15,
                         "unit": "%"
                     },
                     {
                         "slot": "magazine",
+                        "attr": "rof",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
                         "attr": "chc",
-                        "value": 10,
+                        "value": 5,
                         "unit": "%"
                     }
                 ]
@@ -10030,17 +10036,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Mosquito",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 2 fixe Mods lt. Fandom (Muzzle Accuracy/Magazin ReloadSpeed)",
             "stats": {
                 "RPM": 350,
                 "Base Mag Size": 15,
                 "Modded Mag Size": 15,
-                "Empty Reload (secs)": 1.61,
-                "Level 40 Damage": 102585,
-                "DPS (rps*dmg)": 598412.5,
-                "Sustain DPS (dmg/time)": 368002.2207,
-                "Total Mag": 1538775,
-                "Modded Sustain DPS": 368002.2207,
+                "Empty Reload (secs)": 1.9,
+                "Level 40 Damage": 102563,
+                "DPS (rps*dmg)": 598284.1667,
+                "Sustain DPS (dmg/time)": 344061.1821,
+                "Total Mag": 1538445,
+                "Modded Sustain DPS": 344061.1821,
                 "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 100
@@ -10452,7 +10458,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Whiplash",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic CHD/Underbarrel SwapSpeed/Magazin CHC, kein Muzzle); Damage 198.306 in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 180,
                 "Base Mag Size": 6,
@@ -10691,17 +10697,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Regulus",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 2 fixe Mods lt. Fandom (Muzzle + Drum/Magazin), kein Optic/Underbarrel",
             "stats": {
                 "RPM": 160,
                 "Base Mag Size": 6,
                 "Modded Mag Size": 6,
-                "Empty Reload (secs)": 2.29,
+                "Empty Reload (secs)": 2.54,
                 "Level 40 Damage": 282072,
                 "DPS (rps*dmg)": 752192,
-                "Sustain DPS (dmg/time)": 372782.3789,
+                "Sustain DPS (dmg/time)": 353326.096,
                 "Total Mag": 1692432,
-                "Modded Sustain DPS": 372782.3789,
+                "Modded Sustain DPS": 353326.096,
                 "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 100
@@ -10874,35 +10880,47 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic - fixed mods, its built-in magazine gives +5 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom/Ubisoft (Optic CHC/Magazin +5/Underbarrel Handling); Dragon's-Breath-Munition (40% Brand-Chance, 50% Statuseffekt-Bonus als Amplified); HSD in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 75,
                 "Base Mag Size": 5,
                 "Modded Mag Size": 10,
-                "Empty Reload (secs)": 7.01,
+                "Empty Reload (secs)": 5.34,
                 "Level 40 Damage": 703676,
-                "DPS (rps*dmg)": 879595,
-                "Sustain DPS (dmg/time)": 319562.2162,
+                "DPS (rps*dmg)": 879595.0,
+                "Sustain DPS (dmg/time)": 376700.2141,
                 "Total Mag": 3518380,
-                "Modded Sustain DPS": 468804.7968,
+                "Modded Sustain DPS": 527493.2534,
                 "Optimal Range": 11,
-                "Mod Slots": null,
+                "Mod Slots": "N/A",
                 "HSD": null,
                 "Pellets": "8 × 87,960"
             },
-            "named": {
+            "exotic": {
                 "talent": {
                     "name": "Dragon's Breath",
-                    "key": "dragons_breath",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 50,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Status-Effekt-Bonus > 0",
-                    "estimated": false,
-                    "description": "Verschießt Dragon's-Breath-Munition: Jeder Schuss hat 40% Chance auf Brand (PvE). Waffenschaden wird um 50% des Statuseffekt-Bonus verstaerkt (PvE) bzw. 10%/10% (PvP)."
-                }
+                    "description": "Dragon's Breath\nThis weapon fires Dragon's Breath shells. Each shot has a 40% chance of applying Burn to the enemy.\nWeapon Damage is Amplified by 50% of your Status Effect bonus.\n\nNote: Burn application is affected by usual Status Effect diminishing returns on enemies."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "capacity",
+                        "value": 5,
+                        "unit": "rounds"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 10,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
@@ -10938,7 +10956,7 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic - fixed mods · headshot 65%",
+            "note": "Exotic (Paradise-Lost-Incursion, droppt neben Ouroboros) - fixe Mods noch nicht dokumentiert (Reddit/Fandom unvollstaendig); HSD in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 55,
                 "Base Mag Size": 7,
@@ -10950,8 +10968,15 @@
                 "Total Mag": 2923844,
                 "Modded Sustain DPS": 231566.5923,
                 "Optimal Range": 55,
-                "Mod Slots": null,
+                "Mod Slots": "N/A",
                 "HSD": null
+            },
+            "exotic": {
+                "talent": {
+                    "name": "You can look... but you can't touch.",
+                    "description": "You can look...\nWhen out of combat, receive 10 stacks (PvP: 5 stacks). This weapon deals +12.5% Amplified Damage (PvP: +12% Amplified Damage) per stack.\n\n...but you can't touch.\n1 stack is automatically consumed to fully repair one instance of damage you receive. 1 stack replenishes every 3s (PvP: 8s)."
+                },
+                "fixedMods": []
             }
         },
         {
@@ -11152,34 +11177,52 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic - fixed mods, its built-in magazine gives +10 rounds",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Optic CHC/Magazin +10/Underbarrel Handling/Muzzle ReloadSpeed); Talent 'Confirm & Execute' (vorher 'Shakedown'); Damage 92.364 in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 420,
                 "Base Mag Size": 30,
                 "Modded Mag Size": 40,
-                "Empty Reload (secs)": 2.13,
+                "Empty Reload (secs)": 1.64,
                 "Level 40 Damage": 92364,
-                "DPS (rps*dmg)": 646548,
-                "Sustain DPS (dmg/time)": 431895.7916,
+                "DPS (rps*dmg)": 646548.0,
+                "Sustain DPS (dmg/time)": 467609.4503,
                 "Total Mag": 2770920,
-                "Modded Sustain DPS": 470987.434,
+                "Modded Sustain DPS": 502368.2984,
                 "Optimal Range": 45,
-                "Mod Slots": null,
-                "HSD": null
+                "Mod Slots": "N/A",
+                "HSD": 80
             },
-            "named": {
+            "exotic": {
                 "talent": {
-                    "name": "Shakedown",
-                    "key": "shakedown",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 4,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Stacks auf dem Ziel (Körpertreffer), HS-Verbrauch/Weakpoint",
-                    "estimated": false,
-                    "description": "Y8S3-Live: Körpertreffer erzeugen Stacks (10s, max. 4): +4% verstärkter Schaden je Stack. Kopfschuss verbraucht alle Stacks: +11% verstärkt je Stack. Weakpoint-Zerstörung: +30% verstärkt für 5s (PvE)."
-                }
+                    "name": "Confirm & Execute",
+                    "description": "Confirm & Execute\nPvE:\nBody shots add 1 stack to the enemy for 10s. Max stacks: 4. Hitting a different enemy removes all stacks.\nThis weapon deals +4% Amplified Damage per stack.\nYour next headshot on an enemy with stacks consumes all stacks, dealing +11% Amplified Damage per stack.\nDestroying an enemy's weakpoint causes them to take +30% Amplified Damage from you for 5s.\n\nPvP:\nBody shots add 1 stack to the enemy for 6s. Max stacks: 3. Hitting a different enemy removes all stacks.\nThis weapon deals +3% Amplified Damage per stack.\nYour next headshot on an enemy with stacks consumes all stacks, dealing +7% Amplified Damage per stack.\nDestroying an enemy's weakpoint causes them to take +5% Amplified Damage from you for 3s."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "capacity",
+                        "value": 10,
+                        "unit": "rounds"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 10,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
+                        "attr": "reloadSpeed",
+                        "value": 10,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
