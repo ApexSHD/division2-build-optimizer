@@ -708,7 +708,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Strega",
-            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Optic CHD/Magazin +20/Grip Handling/Muzzle CHC)",
             "verified": {
                 "source": "https://thedivision.fandom.com/wiki/Strega",
                 "date": "2026-02-27"
@@ -729,8 +729,8 @@
             },
             "exotic": {
                 "talent": {
-                    "name": "Talent Unnerve",
-                    "description": "Talent Unnerve\nKilling an enemy will apply a mark on every enemy within 20m of it. Multiple marks can be applied to the same enemy. Max number of marks that can be applied to an enemy is 5. all marks on an enemy will disappear 10s after the last one has been applied. Deal +15% Amplified Damage per mark to marked enemies."
+                    "name": "Unnerve",
+                    "description": "Unnerve\nKilling an enemy will apply a mark on every enemy within 20m of it. Multiple marks can be applied to the same enemy. Max number of marks that can be applied to an enemy is 5.\nDeal +15% Amplified Damage per mark to marked enemies."
                 },
                 "fixedMods": [
                     {
