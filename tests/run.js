@@ -572,6 +572,35 @@ const setInput = (id, value) => {
   t('switchTab("global") aktiviert den Tab', $('contentGlobal').classList.contains('active'));
   w.eval("switchTab('weapons')");
 
+
+  // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
+  console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
+  // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt
+  // (zuvor localStorage leeren, damit reine Migration ohne Admin-Vorbestand getestet wird)
+  w.localStorage.clear();
+  const legacyDb = { weapons: [{ name: 'Legacy-AR', type: 'AR', rarity: 'named', stats: {}, named: { talent: 'test' } }] };
+  w.eval(`localStorage.setItem('div2_weapons_db_v2', ${JSON.stringify(JSON.stringify(legacyDb))})`);
+  w.eval('loadSavedWeaponDb()');
+  const adminAfterMig = w.eval(`JSON.parse(localStorage.getItem('div2_admin_db') || '{}')`);
+  t('Migration: Legacy-Waffen wandern in div2_admin_db', adminAfterMig && Array.isArray(adminAfterMig.weapons) && adminAfterMig.weapons.some(x => x.name === 'Legacy-AR'));
+  t('Migration: Legacy-Schluessel div2_weapons_db_v2 ist entfernt', w.eval(`localStorage.getItem('div2_weapons_db_v2') === null`));
+  t('Migration: weaponsData nutzt den migrierten Bestand', w.eval('weaponsData.weapons.some(x => x.name === "Legacy-AR")'));
+  // 12b. Konflikt: Admin-Overrides gewinnen, wenn beide Bestaende Waffen enthalten
+  w.localStorage.clear();
+  const adminDb = { weapons: [{ name: 'Admin-AR', type: 'AR', rarity: 'named', stats: {}, named: { talent: 'x' } }] };
+  w.eval(`localStorage.setItem('div2_admin_db', ${JSON.stringify(JSON.stringify(adminDb))})`);
+  w.eval(`localStorage.setItem('div2_weapons_db_v2', ${JSON.stringify(JSON.stringify(legacyDb))})`);
+  w.eval('loadSavedWeaponDb()');
+  const adminWon = w.eval(`JSON.parse(localStorage.getItem('div2_admin_db') || '{}')`);
+  t('Konflikt: Admin-Bestand gewinnt, Legacy wird verworfen', adminWon && adminWon.weapons.length === 1 && adminWon.weapons[0].name === 'Admin-AR');
+  t('Konflikt: Legacy-Schluessel wird trotzdem entfernt', w.eval(`localStorage.getItem('div2_weapons_db_v2') === null`));
+  // 12c. Reset entfernt alle Schluessel
+  w.eval(`localStorage.setItem('div2_weapons_db_v2', ${JSON.stringify(JSON.stringify(legacyDb))})`);
+  w.confirm = () => true;
+  w.eval('resetDb && resetDb()');
+  t('Reset: div2_admin_db entfernt', w.eval(`localStorage.getItem('div2_admin_db') === null`));
+  t('Reset: div2_weapons_db_v2 mit entfernt', w.eval(`localStorage.getItem('div2_weapons_db_v2') === null`));
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {
