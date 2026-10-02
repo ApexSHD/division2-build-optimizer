@@ -706,6 +706,52 @@ const setInput = (id, value) => {
     }
   }
 
+  // ===== 17. EXOTEN-WAFFEN-TALENTE NUMERISCH (Issue #75) =====
+  console.log('\n--- Exoten-Waffen-Talente (Issue #75) ---');
+  {
+    const def = (n) => w.eval(`EXOTIC_WEAPON_TALENTS[${JSON.stringify(n)}]`);
+    t('Map: The Bighorn modelliert (perStackHsd 6, max 25)', (() => { const d = def('The Bighorn'); return d && d.perStackHsd === 6 && d.maxStacks === 25; })());
+    t('Map: Agitator modelliert (wd 30, rof 25, conditional)', (() => { const d = def('Agitator'); return d && d.wd === 30 && d.rof === 25 && d.conditional === true; })());
+    t('Map: Vertigo modelliert (dttooc 30)', (() => { const d = def('Vertigo'); return d && d.dttooc === 30; })());
+    t('Map: Capacitor modelliert (wdPerSkillTier 7.5)', (() => { const d = def('Capacitor'); return d && d.wdPerSkillTier === 7.5; })());
+    t('Map: Chameleon NICHT erfasst (keine Doppelzaehlung mit WEAPON_TALENTS)', def('Chameleon') === undefined);
+    t('Helper: exoticWeaponTalentDef matcht DB-Namen mit Klammer', w.eval(`!!exoticWeaponTalentDef({ isExotic: true, name: 'Strega (FAL)' })`));
+    t('Helper: exoticWeaponTalentDef liefert null fuer Nicht-Exoten', w.eval(`exoticWeaponTalentDef({ isExotic: false, name: 'The Bighorn' }) === null`));
+    // Bonus-Berechnung
+    const perkChk = $('exoticPerksActive');
+    const prevChk = perkChk ? perkChk.checked : null;
+    if (perkChk) perkChk.checked = true;
+    t('Bonus: Agitator liefert wd 30 / rof 25 bei aktiven Perks', w.eval(`(function(){ const b = exoticWeaponTalentBonus({ isExotic: true, name: 'Agitator' }); return b && b.wd === 30 && b.rof === 25; })()`));
+    t('Bonus: Strega volle Stacks = amp 75 (5 x 15)', w.eval(`(function(){ const b = exoticWeaponTalentBonus({ isExotic: true, name: 'Strega (FAL)' }); return b && Math.abs(b.amp - 75) < 1e-9; })()`));
+    t('Bonus: Slider-Auslastung 50% -> 3/5 Stacks = amp 45', (() => {
+      const slug = 'strega-fal';
+      w.eval(`{ const s = document.createElement('input'); s.type = 'range'; s.id = 'exoticWStackUtil_' + ${JSON.stringify(slug)}; s.value = '50'; document.body.appendChild(s); }`);
+      const ok = w.eval(`(function(){ const b = exoticWeaponTalentBonus({ isExotic: true, name: 'Strega (FAL)' }); return b && Math.abs(b.amp - 45) < 1e-9; })()  // 50% von 5 Stacks = 2.5 -> round = 3 x 15%`);
+      w.eval(`document.getElementById('exoticWStackUtil_' + ${JSON.stringify(slug)}).remove()`);
+      return ok;
+    })());
+    t('Bonus: Fafnir rechnet 50% Statuseffekt-Bonus ein', (() => {
+      w.eval(`{ const i = document.createElement('input'); i.type = 'number'; i.id = 'exoticStatusBonus'; i.value = '40'; document.body.appendChild(i); }`);
+      const ok = w.eval(`(function(){ const b = exoticWeaponTalentBonus({ isExotic: true, name: 'Fafnir' }); return b && Math.abs(b.amp - 20) < 1e-9; })()`);
+      w.eval(`document.getElementById('exoticStatusBonus').remove()`);
+      return ok;
+    })());
+    if (perkChk) {
+      perkChk.checked = false;
+      t('Bonus: deaktivierte Perks liefern null', w.eval(`exoticWeaponTalentBonus({ isExotic: true, name: 'Agitator' }) === null`));
+      perkChk.checked = true;
+    } else {
+      t('Bonus: deaktivierte Perks liefern null', false);
+    }
+    // UI-Rendering: Bighorn im Waffen-Inventar -> Karte mit Slider
+    const invBefore = w.eval('JSON.stringify(weaponsInventory)');
+    w.eval(`weaponsInventory.push({ id: 'test-bighorn', name: 'The Bighorn', type: 'AR', isExotic: true, baseDmg: 57206, core1: 15, core2Type: 'dth', core2Val: 10, minorType: 'dttooc', minorVal: 10, talent: 'Big Game Hunter', autoMods: true, mods: {} })`);
+    w.eval('renderExoticPerkList()');
+    const wrapHtml = w.eval(`document.getElementById('exoticPerkListWrap') ? document.getElementById('exoticPerkListWrap').innerHTML : ''`);
+    t('UI: Bighorn-Karte wird gerendert (Waffe)', wrapHtml.includes('The Bighorn') && wrapHtml.includes('exoticWStackUtil_') && wrapHtml.includes('Big Game Hunter'));
+    w.eval(`weaponsInventory = JSON.parse(${JSON.stringify(invBefore)})`);
+    if (prevChk !== null && perkChk) perkChk.checked = prevChk;
+  }
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
   // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt
