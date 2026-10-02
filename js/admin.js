@@ -424,6 +424,23 @@ function deleteGearEntry(idx) {
 // ---------- Brand-Sets & Gear-Sets (gruen) ----------
 const ADMIN_BRAND_GROUPS = { dps: 'DPS', skill: 'Skill', armour: 'Defense' };
 
+// Zusammenfassung der Set-Boni fuer die Admin-Tabelle (1p/2p/3p, PvE)
+const BRAND_BONUS_ATTR_LABELS = { wd: 'WD', chc: 'CHC', chd: 'CHD', hsd: 'HSD', dta: 'DTA', dth: 'DTH', rof: 'RoF', wh: 'WH' };
+function brandBonusesSummary(b) {
+    const bonuses = b.bonuses_pve;
+    if (!bonuses) return b.wd_bonus || '';
+    const parts = [];
+    ['1', '2', '3'].forEach(tier => {
+        const x = bonuses[tier];
+        if (!x) return;
+        const seg = [];
+        ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh'].forEach(k => { if (x[k]) seg.push(`+${x[k]}% ${BRAND_BONUS_ATTR_LABELS[k]}`); });
+        if (x.wd_by_weapon) Object.entries(x.wd_by_weapon).forEach(([wt, v]) => seg.push(`+${v}% ${wt}`));
+        if (x.text) seg.push(x.text);
+        if (seg.length) parts.push(`${tier}p: ${seg.join(', ')}`);
+    });
+    return parts.join(' \u00b7 ');
+}
 function renderBrandsAdmin() {
     const el = document.getElementById('adminBrandTable');
     if (!el) return;
@@ -446,43 +463,100 @@ function renderBrandsAdmin() {
         <td class="py-2 px-3 text-sm text-gray-400">${esc(b.name)}</td>
         <td class="py-2 px-3 text-sm">${esc(ADMIN_BRAND_GROUPS[b.group] || b.group || '—')}</td>
         <td class="py-2 px-3 text-sm text-gray-400">${esc(b.weapon_hint || '—')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(b.wd_bonus || '')}">${esc(b.wd_bonus || '—')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(brandBonusesSummary(b) || '')}">${esc(brandBonusesSummary(b) || '—')}</td>
         <td class="py-2 px-3">${actionBtns(`openBrandForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteBrandEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
-            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Waffenbonus</th><th class="py-2 px-3">Aktionen</th>
+            <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Set-Boni</th><th class="py-2 px-3">Aktionen</th>
         </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
+// Typisierte Bonus-Attribute (Score-Keys) + waffentypbezogener Schaden
+// fuer den Boni-Editor je Stufe (1p/2p/3p). Reihenfolge = Dropdown-Reihenfolge.
+const BRAND_BONUS_ATTRS = [
+    ['', '\u2014 kein numerischer Bonus \u2014'],
+    ['wd', 'Waffenschaden (WD)'], ['chc', 'Kritische Trefferchance (CHC)'], ['chd', 'Kritischer Trefferschaden (CHD)'],
+    ['hsd', 'Kopfschussschaden (HSD)'], ['dta', 'Schaden gegen R\u00fcstung (DTA)'], ['dth', 'Schaden gegen Leben (DTH)'],
+    ['rof', 'Feuerrate (RoF)'], ['wh', 'Waffenhandhabung (WH)'],
+    ['wdw:AR', 'Waffenschaden: AR'], ['wdw:LMG', 'Waffenschaden: LMG'], ['wdw:MP', 'Waffenschaden: MP'],
+    ['wdw:Rifle', 'Waffenschaden: Gewehr (Rifle)'], ['wdw:Shotgun', 'Waffenschaden: Schrotflinte'], ['wdw:MMR', 'Waffenschaden: MMR'],
+    ['wdw:Pistol', 'Waffenschaden: Pistole']
+];
+// Liest den Bonus einer Stufe fuer das Formular: [attrSelectValue, numericVal, textVal]
+function brandTierFormState(bonuses, tier) {
+    const b = (bonuses || {})[tier] || {};
+    let attr = '';
+    for (const k of ['wd', 'chc', 'chd', 'hsd', 'dta', 'dth', 'rof', 'wh']) {
+        if (b[k]) { attr = k; break; }
+    }
+    let numVal = 0;
+    if (attr) numVal = b[attr] || 0;
+    else if (b.wd_by_weapon) {
+        const wt = Object.keys(b.wd_by_weapon)[0];
+        attr = 'wdw:' + wt;
+        numVal = b.wd_by_weapon[wt] || 0;
+    }
+    return [attr, numVal, b.text || ''];
+}
+function brandBonusRow(tier, label, state) {
+    const [attr, numVal, text] = state;
+    return `<div class="p-3 rounded-lg bg-zinc-900/80 border border-gray-800 space-y-2">
+        <p class="text-xs font-bold uppercase text-div-accent">${label}</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            ${modalInput('abBonusAttr' + tier, 'Attribut', attr, { type: 'select', options: BRAND_BONUS_ATTRS })}
+            ${modalInput('abBonusVal' + tier, 'Wert (%)', numVal || '', { type: 'number', step: 'any', placeholder: 'z.B. 12' })}
+        </div>
+        ${modalInput('abBonusText' + tier, 'Text-Bonus (Skill/Defense/Utility, ohne Score)', text, { placeholder: 'z.B. 30% Gefahrenschutz' })}
+    </div>`;
+}
 function openBrandForm(key) {
     const isNew = key == null || key === 'null';
     const b = isNew ? {} : (BRAND_SET_INFO[key] || {});
     openAdminModal(isNew ? 'Neues Brand-Set anlegen' : 'Brand-Set bearbeiten: ' + key);
+    const bonuses = b.bonuses_pve || {};
     document.getElementById('adminModalBody').innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            ${modalInput('abKey', 'Schlüssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
-            ${modalInput('abName', 'Vollständiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
+            ${modalInput('abKey', 'Schl\u00fcssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
+            ${modalInput('abName', 'Vollst\u00e4ndiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
             ${modalInput('abGroup', 'Gruppe', b.group || 'dps', { type: 'select', options: [['dps', 'DPS'], ['skill', 'Skill'], ['armour', 'Defense']] })}
             ${modalInput('abWeaponHint', 'Waffen-Hint (optional)', b.weapon_hint || '', { placeholder: 'z.B. AR' })}
         </div>
-        ${modalInput('abWdBonus', 'Waffenbonus (Beschreibung, optional)', b.wd_bonus || '', { placeholder: 'z.B. 1p: +12% AR-Schaden' })}
         ${modalInput('abFragments', 'Match-Fragmente (Komma-getrennt, optional)', (b.fragments || []).join(', '), { placeholder: 'z.B. fenris, ferocious calm' })}
+        <p class="text-xs font-semibold uppercase text-gray-400 pt-1">Set-Boni (PvE) — pro Stufe ein numerischer Bonus und/oder Text</p>
+        ${brandBonusRow(1, '1 St\u00fcck (1p)', brandTierFormState(bonuses, '1'))}
+        ${brandBonusRow(2, '2 St\u00fccke (2p)', brandTierFormState(bonuses, '2'))}
+        ${brandBonusRow(3, '3 St\u00fccke (3p)', brandTierFormState(bonuses, '3'))}
         <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
             <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
             <button onclick="saveBrandForm(${isNew ? 'null' : `'${esc(key).replace(/'/g, "\\'")}'`})" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold">Speichern</button>
         </div>`;
 }
 
+
 function saveBrandForm(key) {
     const newKey = getVal('abKey').trim();
     const name = getVal('abName').trim();
-    if (!newKey || !name) { adminToast('Bitte Schlüssel und Namen angeben.', 'error'); return; }
+    if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
     const entry = { name, group: getVal('abGroup') };
     const wh = getVal('abWeaponHint').trim(); if (wh) entry.weapon_hint = wh;
-    const wb = getVal('abWdBonus').trim(); if (wb) entry.wd_bonus = wb;
     const fr = getVal('abFragments').split(',').map(x => x.trim()).filter(Boolean);
     if (fr.length) entry.fragments = fr;
+    // Set-Boni je Stufe aus dem Formular lesen
+    const bonuses = {};
+    [1, 2, 3].forEach(tier => {
+        const attrSel = getVal('abBonusAttr' + tier) || '';
+        const numVal = parseFloat(getVal('abBonusVal' + tier)) || 0;
+        const text = (getVal('abBonusText' + tier) || '').trim();
+        const b = {};
+        if (attrSel && numVal > 0) {
+            if (attrSel.startsWith('wdw:')) b.wd_by_weapon = { [attrSel.slice(4)]: numVal };
+            else b[attrSel] = numVal;
+        }
+        if (text) b.text = text;
+        if (Object.keys(b).length > 0) bonuses[tier] = b;
+    });
+    if (Object.keys(bonuses).length > 0) entry.bonuses_pve = bonuses;
     const oldKey = (key && key !== 'null') ? key : null;
     if (oldKey && oldKey !== newKey) {
         const newObj = {};
@@ -492,8 +566,9 @@ function saveBrandForm(key) {
         BRAND_SET_INFO[newKey] = entry;
     }
     closeAdminModal();
-    refreshAfterDbChange(oldKey ? 'Brand-Set aktualisiert.' : 'Brand-Set hinzugefügt.');
+    refreshAfterDbChange(oldKey ? 'Brand-Set aktualisiert.' : 'Brand-Set hinzugef\u00fcgt.');
 }
+
 
 function deleteBrandEntry(key) {
     if (!BRAND_SET_INFO[key] || !confirm(`Brand-Set "${key}" wirklich löschen?`)) return;
