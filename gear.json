@@ -1912,7 +1912,7 @@
     },
     "brazos": {
       "name": "Brazos de Arcabuz",
-      "group": "utility",
+      "group": "skill",
       "bonuses_pve": {
         "1": {
           "text": "10% Skill-Haste"
@@ -1930,7 +1930,7 @@
     },
     "belstone": {
       "name": "Belstone Armory",
-      "group": "utility",
+      "group": "armour",
       "fragments": [
         "belstone"
       ],
@@ -1948,7 +1948,7 @@
     },
     "badger": {
       "name": "Badger Tuff",
-      "group": "utility",
+      "group": "dps",
       "weapon_hint": "Shotgun",
       "wd_bonus": "1p: +12% Shotgun-Schaden",
       "fragments": [
@@ -1971,7 +1971,7 @@
     },
     "electrique": {
       "name": "Electrique",
-      "group": "utility",
+      "group": "skill",
       "bonuses_pve": {
         "1": {
           "text": "10% Statuseffekte"
@@ -1989,7 +1989,7 @@
     },
     "empress": {
       "name": "Empress International",
-      "group": "utility",
+      "group": "skill",
       "bonuses_pve": {
         "1": {
           "text": "10% Skill-Health"
@@ -2007,7 +2007,7 @@
     },
     "habsburg": {
       "name": "Habsburg Guard",
-      "group": "utility",
+      "group": "dps",
       "weapon_hint": "MMR",
       "wd_bonus": "2p: +24% MMR-Schaden",
       "fragments": [
@@ -2030,7 +2030,7 @@
     },
     "lengmo": {
       "name": "Lengmo",
-      "group": "utility",
+      "group": "dps",
       "bonuses_pve": {
         "1": {
           "text": "15% Nachladetempo"
@@ -2052,7 +2052,7 @@
     },
     "palisade": {
       "name": "Palisade Steelworks",
-      "group": "utility",
+      "group": "armour",
       "bonuses_pve": {
         "1": {
           "text": "10% Rüstung bei Kill"
@@ -2070,7 +2070,7 @@
     },
     "gila": {
       "name": "Gila Guard",
-      "group": "utility",
+      "group": "armour",
       "fragments": [
         "gila"
       ],
@@ -2088,7 +2088,7 @@
     },
     "5.11 tactical": {
       "name": "5.11 Tactical",
-      "group": "utility",
+      "group": "armour",
       "bonuses_pve": {
         "1": {
           "text": "10% Schutz vor Eliten"
@@ -2106,7 +2106,7 @@
     },
     "alpssummit": {
       "name": "Alps Summit Armaments",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "alps summit"
       ],
@@ -2124,7 +2124,7 @@
     },
     "chinalight": {
       "name": "China Light Industries Corporation",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "china light"
       ],
@@ -2142,7 +2142,7 @@
     },
     "murakami": {
       "name": "Murakami Industries",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "murakami"
       ],
@@ -2160,7 +2160,7 @@
     },
     "richter": {
       "name": "Richter & Kaiser GmbH",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "richter"
       ],
@@ -2178,7 +2178,7 @@
     },
     "hana": {
       "name": "Hana U Corporation",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "hana u"
       ],
@@ -2196,7 +2196,7 @@
     },
     "wyvern": {
       "name": "Wyvern Wear",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "wyvern"
       ],
@@ -2214,7 +2214,7 @@
     },
     "shiny monkey": {
       "name": "Shiny Monkey Gear",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "shiny monkey"
       ],
@@ -2232,7 +2232,7 @@
     },
     "edelweiss": {
       "name": "Edelweiss GPz",
-      "group": "utility",
+      "group": "skill",
       "fragments": [
         "edelweiss"
       ],
@@ -2250,7 +2250,7 @@
     },
     "golan": {
       "name": "Golan Gear Ltd",
-      "group": "utility",
+      "group": "armour",
       "fragments": [
         "golan"
       ],
@@ -2268,7 +2268,7 @@
     },
     "uzina": {
       "name": "Uzina Getica",
-      "group": "utility",
+      "group": "armour",
       "fragments": [
         "uzina"
       ],
@@ -2286,7 +2286,7 @@
     },
     "yaahl": {
       "name": "Yaahl Gear",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "yaahl"
       ],
@@ -2304,7 +2304,7 @@
     },
     "imminence": {
       "name": "Imminence Armaments",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "imminence"
       ],
@@ -2326,7 +2326,7 @@
     },
     "legatus": {
       "name": "Legatus S.p.A.",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "legatus"
       ],
@@ -2348,7 +2348,7 @@
     },
     "royalworks": {
       "name": "Royal Works",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "royal works"
       ],
@@ -2370,7 +2370,7 @@
     },
     "urbanlookout": {
       "name": "Urban Lookout",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "urban lookout"
       ],
@@ -2392,7 +2392,7 @@
     },
     "zwiadowka": {
       "name": "Zwiadowka Sp. z o.o.",
-      "group": "utility",
+      "group": "dps",
       "fragments": [
         "zwiadowka"
       ],
