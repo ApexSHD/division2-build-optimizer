@@ -422,7 +422,7 @@ function deleteGearEntry(idx) {
 }
 
 // ---------- Brand-Sets & Gear-Sets (gruen) ----------
-const ADMIN_BRAND_GROUPS = { dps: 'DPS', utility: 'Utility & Defense' };
+const ADMIN_BRAND_GROUPS = { dps: 'DPS', skill: 'Skill', armour: 'Defense' };
 
 function renderBrandsAdmin() {
     const el = document.getElementById('adminBrandTable');
@@ -463,7 +463,7 @@ function openBrandForm(key) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${modalInput('abKey', 'Schlüssel (wie im Tool verwendet)', isNew ? '' : key, { required: true, placeholder: 'z.B. fenris' })}
             ${modalInput('abName', 'Vollständiger Name', b.name || '', { required: true, placeholder: 'z.B. Fenris Group AB' })}
-            ${modalInput('abGroup', 'Gruppe', b.group || 'dps', { type: 'select', options: [['dps', 'DPS'], ['utility', 'Utility & Defense']] })}
+            ${modalInput('abGroup', 'Gruppe', b.group || 'dps', { type: 'select', options: [['dps', 'DPS'], ['skill', 'Skill'], ['armour', 'Defense']] })}
             ${modalInput('abWeaponHint', 'Waffen-Hint (optional)', b.weapon_hint || '', { placeholder: 'z.B. AR' })}
         </div>
         ${modalInput('abWdBonus', 'Waffenbonus (Beschreibung, optional)', b.wd_bonus || '', { placeholder: 'z.B. 1p: +12% AR-Schaden' })}
