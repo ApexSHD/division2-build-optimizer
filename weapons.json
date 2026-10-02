@@ -5143,20 +5143,20 @@
             "replica": false,
             "source": "table",
             "table_name": "Underboss",
-            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - Optic CHC lt. Kingboost; weitere fixe Mods (Muzzle/Underbarrel/Magazin) noch nicht dokumentiert - im Spiel pruefen; HSD in Fandom nicht gelistet - im Spiel pruefen",
+            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - Werte In-Game verifiziert (David, Y8S3): HSD 130%, nur 1 fixer Mod (Optic CHC 15). Damage 50.627/RPM 900/Mag 50/Range 19m bestätigt; Reload 1,54s aus Fandom.",
             "stats": {
                 "RPM": 900,
                 "Base Mag Size": 50,
                 "Modded Mag Size": 50,
                 "Empty Reload (secs)": 1.54,
                 "Level 40 Damage": 50627,
-                "DPS (rps*dmg)": 759405,
+                "DPS (rps*dmg)": 759405.0,
                 "Sustain DPS (dmg/time)": 519428.8646,
                 "Total Mag": 2531350,
                 "Modded Sustain DPS": 519428.8646,
                 "Optimal Range": 19,
                 "Mod Slots": "N/A",
-                "HSD": null
+                "HSD": 130
             },
             "exotic": {
                 "talent": {
