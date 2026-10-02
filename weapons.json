@@ -5143,7 +5143,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Underboss",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - Optic CHC lt. Kingboost; weitere fixe Mods (Muzzle/Underbarrel/Magazin) noch nicht dokumentiert - im Spiel pruefen; HSD in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 900,
                 "Base Mag Size": 50,
@@ -5155,22 +5155,22 @@
                 "Total Mag": 2531350,
                 "Modded Sustain DPS": 519428.8646,
                 "Optimal Range": 19,
-                "Mod Slots": null,
+                "Mod Slots": "N/A",
                 "HSD": null
             },
-            "named": {
+            "exotic": {
                 "talent": {
                     "name": "Gangland Hit",
-                    "key": "gangland_hit",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 20,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Ziel markiert (max. 4 Marken, +5% je zusaetzlicher Marke)",
-                    "estimated": false,
-                    "description": "Beschuss markiert das Ziel (max. 4 Marken). +20% verstaerkter Schaden gegen markierte Ziele, +5% je zusaetzlicher Fremd-Marke. Y8S3-Live: max. 4 Marken, +20%, +5% (PvE) bzw. max. 2, +14%, +2% (PvP)."
-                }
+                    "description": "Gangland Hit\nBeschuss markiert das Ziel (max. 4 Marken). +20% verstaerkter Schaden gegen markierte Ziele, +5% je zusaetzlicher Marke. Marken sind zwischen Gegnern uebertragbar.\nY8S3-Live: max. 4 Marken, +20%, +5% (PvE) bzw. max. 2, +14%, +2% (PvP)."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
