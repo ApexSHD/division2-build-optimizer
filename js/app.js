@@ -840,7 +840,7 @@
             'manicblackmarketakm': 64717,
             'auga3cqc': 57218,
             'invisiblehand': 57218,
-            'thebighorn': 57218,
+            'thebighorn': 57206,
             'carbine7': 49790,
             'thedrill': 49790,
             'f2000': 49104,
@@ -852,7 +852,7 @@
             'falsa58para': 57646,
             'falsa58parareplica': 57646,
             'goaliefal': 57646,
-            'stregafal': 57646,
+            'stregafal': 57634,
             'famas2010': 45273,
             'famas2010replica': 45273,
             'huntsman': 45273,
@@ -869,28 +869,27 @@
             'policem4replica': 46918,
             'pyromaniac': 46918,
             'lexington': 48700,
-            'stelmosengine': 46918,
+            'stelmosengine': 46908,
             'mk16': 59221,
             'socommk16': 59221,
             'tacticalmk16': 59221,
             'tacticalmk16replica': 59221,
             'ludsocommk16': 59221,
-            'caduceusmk16pts': 59221,
             'militaryp416': 47365,
             'customp416g3': 47365,
             'glorydazecustomp416g3': 47365,
-            'eaglebearer': 47365,
+            'eaglebearer': 47356,
             'pdr': 57618,
             'testsubject': 57618,
             'firstbloom': 57618,
-            'capacitor': 57618,
+            'capacitor': 57606,
             'sigsauer556': 55935,
             'mechanicalanimal': 55925,
             'tkb408': 63509,
             'kingbreaker': 63509,
             'ctar21': 44802,
             'therailsplitter': 44802,
-            'chameleon': 44671,
+            'chameleon': 44660,
             'stonerlamg': 62361,
             'quietroar': 62361,
             'bluescreen': 62361,
@@ -975,7 +974,6 @@
             'tommygun': 50627,
             'thesleighertommygun': 92990,
             'growngreattommygun': 50627,
-            'underbosstommygunpts': 50627,
             'p90': 39457,
             'p90replica': 39457,
             'emelinesguard': 39457,
@@ -1039,7 +1037,7 @@
             'm1acqbreplica': 129180,
             'bakersdozenclassicm1a': 231346,
             'stageleftsocomm1a': 129180,
-            'coolerm1acqb': 0,
+            'coolerm1acqb': 129180,
             'bittersweetclassicm1a': 231346,
             'doctorhomem1acqb': 129180,
             'lightweightm4': 107258,
@@ -1166,9 +1164,17 @@
         function lookupWeaponBaseDmg(name) {
             const key = String(name || '').toLowerCase().replace(/\[exotic\]|\[named\]/g,'').replace(/[^a-z0-9]/g, '');
             if (WEAPON_BASE_DAMAGE[key] != null) return WEAPON_BASE_DAMAGE[key];
-            // Fallback für leicht abweichende Namen (z.B. "GR9" vs. "HK GR9", "P416" vs. "Military P416")
-            for (const mapKey in WEAPON_BASE_DAMAGE) {
-                if (mapKey.endsWith(key) || key.endsWith(mapKey)) return WEAPON_BASE_DAMAGE[mapKey];
+            // Fallback für leicht abweichende Namen (z.B. "GR9" vs. "HK GR9", "P416" vs. "Military P416").
+            // Nur eindeutige Treffer mit Mindestlaenge, um Fehlmatches wie 'm4' -> 'policem4' zu vermeiden.
+            if (key.length >= 3) {
+                let match = null;
+                for (const mapKey in WEAPON_BASE_DAMAGE) {
+                    const isSuffix = mapKey.endsWith(key) || key.endsWith(mapKey);
+                    if (!isSuffix) continue;
+                    if (match) return null; // mehrdeutig -> kein Fallback
+                    match = mapKey;
+                }
+                if (match && WEAPON_BASE_DAMAGE[match] > 0) return WEAPON_BASE_DAMAGE[match];
             }
             return null;
         }
