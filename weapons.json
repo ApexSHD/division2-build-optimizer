@@ -10956,7 +10956,7 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic (Paradise-Lost-Incursion, droppt neben Ouroboros) - fixe Mods noch nicht dokumentiert (Reddit/Fandom unvollstaendig); HSD in Fandom nicht gelistet - im Spiel pruefen",
+            "note": "Exotic (Paradise-Lost-Incursion, droppt neben Ouroboros) - Werte In-Game verifiziert (David, Y8S3): HSD 218%, 4 fixe Mods. Reload aus Fandom (4,99s) - im Spiel noch pruefen.",
             "stats": {
                 "RPM": 55,
                 "Base Mag Size": 7,
@@ -10969,14 +10969,39 @@
                 "Modded Sustain DPS": 231566.5923,
                 "Optimal Range": 55,
                 "Mod Slots": "N/A",
-                "HSD": null
+                "HSD": 218
             },
             "exotic": {
                 "talent": {
                     "name": "You can look... but you can't touch.",
                     "description": "You can look...\nWhen out of combat, receive 10 stacks (PvP: 5 stacks). This weapon deals +12.5% Amplified Damage (PvP: +12% Amplified Damage) per stack.\n\n...but you can't touch.\n1 stack is automatically consumed to fully repair one instance of damage you receive. 1 stack replenishes every 3s (PvP: 8s)."
                 },
-                "fixedMods": []
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "hsd",
+                        "value": 25,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "handling",
+                        "value": 7.5,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 7.5,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
+                        "attr": "hsd",
+                        "value": 20,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
