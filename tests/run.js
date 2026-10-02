@@ -897,7 +897,7 @@ const setInput = (id, value) => {
     t('Header: Standard-Waffen im Waffen-Tab sichtbar', w.eval(`!document.querySelector('[onclick="loadDefaultWeapons()"]').classList.contains('hidden')`));
     t('Header: Standard-Ausruestung im Waffen-Tab versteckt', w.eval(`document.querySelector('[onclick="loadDefaultGear()"]').classList.contains('hidden')`));
     t('Header: Waffen-DB-Update im Waffen-Tab sichtbar', w.eval(`!document.querySelector('#weaponDbUpdateInput').closest('label').classList.contains('hidden')`));
-    t('Header: Alles-exportieren bleibt global sichtbar', w.eval(`!document.querySelector('[onclick="exportAllCSV()"]').classList.contains('hidden')`));
+    t('Header: Alles-exportieren/-importieren entfernt (kein Button mehr)', w.eval(`document.querySelector('[onclick="exportAllCSV()"]') === null && document.querySelector('[onclick="importAllCSV()"]') === null && document.getElementById('allFileInput') === null`));
     w.eval('switchTab("gear")');
     t('Header: Standard-Ausruestung im Gear-Tab sichtbar', w.eval(`!document.querySelector('[onclick="loadDefaultGear()"]').classList.contains('hidden')`));
     t('Header: Standard-Waffen im Gear-Tab versteckt', w.eval(`document.querySelector('[onclick="loadDefaultWeapons()"]').classList.contains('hidden')`));
