@@ -520,6 +520,17 @@
       "mods": 1,
       "perk": "Red/Blue Stacks à 0,5% WD/Resistenz; ab 80 Gesamt-Stacks Kreuz-Bonus"
     },
+    "Sarru": {
+      "slot": "Rucksack",
+      "brand": "",
+      "cls": "exotic",
+      "proto": false,
+      "core": "wd",
+      "fixed": [],
+      "free": 0,
+      "mods": 1,
+      "perk": "Decoy King: Mondzyklus alle 5s (8 Phasen); Amplified Damage 5%-25% je Phase (Annahme: Durchschnitt +15%, siehe Hinweis); Vollmond: Decoy wird Overcharge, Zyklus pausiert 10s; 3 Cores (WD 15% + Rüstung 170k + Skill-Tier), keine Minor-Attribute"
+    },
     "Henri": {
       "slot": "Weste",
       "brand": "Electrique",
