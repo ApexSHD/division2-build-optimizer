@@ -3839,20 +3839,20 @@
             "replica": false,
             "source": "table",
             "table_name": "Big Alejandro",
-            "note": "Exotic - keine Mod-Slots (nur Skin-Slot); 10th Anniversary Event (03.03.-02.04.2026)",
+            "note": "Exotic - keine Mod-Slots (nur Skin-Slot); 10th Anniversary Event (03.03.-02.04.2026). In-Game verifiziert (David, Y8S3): Damage 39.279, RPM 1100, Mag 200, HSD 145% (korrigiert von 85%), Range 35m. Reload bleibt bei Fandom-Basiswert 4,03s - In-Game-Anzeige (3,66s) ist vermutlich um SHD-Watch-Nachladetempo-Boni reduziert.",
             "stats": {
                 "RPM": 1100,
                 "Base Mag Size": 200,
                 "Modded Mag Size": 200,
                 "Empty Reload (secs)": 4.03,
                 "Level 40 Damage": 39279,
-                "DPS (rps*dmg)": 720115,
+                "DPS (rps*dmg)": 720115.0,
                 "Sustain DPS (dmg/time)": 525855.2912,
                 "Total Mag": 7855800,
                 "Modded Sustain DPS": 525855.2912,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 85
+                "HSD": 145
             },
             "exotic": {
                 "talent": {
@@ -5143,20 +5143,20 @@
             "replica": false,
             "source": "table",
             "table_name": "Underboss",
-            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - Optic CHC lt. Kingboost; weitere fixe Mods (Muzzle/Underbarrel/Magazin) noch nicht dokumentiert - im Spiel pruefen; HSD in Fandom nicht gelistet - im Spiel pruefen",
+            "note": "Exotic (Y8S2 'Into the Dark', Climax-Mission) - In-Game verifiziert (David, Y8S3): HSD 130%, nur 1 fixer Mod (Optic CHC 15); Damage 50.627/RPM 900/Mag 50/Range 19m bestaetigt. Reload bleibt bei Fandom-Basiswert 1,54s - In-Game-Anzeige (1,40s) ist vermutlich um SHD-Watch-Nachladetempo-Boni reduziert.",
             "stats": {
                 "RPM": 900,
                 "Base Mag Size": 50,
                 "Modded Mag Size": 50,
                 "Empty Reload (secs)": 1.54,
                 "Level 40 Damage": 50627,
-                "DPS (rps*dmg)": 759405,
+                "DPS (rps*dmg)": 759405.0,
                 "Sustain DPS (dmg/time)": 519428.8646,
                 "Total Mag": 2531350,
                 "Modded Sustain DPS": 519428.8646,
                 "Optimal Range": 19,
                 "Mod Slots": "N/A",
-                "HSD": null
+                "HSD": 130
             },
             "exotic": {
                 "talent": {
@@ -10956,7 +10956,7 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic (Paradise-Lost-Incursion, droppt neben Ouroboros) - fixe Mods noch nicht dokumentiert (Reddit/Fandom unvollstaendig); HSD in Fandom nicht gelistet - im Spiel pruefen",
+            "note": "Exotic (Paradise-Lost-Incursion, droppt neben Ouroboros) - Werte In-Game verifiziert (David, Y8S3): HSD 218%, 4 fixe Mods. Reload aus Fandom (4,99s) - im Spiel noch pruefen.",
             "stats": {
                 "RPM": 55,
                 "Base Mag Size": 7,
@@ -10969,14 +10969,39 @@
                 "Modded Sustain DPS": 231566.5923,
                 "Optimal Range": 55,
                 "Mod Slots": "N/A",
-                "HSD": null
+                "HSD": 218
             },
             "exotic": {
                 "talent": {
                     "name": "You can look... but you can't touch.",
                     "description": "You can look...\nWhen out of combat, receive 10 stacks (PvP: 5 stacks). This weapon deals +12.5% Amplified Damage (PvP: +12% Amplified Damage) per stack.\n\n...but you can't touch.\n1 stack is automatically consumed to fully repair one instance of damage you receive. 1 stack replenishes every 3s (PvP: 8s)."
                 },
-                "fixedMods": []
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "hsd",
+                        "value": 25,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "handling",
+                        "value": 7.5,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 7.5,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
+                        "attr": "hsd",
+                        "value": 20,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
