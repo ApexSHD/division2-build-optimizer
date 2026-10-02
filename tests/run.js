@@ -676,6 +676,36 @@ const setInput = (id, value) => {
     }
   }
 
+  // ===== 16. KERN-2 GATTUNGSFEST (Issue #87) =====
+  // Das 2. Attribut ist je Waffengattung fix (AR: DTH, MP: CHC, LMG: DTToOC,
+  // Rifle: CHD, MMR: HSD, Shotgun: DTA); nur die Werte sind anpassbar.
+  console.log('\n--- Kern-2 gattungsfest (Issue #87) ---');
+  {
+    const setSel = (id, v) => { const el = $(id); if (el) { el.value = v; el.dispatchEvent(new w.Event('change', { bubbles: true })); } };
+    const EXPECT = { AR: 'dth', MP: 'chc', LMG: 'dttooc', Rifle: 'chd', MMR: 'hsd', Shotgun: 'dta' };
+    for (const [typ, exp] of Object.entries(EXPECT)) {
+      setSel('weaponType', typ);
+      const sel = $('weaponCore2Type');
+      t(`Kern-2-Typ ${typ} = ${exp} (Issue #87)`, sel.value === exp && sel.classList.contains('hidden'));
+    }
+    // Exote: Kern-2-Typ ebenfalls gattungsfest (Wert anpassbar)
+    setSel('weaponDbTypeSelect', 'Leichtes Maschinengewehr (LMG)');
+    const dbSel = $('weaponDbSelect');
+    const vertigoOpt = dbSel && Array.from(dbSel.options).find(o => String(o.value).includes('Vertigo'));
+    if (dbSel && vertigoOpt) {
+      dbSel.value = vertigoOpt.value;
+      dbSel.dispatchEvent(new w.Event('change', { bubbles: true }));
+      await new Promise(r => setTimeout(r, 100));
+      const sel = $('weaponCore2Type');
+      t('Exote: Kern-2-Typ gattungsfest (Issue #87)', sel.value === 'dttooc' && sel.classList.contains('hidden'));
+      // Kern-2-Wert bleibt editierbar
+      t('Exote: Kern-2-Wert bleibt editierbar (Issue #87)', $('weaponCore2Val').disabled === false);
+    } else {
+      t('Exote: Kern-2-Typ gattungsfest (Issue #87)', false);
+      t('Exote: Kern-2-Wert bleibt editierbar (Issue #87)', false);
+    }
+  }
+
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
   // 12a. Migration: Legacy-Bestand wandert in div2_admin_db, Legacy-Key wird entfernt
