@@ -12,6 +12,9 @@ A fast, web-based build optimization tool designed for **Tom Clancy's The Divisi
 - **Automatic Mod Optimization:** Picks the best compatible mod loadout per weapon slot based on the current crit setup
 - **JSON-Driven Data:** All game data lives in versioned JSON databases (`weapons.json`, `talent.json`, `talents-display.json`, `mod.json`, `gear.json`) – no duplicated inline copies
 - **Responsive Design:** Modern, clean UI built with Tailwind CSS (precompiled, no CDN at runtime), usable on desktop and mobile
+- **Exotic Weapon Talents:** Numeric modeling of 20 exotic weapon talents with stack sliders, integrated into weapon scoring, top-weapons ranking, and RPM charts
+- **Robust Local Storage:** Versioned storage schema (v17) with automatic legacy migration, corrupted-entry recovery, and quota-safe persistence
+- **Mobile/Responsive:** Horizontally scrollable tab bar with snap scrolling and responsive form grids for small screens
 
 ## 🛠️ Built With
 

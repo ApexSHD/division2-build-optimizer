@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Division 2 · Build-Optimizer Alpha 0.2</title>
-    <meta name="description" content="Build-Optimizer fuer Tom Clancy's The Division 2: Waffen- und Ausruestungs-Inventar verwalten, DPS-Builds optimieren und Builds vergleichen.">
+    <meta name="description" content="Build-Optimizer für Tom Clancy's The Division 2: Waffen- und Ausrüstungs-Inventar verwalten, DPS-Builds optimieren und Builds vergleichen.">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
     <link rel="stylesheet" href="tailwind.css">
@@ -640,7 +640,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap" title="Annahme für die Krit-Erwartung: erwarteter Krit-Bonus = Krit-Chance × CHD">Krit-Chance-Annahme (%):</label>
-                            <input type="text" inputmode="decimal"  aria-label="Krit-Chance-Annahme" id="gearCritChanceAssumption" value="60" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold w-16 text-center">
+                            <input type="number" min="0" max="60" step="1" aria-label="Krit-Chance-Annahme" id="gearCritChanceAssumption" value="60" onchange="renderGearInventory()" class="p-1.5 rounded-lg text-xs font-semibold w-16 text-center">
                         </div>
                         <div class="flex items-center gap-2">
                             <label class="text-xs text-gray-400 font-semibold uppercase whitespace-nowrap">Empfehlung:</label>
@@ -714,7 +714,7 @@
         <div id="contentSettings" class="tab-content space-y-6">
             <div class="div-card p-6 rounded-xl space-y-6">
                 <h2 class="text-xl font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
-                    <span class="text-div-accent">⚙️</span> Globale Einstellungen
+                    <span class="text-div-accent">🎯</span> Optimierung
                 </h2>
 
                 <!-- Ziel-Waffe & Parameter -->

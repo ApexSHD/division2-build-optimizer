@@ -556,7 +556,7 @@ const setInput = (id, value) => {
   // ===== 10. SECURITY-REGRESSION (Issue #76 / PR #70) =====
   console.log('\n--- Security-Regression (esc/escAttrJs) ---');
   t('esc: escappt HTML-Metazeichen', w.eval(`esc('<img src=x onerror=1>&"')`) === '&lt;img src=x onerror=1&gt;&amp;&quot;');
-  t('esc: escappt Backslash (PR #70)', w.eval('esc(String.fromCharCode(97,92,98))') === 'a' + String.fromCharCode(92,92) + 'b');
+  t('esc: laesst Backslash unangetastet (Issue #98, kein Aufschaukeln mehr)', w.eval('esc(String.fromCharCode(97,92,98))') === 'a' + String.fromCharCode(92) + 'b');
   t('escAttrJs: escappt Backslash VOR Quote (PR #70-Reihenfolge)', w.eval(`escAttrJs("a\\\\'b")`).startsWith('a\\\\'));
   t('escAttrJs: Quote wird zu Backslash-Quote', w.eval(`escAttrJs("x'y").indexOf("\\\\'") === 1`));
   t('escAttrJs: HTML-Metazeichen werden escappt', w.eval(`escAttrJs('<">&')`) === '&lt;&quot;&gt;&amp;');
