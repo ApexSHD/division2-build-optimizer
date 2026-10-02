@@ -97,6 +97,131 @@
                 wd: 20, rof: 20, conditional: true, note: 'Annahme: Buff-Gruppe aktiv'
             }
         };
+        // Issue #75: Numerisch modellierte Exoten-Waffen-Talente.
+        // Analog zu EXOTIC_GEAR_PERKS: konstante Boni (conditional = Bedingung
+        // als erfuellt angenommen), Stack-Talente mit Auslastungs-Slider,
+        // Sonderfaelle ueber eigene Felder (wdPerSkillTier, ampFromStatusFactor).
+        // Chameleon (Adaptive Instincts) ist bereits ueber WEAPON_TALENTS
+        // modelliert und hier bewusst nicht doppelt erfasst.
+        const EXOTIC_WEAPON_TALENTS = {
+            'The Bighorn': { label: 'The Bighorn', perk: 'Big Game Hunter',
+                perStackHsd: 6, maxStacks: 25,
+                note: 'Kopfschuesse: +6% HSD je Stack, max. 25 (Decay nach vollen Stacks). HSD fliesst bis zum Kopfschuss-Modell noch nicht in den Score ein.' },
+            'Agitator': { label: 'Agitator', perk: 'Perturb',
+                wd: 30, rof: 25, conditional: true,
+                note: 'Annahme: geprimt (10s geholstert) — +30% WD & +25% RoF fuer 20s' },
+            'Strega (FAL)': { label: 'Strega', perk: 'Unnerve',
+                perStackAmp: 15, maxStacks: 5,
+                note: 'Je Marke +15% verstaerkter Schaden, max. 5 Marken (Slider = Markenauslastung)' },
+            'Capacitor': { label: 'Capacitor', perk: 'Capacitance',
+                wdPerSkillTier: 7.5,
+                note: '+7,5% WD je Skill-Tier des Builds (Skill-Schaden-Bonus separat, siehe Issue #54)' },
+            'Big Alejandro': { label: 'Big Alejandro', perk: 'Cover Shooter',
+                perStackWd: 1, maxStacks: 100,
+                note: 'Je Schuss in Deckung +1% WD, max. 100 (Slider = Auslastung); Bonus entfaellt bei Nachladen/Waffenwechsel' },
+            'Lady Death': { label: 'Lady Death', perk: 'Breathe Free',
+                amp: 75, conditional: true,
+                note: 'Annahme: Stacks durch Bewegung vorhanden — +75% verstaerkt pro Schuss' },
+            'Underboss (Tommy Gun)': { label: 'Underboss', perk: 'Gangland Hit',
+                amp: 20, perStackAmp: 5, maxStacks: 3,
+                note: '+20% verstaerkt gegen markierte Ziele, +5% je zusaetzlicher Marke (max. 4 Marken = +35%)' },
+            'The Chatterbox': { label: 'The Chatterbox', perk: 'Incessant Chatter',
+                perStackRof: 25, maxStacks: 5,
+                note: 'Je Nachladen +25% RoF je Gegner in 15m, max. 5 Stacks (Slider = Auslastung)' },
+            'Backfire': { label: 'Backfire', perk: 'Payment in kind',
+                perStackChd: 2, maxStacks: 100,
+                note: 'Je Schadens-Treffer +2% CHD, max. 100 Stacks (Slider = Auslastung)' },
+            'Busy Little Bee (Custom PF45)': { label: 'Busy Little Bee', perk: 'Busy Little Bee',
+                perStackWd: 20, maxStacks: 10,
+                note: 'Je Schuss auf ein anderes Ziel +20% WD, max. 10 — aktiviert erst nach Waffenwechsel (10s)' },
+            'Shroud (M700 Carbon)': { label: 'Shroud', perk: 'High Priority Target',
+                amp: 125, conditional: true,
+                note: 'Annahme: hoechstrangiger Gegner im Gefecht — +125% verstaerkter WD' },
+            'Dread Edict': { label: 'Dread Edict', perk: 'Full Stop',
+                perStackWd: 2, perStackHsd: 5, maxStacks: 20,
+                note: 'Je Stack +2% WD & +5% HSD, max. 20 (Kopfschuss 2 Stacks). HSD fliesst bis zum Kopfschuss-Modell noch nicht in den Score ein.' },
+            'Mantis (Covert SRS)': { label: 'Mantis', perk: 'In Plain Sight',
+                amp: 50, conditional: true,
+                note: 'Annahme: Ziel zielt nicht auf dich — +50% verstaerkt auf Kopfschuss-/Schwachpunkt-Schaden' },
+            'Tempest': { label: 'Tempest', perk: 'Restrained',
+                amp: 25, conditional: true,
+                note: 'Annahme: Schild zerbrochen — +25% verstaerkt fuer 20s' },
+            'Liberty': { label: 'Liberty', perk: 'Liberty or Death',
+                perStackWd: 2, maxStacks: 30,
+                note: 'Je Treffer +2% WD, max. 30 Stacks (Slider = Auslastung); Kopfschuss verbraucht Stacks fuer Schild-Reparatur' },
+            'Mosquito (Military M9)': { label: 'Mosquito', perk: 'Mosquito Song',
+                dta: 25, conditional: true,
+                note: 'Annahme: 5 Stacks erreicht — Ziel erleidet +25% Schaden an Ruestung' },
+            'Whiplash (Diceros)': { label: 'Whiplash', perk: 'Faster than Reloading',
+                wd: 50, rof: 20, conditional: true,
+                note: 'Annahme: geprimt — +50% WD & +20% RoF bis das Magazin geleert ist' },
+            'Fafnir': { label: 'Fafnir', perk: "Dragon's Breath",
+                ampFromStatusFactor: 50,
+                note: "Verstaerkt um 50% deines Statuseffekt-Bonus (Eingabefeld) — 40% Brenn-Chance pro Schuss" },
+            'Prima Donna': { label: 'Prima Donna', perk: "You can look... but you can't touch.",
+                perStackAmp: 12.5, maxStacks: 10,
+                note: 'Ausserhalb des Kampfs 10 Stacks — je Stack +12,5% verstaerkt (Slider = Auslastung)' },
+            'Vertigo': { label: 'Vertigo', perk: 'Startling',
+                dttooc: 30, conditional: true,
+                note: 'Annahme: Unterdrueckung ausgeloest — +30% DTToOC fuer dich und Verbundete (15s)' }
+        };
+        // Liefert die Modell-Definition fuer eine Exoten-Waffe aus dem Inventar.
+        // Match per exaktem Namen (DB-Name inkl. Klammerzusatz) mit Fallback
+        // ueber den Basis-Namen ohne Klammer und ohne "The"-Praefix.
+        function exoticWeaponTalentDef(weapon) {
+            if (!weapon || !weapon.isExotic || typeof EXOTIC_WEAPON_TALENTS === 'undefined') return null;
+            const name = String(weapon.name || '');
+            let def = EXOTIC_WEAPON_TALENTS[name];
+            if (!def) {
+                const base = name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+                def = EXOTIC_WEAPON_TALENTS[base]
+                    || EXOTIC_WEAPON_TALENTS[base.replace(/^The\s+/i, '')]
+                    || EXOTIC_WEAPON_TALENTS['The ' + base]
+                    || null;
+            }
+            return def;
+        }
+        // Bonus eines modellierten Exoten-Waffen-Talents. Null, wenn die Waffe
+        // kein Modell hat oder die Exoten-Perks global deaktiviert sind. Stack-
+        // Talente nutzen den Slider-Auslastungswert (Standard 100% = volle Stacks),
+        // Capacitor liefert zusaetzlich skillTierWd je Skill-Tier des Builds.
+        function exoticWeaponTalentBonus(weapon) {
+            const def = exoticWeaponTalentDef(weapon);
+            if (!def) return null;
+            const activeEl = (typeof document !== 'undefined') && document.getElementById('exoticPerksActive');
+            if (activeEl && !activeEl.checked) return null;
+            const b = { wd: 0, chc: 0, chd: 0, amp: 0, rof: 0, hsd: 0, dttooc: 0, dta: 0, skillTierWd: 0 };
+            const hasStacks = !!(def.perStackWd || def.perStackChd || def.perStackAmp || def.perStackRof || def.perStackHsd);
+            let utilization = 100;
+            if (hasStacks && typeof document !== 'undefined') {
+                const slider = document.getElementById('exoticWStackUtil_' + slugify(String(weapon.name || '')));
+                if (slider && slider.value !== '' && !isNaN(parseLocalizedFloat(slider.value))) {
+                    utilization = parseLocalizedFloat(slider.value);
+                } else {
+                    utilization = parseLocalizedFloat(document.getElementById('stackUtilization')?.value, 100);
+                }
+                if (utilization < 0) utilization = 100;
+                if (utilization > 100) utilization = 100;
+            }
+            const stacks = Math.round((def.maxStacks || 0) * (utilization / 100));
+            b.wd += def.wd || 0; b.chc += def.chc || 0; b.chd += def.chd || 0;
+            b.amp += def.amp || 0; b.rof += def.rof || 0;
+            b.dttooc += def.dttooc || 0; b.dta += def.dta || 0;
+            if (hasStacks) {
+                b.wd += (def.perStackWd || 0) * stacks;
+                b.chd += (def.perStackChd || 0) * stacks;
+                b.amp += (def.perStackAmp || 0) * stacks;
+                b.rof += (def.perStackRof || 0) * stacks;
+                b.hsd += (def.perStackHsd || 0) * stacks;
+            }
+            if (def.ampFromStatusFactor && typeof document !== 'undefined') {
+                const inp = document.getElementById('exoticStatusBonus');
+                const statusBonus = inp ? (parseLocalizedFloat(inp.value) || 0) : 0;
+                b.amp += statusBonus * def.ampFromStatusFactor / 100;
+            }
+            b.skillTierWd = def.wdPerSkillTier || 0;
+            return b;
+        }
         // Rendert die dynamische Exoten-Perk-Liste im Optimierungs-Tab:
         // nur Exoten, die (a) modelliert sind und (b) im Inventar liegen.
         // Coyote's Mask bekommt die Distanz-Zone, Stack-Perks einen eigenen
@@ -109,11 +234,17 @@
             wrap.style.display = active ? '' : 'none';
             if (!active) return;
             const present = new Set(gearInventory.map(i => i.setName).filter(n => EXOTIC_GEAR_PERKS[n]));
-            if (present.size === 0) {
-                wrap.innerHTML = '<p class="text-xs text-gray-400">Keine unterstützten Exoten im Gear-Inventar — lege z.B. Coyote\'s Mask oder Memento an, um deren Perks einzurechnen.</p>';
+            // Issue #75: modellierte Exoten-Waffen-Talente zusätzlich anzeigen
+            const presentWeapons = [];
+            (weaponsInventory || []).forEach(w => {
+                const def = (typeof exoticWeaponTalentDef === 'function') ? exoticWeaponTalentDef(w) : null;
+                if (def) presentWeapons.push({ w: w, def: def });
+            });
+            if (present.size === 0 && presentWeapons.length === 0) {
+                wrap.innerHTML = '<p class="text-xs text-gray-400">Keine unterstützten Exoten im Gear- oder Waffen-Inventar — lege z.B. Coyote\'s Mask, Memento oder eine modellierte Exoten-Waffe an, um deren Perks einzurechnen.</p>';
                 return;
             }
-            let html = '<p class="text-[11px] font-semibold uppercase text-gray-400">Unterstützte Exoten im Inventar (' + present.size + ')</p>';
+            let html = '<p class="text-[11px] font-semibold uppercase text-gray-400">Unterstützte Exoten im Inventar (' + (present.size + presentWeapons.length) + ')</p>';
             present.forEach(name => {
                 const def = EXOTIC_GEAR_PERKS[name];
                 html += '<div class="p-2 rounded-lg bg-zinc-900/80 border border-gray-800 space-y-1">';
@@ -135,6 +266,48 @@
                     html += '<p class="text-[10px] text-gray-500">Stacks: max. ' + def.maxStacks + ' × +' + formatGermanNumber(def.perStackWd) + '% WD — ' + escapeHtml(def.note) + '</p>';
                 } else {
                     html += '<p class="text-[10px] text-gray-500">' + escapeHtml(def.note) + '</p>';
+                }
+                html += '</div>';
+            });
+            // Issue #75: Waffen-Exoten mit eigenen Stack-Slidern rendern
+            presentWeapons.forEach(({ w, def }) => {
+                const slug = slugify(String(w.name || ''));
+                const parts = [];
+                if (def.wd) parts.push('+' + formatGermanNumber(def.wd) + '% WD');
+                if (def.chc) parts.push('+' + formatGermanNumber(def.chc) + '% CHC');
+                if (def.chd) parts.push('+' + formatGermanNumber(def.chd) + '% CHD');
+                if (def.amp) parts.push('+' + formatGermanNumber(def.amp) + '% verstärkt');
+                if (def.rof) parts.push('+' + formatGermanNumber(def.rof) + '% RoF');
+                if (def.dttooc) parts.push('+' + formatGermanNumber(def.dttooc) + '% DTToOC');
+                if (def.dta) parts.push('+' + formatGermanNumber(def.dta) + '% DTA');
+                if (def.wdPerSkillTier) parts.push('+' + formatGermanNumber(def.wdPerSkillTier) + '% WD je Skill-Tier');
+                html += '<div class="p-2 rounded-lg bg-zinc-900/80 border border-gray-800 space-y-1">';
+                html += '<div class="flex items-center justify-between"><span class="text-sm font-semibold text-gray-200">' + escapeHtml(w.name) + ' <span class="text-[10px] text-gray-400">(Waffe)</span></span><span class="text-[10px] text-div-accent">' + escapeHtml(def.perk) + '</span></div>';
+                const hasStacks = !!(def.perStackWd || def.perStackChd || def.perStackAmp || def.perStackRof || def.perStackHsd);
+                if (hasStacks) {
+                    const perParts = [];
+                    if (def.perStackWd) perParts.push('+' + formatGermanNumber(def.perStackWd) + '% WD');
+                    if (def.perStackChd) perParts.push('+' + formatGermanNumber(def.perStackChd) + '% CHD');
+                    if (def.perStackAmp) perParts.push('+' + formatGermanNumber(def.perStackAmp) + '% verstärkt');
+                    if (def.perStackRof) perParts.push('+' + formatGermanNumber(def.perStackRof) + '% RoF');
+                    if (def.perStackHsd) perParts.push('+' + formatGermanNumber(def.perStackHsd) + '% HSD');
+                    const inp = document.getElementById('exoticWStackUtil_' + slug)?.value;
+                    const val = (inp !== undefined && inp !== '') ? escapeHtml(inp) : '100';
+                    html += '<div class="flex items-center gap-2 text-xs text-gray-300">';
+                    html += '<input type="range" min="0" max="100" step="5" value="' + val + '" id="exoticWStackUtil_' + slug + '" oninput="document.getElementById(\'exoticWStackUtilVal_' + slug + '\').textContent = this.value + \'%\';" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="flex-1 accent-orange-500">';
+                    html += '<span id="exoticWStackUtilVal_' + slug + '" class="font-mono text-amber-400 w-10 text-right">' + val + '%</span>';
+                    html += '</div>';
+                    html += '<p class="text-[10px] text-gray-500">Stacks: max. ' + def.maxStacks + ' × ' + perParts.join(' & ') + ' — ' + escapeHtml(def.note) + '</p>';
+                } else if (def.ampFromStatusFactor) {
+                    const inp = document.getElementById('exoticStatusBonus')?.value;
+                    const val = (inp !== undefined && inp !== '') ? escapeHtml(inp) : '0';
+                    html += '<div class="flex items-center gap-2 text-xs text-gray-300">';
+                    html += '<label class="whitespace-nowrap">Statuseffekt-Bonus (%):</label>';
+                    html += '<input type="number" min="0" step="0.5" value="' + val + '" id="exoticStatusBonus" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="w-20 p-1 rounded-lg bg-zinc-800 border border-gray-700">';
+                    html += '</div>';
+                    html += '<p class="text-[10px] text-gray-500">' + escapeHtml(def.note) + '</p>';
+                } else {
+                    html += '<p class="text-[10px] text-gray-500">' + (parts.length ? parts.join(' · ') + ' — ' : '') + escapeHtml(def.note) + '</p>';
                 }
                 html += '</div>';
             });
@@ -1979,6 +2152,18 @@
                     talentNote = weapon.isExotic
                         ? `${getTalentLabel(weapon.talent)}: exotisches Talent – Schadensanteil nicht modelliert`
                         : `${getTalentLabel(weapon.talent)}: Utility-Talent – kein Schadensbeitrag`;
+                }
+            }
+            // Issue #75: modellierte Exoten-Waffen-Talente im Waffen-Score
+            // (nur wenn nicht schon ueber WEAPON_TALENTS erfasst, z.B. Chameleon)
+            const exoWDef2 = (typeof exoticWeaponTalentDef === 'function') ? exoticWeaponTalentDef(weapon) : null;
+            const exoW2 = (typeof exoticWeaponTalentBonus === 'function') ? exoticWeaponTalentBonus(weapon) : null;
+            if (exoWDef2 && exoW2) {
+                const wtHas = !!(weapon.talent && weapon.talent !== 'none' && resolveTalentDef(weapon.talent).t);
+                if (!wtHas) {
+                    wd += exoW2.wd; chc += exoW2.chc; chd += exoW2.chd;
+                    dttooc += exoW2.dttooc; dta += exoW2.dta; rof += exoW2.rof; amp += exoW2.amp;
+                    talentNote = `${exoWDef2.label} (${exoWDef2.perk}) – modelliert (HSD-Anteil erst mit Kopfschuss-Modell im Score)`;
                 }
             }
             const critFactor = 1 + (Math.min(chc, 60) / 100) * (chd / 100);
@@ -4637,6 +4822,43 @@
                         note: (t.note || '') + (talentMagNote ? (t.note ? ' — ' : '') + talentMagNote : '') };
                 }
             }
+            // Issue #75: Numerisch modellierte Exoten-Waffen-Talente (Map
+            // EXOTIC_WEAPON_TALENTS). Kein Doppelzaehlen mit WEAPON_TALENTS:
+            // der Bonus greift nur, wenn die Waffe dort KEIN Modell hat.
+            const exoW = (typeof exoticWeaponTalentBonus === 'function') ? exoticWeaponTalentBonus(weapon) : null;
+            let exoWInfo = null;
+            const exoWDef = (typeof exoticWeaponTalentDef === 'function') ? exoticWeaponTalentDef(weapon) : null;
+            if (exoWDef && exoW) {
+                const hasWtModel = !!(weapon.talent && weapon.talent !== 'none' && resolveTalentDef(weapon.talent).t);
+                if (!hasWtModel) {
+                    const skillTiers = (typeof computeBuildCache === 'function')
+                        ? (buildCache || computeBuildCache(build, settings)).buildSkillTiers || 0
+                        : 0;
+                    const exoWd = exoW.wd + (exoW.skillTierWd ? exoW.skillTierWd * skillTiers : 0);
+                    totalWd += exoWd; totalChc += exoW.chc; totalChd += exoW.chd;
+                    totalRof += exoW.rof; totalHsd += exoW.hsd;
+                    totalDttooc += exoW.dttooc; totalDta += exoW.dta;
+                    talentAmp += exoW.amp;
+                    const parts = [];
+                    if (exoWd) parts.push(`+${formatGermanNumber(exoWd)}% WD`);
+                    if (exoW.chc) parts.push(`+${formatGermanNumber(exoW.chc)}% CHC`);
+                    if (exoW.chd) parts.push(`+${formatGermanNumber(exoW.chd)}% CHD`);
+                    if (exoW.amp) parts.push(`+${formatGermanNumber(exoW.amp)}% verstaerkt`);
+                    if (exoW.rof) parts.push(`+${formatGermanNumber(exoW.rof)}% RoF`);
+                    if (exoW.hsd) parts.push(`+${formatGermanNumber(exoW.hsd)}% HSD`);
+                    if (exoW.dttooc) parts.push(`+${formatGermanNumber(exoW.dttooc)}% DTToOC`);
+                    if (exoW.dta) parts.push(`+${formatGermanNumber(exoW.dta)}% DTA`);
+                    exoWInfo = { label: exoWDef.label, perk: exoWDef.perk,
+                        note: `${exoWDef.perk}: ${parts.join(' & ') || 'kein Bonus'} — ${exoWDef.note}` };
+                    if (!talentInfo) talentInfo = { key: 'exotic_weapon', label: exoWDef.label, active: true, exoticModel: true, note: exoWInfo.note };
+                    else talentInfo.note = (talentInfo.note ? talentInfo.note + ' — ' : '') + exoWInfo.note;
+                } else {
+                    // Beide Modelle: WEAPON_TALENTS gewinnt, Exoten-Modell ruht
+                    exoWInfo = { label: exoWDef.label, perk: exoWDef.perk,
+                        note: `${exoWDef.perk}: bereits ueber die Talent-DB (WEAPON_TALENTS) eingerechnet — Exoten-Modell nicht doppelt gezaehlt` };
+                    talentInfo.note = (talentInfo.note ? talentInfo.note + ' — ' : '') + exoWInfo.note;
+                }
+            }
             const talentAmpMult = 1 + (talentAmp / 100);
 
             // 2. Build-Attribute & Boni — aus dem Build-Cache (PERFORMANCE):
@@ -5359,6 +5581,14 @@ function prefilterItemScore(item, targetWeaponType) {
                         }
                     }
 
+                    // Issue #75: modellierte Exoten-Waffen-Talente (wie Hauptvergleich)
+                    const exoWDef3 = (typeof exoticWeaponTalentDef === 'function') ? exoticWeaponTalentDef(weapon) : null;
+                    const exoW3 = (typeof exoticWeaponTalentBonus === 'function') ? exoticWeaponTalentBonus(weapon) : null;
+                    if (exoWDef3 && exoW3 && !(weapon.talent && weapon.talent !== 'none' && resolveTalentDef(weapon.talent).t)) {
+                        totalWd += exoW3.wd; totalChc += exoW3.chc; totalChd += exoW3.chd;
+                        totalRof += exoW3.rof; totalDttooc += exoW3.dttooc; totalDta += exoW3.dta;
+                        talentAmp += exoW3.amp;
+                    }
                     const rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * (1 + (talentAmp / 100));
                     const nonCritHit = rawHit
                         * (1 + (totalDta / 100) * ep.armor)
