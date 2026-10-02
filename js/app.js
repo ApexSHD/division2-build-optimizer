@@ -127,7 +127,7 @@
                     html += '</select>';
                 } else if (def.perStackWd) {
                     const inp = document.getElementById('exoticStackUtil_' + slugify(name))?.value;
-                    const val = (inp !== undefined && inp !== '') ? inp : '100';
+                    const val = (inp !== undefined && inp !== '') ? escapeHtml(inp) : '100';
                     html += '<div class="flex items-center gap-2 text-xs text-gray-300">';
                     html += '<input type="range" min="0" max="100" step="5" value="' + val + '" id="exoticStackUtil_' + slugify(name) + '" oninput="document.getElementById(\'exoticStackUtilVal_' + slugify(name) + '\').textContent = this.value + \'%\';" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="flex-1 accent-orange-500">';
                     html += '<span id="exoticStackUtilVal_' + slugify(name) + '" class="font-mono text-amber-400 w-10 text-right">' + val + '%</span>';
@@ -3610,10 +3610,10 @@
             const totalAttrs = (e.fixed || []).length + (e.free || 0);
             const extra = (e.fixed || []).length > 2 ? ' · Achtung: 3 fixe Minors – drittes nur im Perk-Text erfasst'
                 : (totalAttrs > 2 ? ` · Achtung: Teil hat ${totalAttrs} Attribute, das Formular erfasst max. 2` : '');
-            info.innerHTML = `<strong class="text-div-accent">${name}</strong> · ${e.brand || 'Exotic'} · ` +
+            info.innerHTML = `<strong class="text-div-accent">${escapeHtml(name)}</strong> · ${escapeHtml(e.brand || 'Exotic')} · ` +
                 `${e.cls === 'exotic' ? '🟠 Exotic (fixe Werte, kein Prototyp)' : (e.proto ? '🟡 Named (Prototyp möglich)' : '🟡 Named (kein Prototyp)')}` +
-                `<br>Core: ${gearCoreLabel(e.core)} · Mod-Slots: ${e.mods} · Frei rollbare Minors: ${e.free}` +
-                `<br><span class="text-gray-300">Perk: ${e.perk}</span>${extra}`;
+                `<br>Core: ${escapeHtml(gearCoreLabel(e.core))} · Mod-Slots: ${e.mods} · Frei rollbare Minors: ${e.free}` +
+                `<br><span class="text-gray-300">Perk: ${escapeHtml(e.perk)}</span>${escapeHtml(extra)}`;
             info.classList.remove('hidden');
             showToast(`✅ „${name}“ übernommen – Werte prüfen und speichern.`, 'info');
         }
@@ -4133,8 +4133,8 @@
             if (sortedInventory.length === 0 && (slotFilter || setFilter)) {
                 const tr = document.createElement('tr');
                 const parts = [];
-                if (slotFilter) parts.push(`Slot "${slotFilter}"`);
-                if (setFilter) parts.push(`Set "${setFilter}"`);
+                if (slotFilter) parts.push(`Slot "${escapeHtml(slotFilter)}"`);
+                if (setFilter) parts.push(`Set "${escapeHtml(setFilter)}"`);
                 tr.innerHTML = `<td colspan="8" class="p-6 text-center text-gray-400">Keine Items für ${parts.join(' + ')} vorhanden.</td>`;
                 tbody.appendChild(tr);
             }
