@@ -121,7 +121,7 @@ const setInput = (id, value) => {
     d.body.appendChild(s);
   }
   let booted = await waitFor(() => { try { return w.eval("typeof TALENTS_DB !== 'undefined' && TALENTS_DB !== null"); } catch (e) { return false; } }, 'Daten geladen');
-  if (booted) { runScript('js/app.js'); runScript('js/app2.js'); }
+  if (booted) { runScript('js/app.js'); runScript('js/app2.js'); runScript('js/admin.js'); }
   booted = booted && await waitFor(() => { try { return w.eval("typeof addWeapon === 'function' && typeof computeAutoMods === 'function' && typeof initApp === 'function'"); } catch (e) { return false; } }, 'App-Scripte geladen');
   if (booted) {
     try { w.eval("initApp()"); } catch (e) { console.log('initApp-Fehler (nicht fatal):', e.message); }
@@ -408,6 +408,169 @@ const setInput = (id, value) => {
   } else {
     console.log('  (keine fixtures/reference-values.json vorhanden – Schritt übersprungen)');
   }
+
+
+  // ===== 6. VERWALTUNG: BRAND-EDITOR (Issue #76) =====
+  console.log('\n--- Verwaltung: Brand-Editor ---');
+  // 6a. brandTierFormState: typisierte Keys
+  const btSimple = w.eval(`brandTierFormState({ '1': { wd: 15 } }, '1')`);
+  t('brandTierFormState: typisierter Key wird erkannt (wd 15)', btSimple && btSimple[0] === 'wd' && btSimple[1] === 15);
+  const btWdw = w.eval(`brandTierFormState({ '2': { wd_by_weapon: { AR: 12 } } }, '2')`);
+  t('brandTierFormState: wd_by_weapon wird als wdw:AR erkannt', btWdw && btWdw[0] === 'wdw:AR' && btWdw[1] === 12);
+  const btSkill = w.eval(`brandTierFormState({ '2': { skillTier: 1 } }, '2')`);
+  t('brandTierFormState: skillTier wird erkannt', btSkill && btSkill[0] === 'skillTier' && btSkill[1] === 1);
+  const btText = w.eval(`brandTierFormState({ '1': { text: 'nur Text' } }, '1')`);
+  t('brandTierFormState: reiner Text-Bonus ohne Typ', btText && btText[0] === '' && btText[2] === 'nur Text');
+  const btEmpty = w.eval(`brandTierFormState({}, '3')`);
+  t('brandTierFormState: leere Stufe liefert leerState', Array.isArray(btEmpty) && btEmpty[0] === '' && btEmpty[1] === 0);
+
+  // 6b. saveBrandForm Roundtrip: existierendes Brand (fenris) oeffnen, unveraendert speichern
+  const fenrisBefore = w.eval('JSON.stringify(BRAND_SET_INFO["fenris"])');
+  w.eval('openBrandForm("fenris")');
+  t('Brand-Formular: oeffnet mit Key fenris vorbelegt', $('abKey') && $('abKey').value === 'fenris');
+  t('Brand-Formular: 1p-Bonus (wd_by_weapon AR 12) im Formular', $('abBonusAttr1') && $('abBonusAttr1').value === 'wdw:AR' && $('abBonusVal1') && parseFloat($('abBonusVal1').value) === 12);
+  const abOptions = $('abBonusAttr1') ? [...$('abBonusAttr1').options].map(o => o.value) : [];
+  t('Brand-Formular: Attribut-Dropdown enthaelt wdw:-Waffenvarianten', abOptions.filter(v => v.startsWith('wdw:')).length >= 6);
+  w.eval('saveBrandForm("fenris")');
+  const fenrisAfter = w.eval('JSON.stringify(BRAND_SET_INFO["fenris"])');
+  t('Brand-Roundtrip: fenris bleibt identisch (kein Datenverlust)', fenrisBefore === fenrisAfter);
+
+  // 6c. saveBrandForm: Neues Brand anlegen mit skillTier (Rundung) und wd_by_weapon
+  w.eval('openBrandForm(null)');
+  setInput('abKey', 'testbrand');
+  setInput('abName', 'Test Brand AG');
+  setSelect('abGroup', 'skill');
+  setSelect('abBonusAttr2', 'skillTier');
+  setInput('abBonusVal2', '1.4');
+  setSelect('abBonusAttr3', 'wdw:MP');
+  setInput('abBonusVal3', '24');
+  w.eval('saveBrandForm(null)');
+  const testBrand = w.eval('BRAND_SET_INFO["testbrand"] || null');
+  t('Brand anlegen: neuer Eintrag mit Name/Gruppe', testBrand && testBrand.name === 'Test Brand AG' && testBrand.group === 'skill');
+  const tb2 = testBrand ? (testBrand.bonuses_pve || {})['2'] : null;
+  t('Brand anlegen: skillTier 1.6 wird auf 1 gerundet', tb2 && tb2.skillTier === 1);
+  const tb3 = testBrand ? (testBrand.bonuses_pve || {})['3'] : null;
+  t('Brand anlegen: wdw:MP wird als wd_by_weapon gespeichert', tb3 && tb3.wd_by_weapon && tb3.wd_by_weapon.MP === 24);
+  // Umbenennen: Key aendern
+  w.eval('openBrandForm("testbrand")');
+  setInput('abKey', 'testbrand2');
+  w.eval('saveBrandForm("testbrand")');
+  const renamed = w.eval('BRAND_SET_INFO["testbrand2"] && !BRAND_SET_INFO["testbrand"]');
+  t('Brand umbenennen: alter Key verschwindet, neuer existiert (Reihenfolge bleibt)', renamed === true);
+  w.eval('delete BRAND_SET_INFO["testbrand2"];');
+
+  // ===== 7. VERWALTUNG: GEAR-SET-EDITOR (Issue #76) =====
+  console.log('\n--- Verwaltung: Gear-Set-Editor ---');
+  // 7a. greenTierFormState: Listen-Schema
+  const gtState = w.eval(`greenTierFormState({ '2': [{ attr: 'wd', val: 15, weapon: 'AR' }, { attr: 'wd', val: 15, weapon: 'LMG' }] }, '2')`);
+  t('greenTierFormState: 3 Zeilen mit attr/val/weapon', gtState && gtState.length === 3 && gtState[0][0] === 'wd' && gtState[0][1] === 15 && gtState[0][2] === 'AR' && gtState[1][2] === 'LMG');
+  // 7b. Roundtrip: heartbreaker (Waffen-bindung!) unveraendert speichern
+  const hbBefore = w.eval('JSON.stringify(GREEN_SET_INFO["heartbreaker"])');
+  w.eval('openGreenForm("heartbreaker")');
+  t('Gear-Set-Formular: oeffnet mit Key vorbelegt', $('ag2Key') && $('ag2Key').value === 'heartbreaker');
+  t('Gear-Set-Formular: 2p-Zeile 0 Waffe = AR', $('agBonusWeapon2_0') && $('agBonusWeapon2_0').value === 'AR');
+  t('Gear-Set-Formular: 2p-Zeile 1 Waffe = LMG', $('agBonusWeapon2_1') && $('agBonusWeapon2_1').value === 'LMG');
+  w.eval('saveGreenForm("heartbreaker")');
+  const hbAfter = w.eval('JSON.stringify(GREEN_SET_INFO["heartbreaker"])');
+  t('Gear-Set-Roundtrip: heartbreaker bleibt identisch (Waffen-Bindung erhalten)', hbBefore === hbAfter);
+  // 7c. Neues Set mit leeren Zeilen anlegen (leere Zeilen werden verworfen)
+  w.eval('openGreenForm(null)');
+  setInput('ag2Key', 'testset');
+  setInput('ag2Name', 'Test Set');
+  setSelect('agBonusAttr2_0', 'rof');
+  setInput('agBonusVal2_0', '15');
+  w.eval('saveGreenForm(null)');
+  const testSet = w.eval('GREEN_SET_INFO["testset"] || null');
+  const tsList = testSet && testSet.bonuses ? testSet.bonuses['2'] : null;
+  t('Gear-Set anlegen: nur gefuellte Zeilen werden uebernommen', tsList && tsList.length === 1 && tsList[0].attr === 'rof' && tsList[0].val === 15 && !tsList[0].weapon);
+  w.eval('delete GREEN_SET_INFO["testset"];');
+
+  // ===== 8. VERWALTUNG: FIXE ATTRIBUTE (Issue #76) =====
+  console.log('\n--- Verwaltung: Fixe Attribute (Gear-DB) ---');
+  // 8a. Roundtrip: Eintrag mit 2 fixen Attributen (Catharsis: incomrepair + armorregen)
+  const catharsisIdx = w.eval('Object.keys(GEAR_DB).indexOf("Catharsis")');
+  const cathBefore = w.eval('JSON.stringify(GEAR_DB["Catharsis"])');
+  w.eval(`openGearForm(${catharsisIdx})`);
+  t('Gear-Formular: fixe Attribute als Dropdowns (kein Freitext)', $('agFixedAttr0') && $('agFixedAttr0').tagName === 'SELECT' && $('agFixedAttr1') && $('agFixedAttr1').tagName === 'SELECT');
+  t('Gear-Formular: Catharsis fixe Attrs vorgefuelgt', $('agFixedAttr0') && $('agFixedAttr0').value !== '' && $('agFixedVal0') && $('agFixedVal0').value !== '');
+  const fixedOptions = $('agFixedAttr0') ? [...$('agFixedAttr0').options].map(o => o.value) : [];
+  t('Gear-Formular: typisierte Attribut-Liste (24+ Keys)', fixedOptions.length >= 24);
+  w.eval(`saveGearForm(${catharsisIdx})`);
+  const cathAfter = w.eval('JSON.stringify(GEAR_DB["Catharsis"])');
+  t('Gear-Roundtrip: Catharsis bleibt identisch (fixe Attribute erhalten)', cathBefore === cathAfter);
+  // 8b. Neues Gear mit einem fixen Attribut anlegen
+  const gearNames0 = w.eval('Object.keys(GEAR_DB).length');
+  w.eval('openGearForm(null)');
+  setInput('agName', 'Test-Teil Regress');
+  setSelect('agFixedAttr0', 'chc');
+  setInput('agFixedVal0', '6');
+  w.eval('saveGearForm(null)');
+  const newGear = w.eval('GEAR_DB["Test-Teil Regress"] || null');
+  t('Gear anlegen: fixes Attribut als [attr, val]-Paar', newGear && Array.isArray(newGear.fixed) && newGear.fixed.length === 1 && newGear.fixed[0][0] === 'chc' && newGear.fixed[0][1] === 6);
+  // Umbenennen via saveGearForm (Reihenfolge erhalten)
+  const idxTest = w.eval('Object.keys(GEAR_DB).indexOf("Test-Teil Regress")');
+  w.eval(`openGearForm(${idxTest})`);
+  setInput('agName', 'Test-Teil Regress v2');
+  w.eval(`saveGearForm(${idxTest})`);
+  const renOk = w.eval('GEAR_DB["Test-Teil Regress v2"] && !GEAR_DB["Test-Teil Regress"]');
+  const orderOk = w.eval(`(() => { const ks = Object.keys(GEAR_DB); return ks.indexOf("Test-Teil Regress v2") >= 0 && ks.length === ${gearNames0} + 1; })()`);
+  t('Gear umbenennen: Key ersetzt, Reihenfolge erhalten', renOk === true && orderOk === true);
+  w.eval('delete GEAR_DB["Test-Teil Regress v2"];');
+
+  // ===== 9. NAMED-BRAND-MATCHING (Issue #76) =====
+  console.log('\n--- Named-Brand-Matching (brandKeyMatches) ---');
+  // 9a. Named-Item ueber GEAR_DB.brand -> Brand-Key (Punch Drunk = Douglas & Harding)
+  const mDouglas = w.eval('brandKeyMatches("Punch Drunk", "douglas")');
+  t('brandKeyMatches: Named-Item (Punch Drunk) matcht Douglas & Harding', mDouglas === true);
+  const mWrong = w.eval('brandKeyMatches("Punch Drunk", "fenris")');
+  t('brandKeyMatches: Named-Item matcht NICHT falsche Brand', mWrong === false);
+  // 9b. Case-Insensitivity
+  const mCase = w.eval('brandKeyMatches("punch drunk", "douglas")');
+  t('brandKeyMatches: case-insensitive (punch drunk -> douglas)', mCase === true);
+  // 9c. Exotic (brand leer) faellt durch die Fragment-Logik
+  const mCoyote = w.eval("brandKeyMatches(\"Coyote's Mask\", 'coyote')");
+  t('brandKeyMatches: Exotic ohne Brand faellt in Fragment-Logik (Coyote -> coyote)', mCoyote === true);
+  // 9d. Fragment-Abgleich fuer normale Brand-Teile
+  const mFenris = w.eval('brandKeyMatches("Fenris Group AB", "fenris")');
+  t('brandKeyMatches: Brand-Teil ueber Fragment (Fenris Group AB -> fenris)', mFenris === true);
+  // 9e. Konsistenz: alle Named-Items mit brand matchen ihre Brand, keine False Positives
+  const matchStats = w.eval(`(() => {
+    const brands = Object.keys(BRAND_SET_INFO);
+    let ok = 0, fp = 0, noBrand = 0;
+    for (const [n, g] of Object.entries(GEAR_DB)) {
+      if (!g.brand) { noBrand++; continue; }
+      const key = brands.find(k => (BRAND_SET_INFO[k].name || '').toLowerCase() === g.brand.toLowerCase());
+      if (!key) continue;
+      let matched = false;
+      for (const k of brands) {
+        if (brandKeyMatches(n, k)) {
+          if (k === key) matched = true; else fp++;
+        }
+      }
+      if (matched) ok++;
+    }
+    return { ok, fp, noBrand };
+  })()`);
+  t('brandKeyMatches: alle Named-Items matchen ihre Brand (65/65)', matchStats && matchStats.ok >= 60 && matchStats.fp === 0);
+
+  // ===== 10. SECURITY-REGRESSION (Issue #76 / PR #70) =====
+  console.log('\n--- Security-Regression (esc/escAttrJs) ---');
+  t('esc: escappt HTML-Metazeichen', w.eval(`esc('<img src=x onerror=1>&"')`) === '&lt;img src=x onerror=1&gt;&amp;&quot;');
+  t('esc: escappt Backslash (PR #70)', w.eval('esc(String.fromCharCode(97,92,98))') === 'a' + String.fromCharCode(92,92) + 'b');
+  t('escAttrJs: escappt Backslash VOR Quote (PR #70-Reihenfolge)', w.eval(`escAttrJs("a\\\\'b")`).startsWith('a\\\\'));
+  t('escAttrJs: Quote wird zu Backslash-Quote', w.eval(`escAttrJs("x'y").indexOf("\\\\'") === 1`));
+  t('escAttrJs: HTML-Metazeichen werden escappt', w.eval(`escAttrJs('<">&')`) === '&lt;&quot;&gt;&amp;');
+
+  // ===== 11. NEUER TAB "GLOBALE EINSTELLUNGEN" (Issue #66, Regression) =====
+  console.log('\n--- Tab: Globale Einstellungen (Regression #66) ---');
+  t('Tab "Globale Einstellungen": Button vorhanden', !!$('tabGlobal'));
+  t('Tab "Globale Einstellungen": Content-Container vorhanden', !!$('contentGlobal'));
+  t('Know-How/SHD/Mindest-CHC liegen im Global-Tab', !!$('contentGlobal') && $('contentGlobal').contains($('knowHowLevel')) && $('contentGlobal').contains($('shdMax')) && $('contentGlobal').contains($('targetChc')));
+  t('Optimierungs-Tab enthaelt Know-How NICHT mehr', !$('contentSettings').contains($('knowHowLevel')));
+  // switchTab kann den Tab aktivieren
+  w.eval("switchTab('global')");
+  t('switchTab("global") aktiviert den Tab', $('contentGlobal').classList.contains('active'));
+  w.eval("switchTab('weapons')");
 
   console.log('\n--- Zusammenfassung ---');
   summary();
