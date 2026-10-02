@@ -5885,21 +5885,21 @@
             "replica": false,
             "source": "table",
             "table_name": "Overlord",
-            "note": "Exotic - fixed mods",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic CHD/Magazin ReloadSpeed/Underbarrel Stability, kein Muzzle)",
             "stats": {
                 "RPM": 70,
                 "Base Mag Size": 12,
                 "Modded Mag Size": 12,
-                "Empty Reload (secs)": 7.21,
-                "Level 40 Damage": 678929,
-                "DPS (rps*dmg)": 792083.8333,
-                "Sustain DPS (dmg/time)": 465665.3548,
-                "Total Mag": 8147148,
-                "Modded Sustain DPS": 465665.3548,
+                "Empty Reload (secs)": 7.99,
+                "Level 40 Damage": 678760,
+                "DPS (rps*dmg)": 791886.6667,
+                "Sustain DPS (dmg/time)": 445679.9812,
+                "Total Mag": 8145120,
+                "Modded Sustain DPS": 445679.9812,
                 "Optimal Range": 16,
                 "Mod Slots": "N/A",
                 "HSD": 45,
-                "Pellets": "8 × 84,866"
+                "Pellets": "8 × 84845"
             },
             "exotic": {
                 "talent": {
