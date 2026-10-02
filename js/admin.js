@@ -350,17 +350,23 @@ function deleteWeaponEntry(idx) {
 const ADMIN_GEAR_SLOTS = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
 const ADMIN_GEAR_CORES = [['wd', 'Waffen-Schaden'], ['armour', 'Rüstung'], ['skill', 'Fertigkeit'], ['any', 'Beliebig']];
 
-function parseFixedAttr(strVal) {
-    const out = [];
-    const re = /([a-z]+)\s*[:=]\s*(-?\d+(?:[.,]\d+)?)/gi;
-    let m;
-    while ((m = re.exec(strVal))) {
-        out.push([m[1].toLowerCase(), parseFloat(m[2].replace(',', '.'))]);
-    }
-    return out;
-}
-function fixedAttrToStr(fixed) {
-    return (fixed || []).map(p => `${p[0]}:${p[1]}`).join(', ');
+const ADMIN_FIXED_ATTRS = [
+    ['', '— keins —'], ['chc', 'Kritische Trefferchance'], ['chd', 'Kritischer Trefferschaden'],
+    ['hsd', 'Kopfschussschaden'], ['wh', 'Waffenhandhabung'], ['rof', 'Feuerrate'], ['accuracy', 'Präzision'],
+    ['range', 'Reichweite'], ['ammocap', 'Munitionskapazität'], ['status', 'Statuseffekte'],
+    ['hazard', 'Gefahrenschutz'], ['explres', 'Explosionsresistenz'], ['incomrepair', 'Erhaltene Reparaturen'],
+    ['armorregen', 'Rüstungs-Regeneration'], ['health', 'Leben'], ['skilldmg', 'Skill-Schaden'],
+    ['skillhaste', 'Skill-Haste'], ['skillhealth', 'Skill-Health'], ['repair', 'Reparatur-Skills'],
+    ['pulsehaste', 'Puls-Tempo'], ['shieldhealth', 'Schild-HP'], ['aok', 'Rüstung bei Kill'],
+    ['meleedmg', 'Nahkampfschaden'], ['pistoldmg', 'Pistolen-Schaden'], ['reducedthreat', 'Reduzierte Bedrohung']
+];
+const ADMIN_FIXED_ROWS = 2;
+function fixedAttrRow(idx, pair) {
+    const [attr, val] = pair || ['', ''];
+    return `<div class="grid grid-cols-2 gap-2">
+        ${modalInput('agFixedAttr' + idx, 'Attribut ' + (idx + 1), attr, { type: 'select', options: ADMIN_FIXED_ATTRS })}
+        ${modalInput('agFixedVal' + idx, 'Wert', val === '' ? '' : val, { type: 'number', step: 'any', placeholder: 'z.B. 6' })}
+    </div>`;
 }
 
 function openGearForm(idx) {
@@ -380,7 +386,8 @@ function openGearForm(idx) {
             ${modalInput('agFree', 'Freie Minor-Attribute', g.free != null ? g.free : 1, { type: 'number', min: 0, max: 2 })}
             ${modalInput('agMods', 'Mod-Slots', g.mods != null ? g.mods : 0, { type: 'number', min: 0, max: 2 })}
         </div>
-        ${modalInput('agFixed', 'Fixe Attribute (Format: chc:6, chd:12 – leer = keine)', fixedAttrToStr(g.fixed), { placeholder: 'z.B. chc:6, chd:12' })}
+        <p class="text-xs font-semibold uppercase text-gray-400">Fixe Attribute (max. 2, leer = keins)</p>
+        <div class="space-y-2">${Array.from({ length: ADMIN_FIXED_ROWS }, (_, i) => fixedAttrRow(i, (g.fixed || [])[i])).join('')}</div>
         ${modalInput('agPerk', 'Perk / Talent (Beschreibung)', g.perk, { type: 'textarea', rows: 3 })}
         <div class="flex justify-end gap-2 pt-2 border-t border-gray-800">
             <button onclick="closeAdminModal()" class="btn-secondary px-4 py-2 rounded-lg text-sm font-semibold">Abbrechen</button>
@@ -391,14 +398,20 @@ function openGearForm(idx) {
 function saveGearForm(idx) {
     const name = getVal('agName').trim();
     if (!name) { adminToast('Bitte einen Namen angeben.', 'error'); return; }
-    const fixedStr = getVal('agFixed');
+    const fixed = [];
+    for (let i = 0; i < ADMIN_FIXED_ROWS; i++) {
+        const attr = getVal('agFixedAttr' + i) || '';
+        const valRaw = getVal('agFixedVal' + i);
+        if (!attr || (valRaw || '').trim() === '') continue;
+        fixed.push([attr, parseFloat(valRaw) || 0]);
+    }
     const entry = {
         slot: getVal('agSlot'),
         brand: getVal('agBrand') || '',
         cls: getVal('agCls'),
         proto: getVal('agProto') === 'true',
         core: getVal('agCore'),
-        fixed: fixedStr.trim() ? parseFixedAttr(fixedStr) : [],
+        fixed,
         free: getNum('agFree') || 0,
         mods: getNum('agMods') || 0,
         perk: getVal('agPerk') || ''
