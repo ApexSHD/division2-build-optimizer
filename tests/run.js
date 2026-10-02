@@ -889,6 +889,22 @@ const setInput = (id, value) => {
     t('Abgleich: gear.json n4-Texte enthalten die verifizierten Werte', numChk);
   }
 
+  // ===== 20. HEADER-AKTIONEN TAB-ABHAENGIG (UX) =====
+  console.log('\n--- Header-Aktionen tab-abhaengig ---');
+  {
+    // Default-Tab ist weapons
+    w.eval('switchTab("weapons")');
+    t('Header: Standard-Waffen im Waffen-Tab sichtbar', w.eval(`!document.querySelector('[onclick="loadDefaultWeapons()"]').classList.contains('hidden')`));
+    t('Header: Standard-Ausruestung im Waffen-Tab versteckt', w.eval(`document.querySelector('[onclick="loadDefaultGear()"]').classList.contains('hidden')`));
+    t('Header: Waffen-DB-Update im Waffen-Tab sichtbar', w.eval(`!document.querySelector('#weaponDbUpdateInput').closest('label').classList.contains('hidden')`));
+    t('Header: Alles-exportieren bleibt global sichtbar', w.eval(`!document.querySelector('[onclick="exportAllCSV()"]').classList.contains('hidden')`));
+    w.eval('switchTab("gear")');
+    t('Header: Standard-Ausruestung im Gear-Tab sichtbar', w.eval(`!document.querySelector('[onclick="loadDefaultGear()"]').classList.contains('hidden')`));
+    t('Header: Standard-Waffen im Gear-Tab versteckt', w.eval(`document.querySelector('[onclick="loadDefaultWeapons()"]').classList.contains('hidden')`));
+    t('Header: Waffen-DB-Update im Gear-Tab versteckt', w.eval(`document.querySelector('#weaponDbUpdateInput').closest('label').classList.contains('hidden')`));
+    w.eval('switchTab("weapons")');
+  }
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {

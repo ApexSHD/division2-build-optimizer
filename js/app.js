@@ -960,7 +960,9 @@
         }
 
         // ========== TAB-NAVIGATION ==========
+        let activeTab = 'weapons';
         function switchTab(tabName) {
+            activeTab = tabName;
             // Tabs verstecken
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
@@ -987,9 +989,16 @@
             if (tabName === 'compare' && lastComparisonData) {
                 renderComparison();
             }
+            updateTabUI();
         }
 
         function updateTabUI() {
+            // UX: Header-Aktionen passend zum aktiven Tab zeigen (data-tabs);
+            // Buttons ohne data-tabs (Alles exportieren/importieren/leeren) bleiben global.
+            document.querySelectorAll('header [data-tabs]').forEach(btn => {
+                const tabs = (btn.getAttribute('data-tabs') || '').split(',').map(s => s.trim());
+                btn.classList.toggle('hidden', !tabs.includes(activeTab));
+            });
             document.getElementById('weaponCount').textContent = weaponsInventory.length;
             document.getElementById('gearCount').textContent = gearInventory.length;
             document.getElementById('comparisonCount').textContent = lastComparisonData ? lastComparisonData.length : '0';
