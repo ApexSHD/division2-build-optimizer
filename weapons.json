@@ -3405,17 +3405,17 @@
             "replica": false,
             "source": "table",
             "table_name": "Iron Lung",
-            "note": "Exotic - fixed mods, its built-in magazine gives +35 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic CHC/Magazin +35/Underbarrel CHD, kein Muzzle)",
             "stats": {
                 "RPM": 800,
                 "Base Mag Size": 50,
                 "Modded Mag Size": 85,
                 "Empty Reload (secs)": 2.96,
-                "Level 40 Damage": 54322,
-                "DPS (rps*dmg)": 724293.3333,
-                "Sustain DPS (dmg/time)": 404783.9046,
-                "Total Mag": 2716100,
-                "Modded Sustain DPS": 494629.8875,
+                "Level 40 Damage": 54310,
+                "DPS (rps*dmg)": 724133.3333,
+                "Sustain DPS (dmg/time)": 404694.4858,
+                "Total Mag": 2715500,
+                "Modded Sustain DPS": 494520.6213,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
                 "HSD": 65
@@ -3428,14 +3428,14 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "chd",
+                        "attr": "chc",
                         "value": 10,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
                         "attr": "chd",
-                        "value": 10,
+                        "value": 20,
                         "unit": "%"
                     },
                     {
