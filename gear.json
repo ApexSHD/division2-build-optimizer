@@ -1683,10 +1683,10 @@
           }
         },
         "2": {
-          "text": "32% Magazingröße"
+          "magSize": 32.0
         },
         "3": {
-          "text": "50% Stabilität"
+          "stability": 50.0
         }
       }
     },
@@ -1708,7 +1708,7 @@
           }
         },
         "3": {
-          "text": "30% Gefahrenschutz"
+          "hazard": 30.0
         }
       },
       "wd_bonus": "2p: +24% Shotgun-Schaden"
@@ -1725,7 +1725,7 @@
           "chd": 13
         },
         "2": {
-          "text": "20% Explosionsschaden"
+          "explosiveDmg": 20.0
         },
         "3": {
           "hsd": 39
@@ -1773,7 +1773,7 @@
           "wh": 15
         },
         "3": {
-          "text": "50% Munitionskapazität"
+          "ammoCap": 50.0
         }
       }
     },
@@ -1816,7 +1816,7 @@
           }
         },
         "2": {
-          "text": "30% Präzision"
+          "accuracy": 30.0
         },
         "3": {
           "wh": 30
@@ -1884,7 +1884,7 @@
           }
         },
         "3": {
-          "text": "50% Magazingröße"
+          "magSize": 50.0
         }
       }
     },
@@ -1901,10 +1901,10 @@
           }
         },
         "2": {
-          "text": "20% Skill-Health"
+          "skillHealth": 20.0
         },
         "3": {
-          "text": "50% Präzision"
+          "accuracy": 50.0
         }
       },
       "weapon_hint": "Pistole",
@@ -1915,13 +1915,13 @@
       "group": "skill",
       "bonuses_pve": {
         "1": {
-          "text": "10% Skill-Haste"
+          "skillHaste": 10.0
         },
         "2": {
-          "text": "1 Fertigkeitsstufe"
+          "skillTier": 1
         },
         "3": {
-          "text": "50% Magazingröße"
+          "magSize": 50.0
         }
       },
       "fragments": [
@@ -1936,13 +1936,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "1% Rüstungs-Regeneration"
+          "armorRegen": 1.0
         },
         "2": {
-          "text": "100% erhöhte Bedrohung"
+          "threat": 100.0
         },
         "3": {
-          "text": "30% Schutz vor Eliten"
+          "pfe": 30.0
         }
       }
     },
@@ -1962,10 +1962,10 @@
           }
         },
         "2": {
-          "text": "10% Rüstung bei Kill"
+          "armorOnKill": 10.0
         },
         "3": {
-          "text": "15% Gesamtrüstung"
+          "totalArmor": 15.0
         }
       }
     },
@@ -1974,13 +1974,13 @@
       "group": "skill",
       "bonuses_pve": {
         "1": {
-          "text": "10% Statuseffekte"
+          "statusEffects": 10.0
         },
         "2": {
-          "text": "20% Gefahrenschutz"
+          "hazard": 20.0
         },
         "3": {
-          "text": "8% Skill-Effizienz"
+          "skillEff": 8.0
         }
       },
       "fragments": [
@@ -1992,13 +1992,13 @@
       "group": "skill",
       "bonuses_pve": {
         "1": {
-          "text": "10% Skill-Health"
+          "skillHealth": 10.0
         },
         "2": {
-          "text": "13% Skill-Schaden"
+          "skillDmg": 13.0
         },
         "3": {
-          "text": "8% Skill-Effizienz"
+          "skillEff": 8.0
         }
       },
       "fragments": [
@@ -2024,7 +2024,7 @@
           }
         },
         "3": {
-          "text": "25% Statuseffekte"
+          "statusEffects": 25.0
         }
       }
     },
@@ -2033,7 +2033,7 @@
       "group": "dps",
       "bonuses_pve": {
         "1": {
-          "text": "15% Nachladetempo"
+          "reloadSpeed": 15.0
         },
         "2": {
           "wd_by_weapon": {
@@ -2055,13 +2055,13 @@
       "group": "armour",
       "bonuses_pve": {
         "1": {
-          "text": "10% Rüstung bei Kill"
+          "armorOnKill": 10.0
         },
         "2": {
-          "text": "20% Schutz vor Eliten"
+          "pfe": 20.0
         },
         "3": {
-          "text": "1 Fertigkeitsstufe"
+          "skillTier": 1
         }
       },
       "fragments": [
@@ -2076,13 +2076,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "5% Gesamtrüstung"
+          "totalArmor": 5.0
         },
         "2": {
-          "text": "20% Gefahrenschutz"
+          "hazard": 20.0
         },
         "3": {
-          "text": "2% Rüstungs-Regeneration"
+          "armorRegen": 2.0
         }
       }
     },
@@ -2091,13 +2091,13 @@
       "group": "armour",
       "bonuses_pve": {
         "1": {
-          "text": "10% Schutz vor Eliten"
+          "pfe": 10.0
         },
         "2": {
-          "text": "100% erhöhte Bedrohung"
+          "threat": 100.0
         },
         "3": {
-          "text": "30% Gefahrenschutz"
+          "hazard": 30.0
         }
       },
       "fragments": [
@@ -2112,13 +2112,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "18% Reparatur-Fertigkeiten"
+          "repairSkills": 18.0
         },
         "2": {
-          "text": "30% Skill-Dauer"
+          "skillDuration": 30.0
         },
         "3": {
-          "text": "30% Skill-Haste"
+          "skillHaste": 30.0
         }
       }
     },
@@ -2130,13 +2130,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "15% Explosionsschaden"
+          "explosiveDmg": 15.0
         },
         "2": {
-          "text": "20% Gefahrenschutz"
+          "hazard": 20.0
         },
         "3": {
-          "text": "30% Skill-Haste"
+          "skillHaste": 30.0
         }
       }
     },
@@ -2148,13 +2148,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "15% Skill-Dauer"
+          "skillDuration": 15.0
         },
         "2": {
-          "text": "35% Reparatur-Fertigkeiten"
+          "repairSkills": 35.0
         },
         "3": {
-          "text": "18% Skill-Schaden"
+          "skillDmg": 18.0
         }
       }
     },
@@ -2166,13 +2166,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "10% Skill-Haste"
+          "skillHaste": 10.0
         },
         "2": {
-          "text": "40% Explosionsresistenz"
+          "explRes": 40.0
         },
         "3": {
-          "text": "52% Reparatur-Fertigkeiten"
+          "repairSkills": 52.0
         }
       }
     },
@@ -2184,10 +2184,10 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "10% Skill-Haste"
+          "skillHaste": 10.0
         },
         "2": {
-          "text": "13% Skill-Schaden"
+          "skillDmg": 13.0
         },
         "3": {
           "wd": 18
@@ -2202,13 +2202,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "8% Skill-Schaden"
+          "skillDmg": 8.0
         },
         "2": {
-          "text": "20% Statuseffekte"
+          "statusEffects": 20.0
         },
         "3": {
-          "text": "45% Skill-Dauer"
+          "skillDuration": 45.0
         }
       }
     },
@@ -2220,13 +2220,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "15% Skill-Dauer"
+          "skillDuration": 15.0
         },
         "2": {
-          "text": "5% Skill-Effizienz"
+          "skillEff": 5.0
         },
         "3": {
-          "text": "52% Reparatur-Fertigkeiten"
+          "repairSkills": 52.0
         }
       }
     },
@@ -2238,13 +2238,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "18% Reparatur-Fertigkeiten"
+          "repairSkills": 18.0
         },
         "2": {
-          "text": "20% Skill-Haste"
+          "skillHaste": 20.0
         },
         "3": {
-          "text": "8% Skill-Effizienz"
+          "skillEff": 8.0
         }
       }
     },
@@ -2256,13 +2256,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "20% Explosionsresistenz"
+          "explRes": 20.0
         },
         "2": {
-          "text": "1,5% Rüstungs-Regeneration"
+          "armorRegen": 1.5
         },
         "3": {
-          "text": "150% erhöhte Bedrohung"
+          "threat": 150.0
         }
       }
     },
@@ -2274,13 +2274,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "5% Gesamtrüstung"
+          "totalArmor": 5.0
         },
         "2": {
-          "text": "10% Rüstung bei Kill"
+          "armorOnKill": 10.0
         },
         "3": {
-          "text": "30% Gefahrenschutz"
+          "hazard": 30.0
         }
       }
     },
@@ -2292,13 +2292,13 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "10% Gefahrenschutz"
+          "hazard": 10.0
         },
         "2": {
           "wd": 12
         },
         "3": {
-          "text": "40% Pulse-Resistenz"
+          "pulseRes": 40.0
         }
       }
     },
@@ -2318,7 +2318,7 @@
           }
         },
         "3": {
-          "text": "30% Skill-Health"
+          "skillHealth": 30.0
         }
       },
       "weapon_hint": "Pistole",
@@ -2332,7 +2332,7 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "15% Magazingröße"
+          "magSize": 15.0
         },
         "2": {
           "wd_by_weapon": {
@@ -2340,7 +2340,7 @@
           }
         },
         "3": {
-          "text": "105% optimale Reichweite"
+          "optRange": 105.0
         }
       },
       "weapon_hint": "MP",
@@ -2362,7 +2362,7 @@
           }
         },
         "3": {
-          "text": "50% Präzision"
+          "accuracy": 50.0
         }
       },
       "weapon_hint": "LMG",
@@ -2384,7 +2384,7 @@
           }
         },
         "3": {
-          "text": "45% Skill-Dauer"
+          "skillDuration": 45.0
         }
       },
       "weapon_hint": "MMR",
@@ -2398,7 +2398,7 @@
       ],
       "bonuses_pve": {
         "1": {
-          "text": "15% Magazingröße"
+          "magSize": 15.0
         },
         "2": {
           "wd_by_weapon": {
