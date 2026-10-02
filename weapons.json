@@ -5135,7 +5135,7 @@
             }
         },
         {
-            "name": "Underboss (Tommy Gun) (PTS)",
+            "name": "Underboss (Tommy Gun)",
             "type": "Maschinenpistole (MP)",
             "rarity": "exotic",
             "is_exotic": true,
@@ -5157,6 +5157,20 @@
                 "Optimal Range": 19,
                 "Mod Slots": null,
                 "HSD": null
+            },
+            "named": {
+                "talent": {
+                    "name": "Gangland Hit",
+                    "key": "gangland_hit",
+                    "category": "situativ",
+                    "kategorie": "Situativ - nicht numerisch",
+                    "value": 20,
+                    "unit": "%",
+                    "conditional": true,
+                    "condition": "Ziel markiert (max. 4 Marken, +5% je zusaetzlicher Marke)",
+                    "estimated": false,
+                    "description": "Beschuss markiert das Ziel (max. 4 Marken). +20% verstaerkter Schaden gegen markierte Ziele, +5% je zusaetzlicher Fremd-Marke. Y8S3-Live: max. 4 Marken, +20%, +5% (PvE) bzw. max. 2, +14%, +2% (PvP)."
+                }
             }
         },
         {
@@ -8344,7 +8358,7 @@
                     "conditional": true,
                     "condition": "nach Kopfschuss-Kill",
                     "estimated": false,
-                    "description": "Nächster Treffer auf beliebiges Ziel: garantierter (kritischer) Kopfschuss."
+                    "description": "Nächster Treffer auf beliebiges Ziel: garantierter (kritischer) Kopfschuss. Y8S3-Hinweis: Determined funktioniert ab Red Horizon wie Perfectly Determined (Kill löst das Talent nicht erneut aus); die Funktionalität wandert in die neue Exotic-Weste Iron Will (Talent Resolved)."
                 }
             }
         },
@@ -10632,7 +10646,7 @@
                     "conditional": true,
                     "condition": "nach Kopfschuss-Kill",
                     "estimated": false,
-                    "description": "Nächster Treffer auf beliebiges Ziel: garantierter (kritischer) Kopfschuss."
+                    "description": "Nächster Treffer auf beliebiges Ziel: garantierter (kritischer) Kopfschuss. Y8S3-Hinweis: Determined funktioniert ab Red Horizon wie Perfectly Determined (Kill löst das Talent nicht erneut aus); die Funktionalität wandert in die neue Exotic-Weste Iron Will (Talent Resolved)."
                 }
             }
         },
@@ -10875,6 +10889,20 @@
                 "Mod Slots": null,
                 "HSD": null,
                 "Pellets": "8 × 87,960"
+            },
+            "named": {
+                "talent": {
+                    "name": "Dragon's Breath",
+                    "key": "dragons_breath",
+                    "category": "situativ",
+                    "kategorie": "Situativ - nicht numerisch",
+                    "value": 50,
+                    "unit": "%",
+                    "conditional": true,
+                    "condition": "Status-Effekt-Bonus > 0",
+                    "estimated": false,
+                    "description": "Verschießt Dragon's-Breath-Munition: Jeder Schuss hat 40% Chance auf Brand (PvE). Waffenschaden wird um 50% des Statuseffekt-Bonus verstaerkt (PvE) bzw. 10%/10% (PvP)."
+                }
             }
         },
         {
@@ -11138,6 +11166,20 @@
                 "Optimal Range": 45,
                 "Mod Slots": null,
                 "HSD": null
+            },
+            "named": {
+                "talent": {
+                    "name": "Shakedown",
+                    "key": "shakedown",
+                    "category": "situativ",
+                    "kategorie": "Situativ - nicht numerisch",
+                    "value": 4,
+                    "unit": "%",
+                    "conditional": true,
+                    "condition": "Stacks auf dem Ziel (Körpertreffer), HS-Verbrauch/Weakpoint",
+                    "estimated": false,
+                    "description": "Y8S3-Live: Körpertreffer erzeugen Stacks (10s, max. 4): +4% verstärkter Schaden je Stack. Kopfschuss verbraucht alle Stacks: +11% verstärkt je Stack. Weakpoint-Zerstörung: +30% verstärkt für 5s (PvE)."
+                }
             }
         },
         {

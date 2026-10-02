@@ -1,7 +1,7 @@
 {
   "version": "gear_v1",
   "source": "GEAR_DB / NAMED_ITEM_CONFIGS / GREEN_SET_INFO aus dem Build-Optimierer (1:1 übernommen)",
-  "note": "Struktur identisch zur GEAR_DB im Code: slot/brand/cls/proto/core/fixed/free/mods/perk. fixed = [attribut, wert]-Paare.",
+  "note": "Struktur identisch zur GEAR_DB im Code: slot/brand/cls/proto/core/fixed/free/mods/perk. fixed = [attribut, wert]-Paare. brand_set_info.bonuses_pve = Y8S3 \"Red Horizon\" Live-Werte (PvE), Quelle: Ubisoft Canopy-PDF \"Gear Set, Brand Set, and Talent changes (After PvE Updates)\" (24.08.2026).",
   "named_item_configs": {
     "Contractor's Gloves": {
       "label": "Contractor's Gloves (+% Rüstungsschaden / DTA)",
@@ -1427,6 +1427,17 @@
       "free": 0,
       "mods": 0,
       "perk": "Parkour!: Deckung-zu-Deckung/Sprung lädt Waffe nach & +25% Bonus-Rüstung (5s)"
+    },
+    "Iron Will": {
+      "slot": "Weste",
+      "brand": "",
+      "cls": "exotic",
+      "proto": false,
+      "core": "wd",
+      "fixed": [],
+      "free": 0,
+      "mods": 1,
+      "perk": "Resolved: Der nächste Körpertreffer zählt als Kopfschuss. Cooldown: 2s (PvE) / 3s (PvP). Erfordert MMR, Gewehr oder Pistole. Nicht mit Kopfgeldjäger (Headhunter) kombinierbar. Feste Attribute noch im Spiel erfassen (Issue #51)."
     }
   },
   "green_set_info": {
@@ -1664,7 +1675,20 @@
       "fragments": [
         "fenris",
         "ferocious calm"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "AR": 12
+          }
+        },
+        "2": {
+          "text": "32% Magazingröße"
+        },
+        "3": {
+          "text": "50% Stabilität"
+        }
+      }
     },
     "ceska": {
       "name": "Česká Výroba S.R.O.",
@@ -1673,7 +1697,21 @@
       "fragments": [
         "ceska",
         "devil"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "chc": 8
+        },
+        "2": {
+          "wd_by_weapon": {
+            "Shotgun": 24
+          }
+        },
+        "3": {
+          "text": "30% Gefahrenschutz"
+        }
+      },
+      "wd_bonus": "2p: +24% Shotgun-Schaden"
     },
     "grupo": {
       "name": "Grupo Shadow S.A.",
@@ -1681,7 +1719,18 @@
       "fragments": [
         "grupo",
         "door-kicker"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "chd": 13
+        },
+        "2": {
+          "text": "20% Explosionsschaden"
+        },
+        "3": {
+          "hsd": 39
+        }
+      }
     },
     "walker": {
       "name": "Walker, Harris & Co.",
@@ -1691,7 +1740,18 @@
         "walker",
         "matador",
         "chainkiller"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd": 6
+        },
+        "2": {
+          "dta": 5
+        },
+        "3": {
+          "dth": 10
+        }
+      }
     },
     "petrov": {
       "name": "Petrov Defense Group",
@@ -1702,7 +1762,20 @@
         "petrov",
         "contractor's gloves",
         "vedmedytsya"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "LMG": 12
+          }
+        },
+        "2": {
+          "wh": 15
+        },
+        "3": {
+          "text": "50% Munitionskapazität"
+        }
+      }
     },
     "sokolov": {
       "name": "Sokolov Concern",
@@ -1712,7 +1785,20 @@
       "fragments": [
         "sokolov",
         "firm handshake"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "MP": 12
+          }
+        },
+        "2": {
+          "chd": 13
+        },
+        "3": {
+          "chc": 8
+        }
+      }
     },
     "overlord": {
       "name": "Overlord Armaments",
@@ -1722,7 +1808,20 @@
       "fragments": [
         "overlord",
         "fox's prayer"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "Rifle": 12
+          }
+        },
+        "2": {
+          "text": "30% Präzision"
+        },
+        "3": {
+          "wh": 30
+        }
+      }
     },
     "airaldi": {
       "name": "Airaldi Holdings",
@@ -1732,7 +1831,20 @@
       "fragments": [
         "airaldi",
         "pristine example"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "MMR": 12
+          }
+        },
+        "2": {
+          "hsd": 26
+        },
+        "3": {
+          "dta": 5
+        }
+      }
     },
     "providence": {
       "name": "Providence Defense",
@@ -1741,7 +1853,18 @@
         "providence",
         "the gift",
         "the sacrifice"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "hsd": 13
+        },
+        "2": {
+          "chc": 8
+        },
+        "3": {
+          "chd": 13
+        }
+      }
     },
     "unitalloys": {
       "name": "Unit Alloys",
@@ -1750,25 +1873,78 @@
       "wd_bonus": "2p: +24% AR-Schaden",
       "fragments": [
         "unit"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "rof": 5
+        },
+        "2": {
+          "wd_by_weapon": {
+            "AR": 24
+          }
+        },
+        "3": {
+          "text": "50% Magazingröße"
+        }
+      }
     },
     "douglas": {
       "name": "Douglas & Harding",
       "group": "dps",
       "fragments": [
         "douglas & harding"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "Pistol": 24
+          }
+        },
+        "2": {
+          "text": "20% Skill-Health"
+        },
+        "3": {
+          "text": "50% Präzision"
+        }
+      },
+      "weapon_hint": "Pistole",
+      "wd_bonus": "1p: +24% Pistolen-Schaden"
     },
     "brazos": {
       "name": "Brazos de Arcabuz",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Skill-Haste"
+        },
+        "2": {
+          "text": "1 Fertigkeitsstufe"
+        },
+        "3": {
+          "text": "50% Magazingröße"
+        }
+      },
+      "fragments": [
+        "brazos"
+      ]
     },
     "belstone": {
       "name": "Belstone Armory",
       "group": "utility",
       "fragments": [
         "belstone"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "1% Rüstungs-Regeneration"
+        },
+        "2": {
+          "text": "100% erhöhte Bedrohung"
+        },
+        "3": {
+          "text": "30% Schutz vor Eliten"
+        }
+      }
     },
     "badger": {
       "name": "Badger Tuff",
@@ -1778,15 +1954,56 @@
       "fragments": [
         "badger",
         "zero f"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd_by_weapon": {
+            "Shotgun": 12
+          }
+        },
+        "2": {
+          "text": "10% Rüstung bei Kill"
+        },
+        "3": {
+          "text": "15% Gesamtrüstung"
+        }
+      }
     },
     "electrique": {
       "name": "Electrique",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Statuseffekte"
+        },
+        "2": {
+          "text": "20% Gefahrenschutz"
+        },
+        "3": {
+          "text": "8% Skill-Effizienz"
+        }
+      },
+      "fragments": [
+        "electrique"
+      ]
     },
     "empress": {
       "name": "Empress International",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Skill-Health"
+        },
+        "2": {
+          "text": "13% Skill-Schaden"
+        },
+        "3": {
+          "text": "8% Skill-Effizienz"
+        }
+      },
+      "fragments": [
+        "empress"
+      ]
     },
     "habsburg": {
       "name": "Habsburg Guard",
@@ -1796,26 +2013,404 @@
       "fragments": [
         "habsburg",
         "courier"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "hsd": 13
+        },
+        "2": {
+          "wd_by_weapon": {
+            "MMR": 24
+          }
+        },
+        "3": {
+          "text": "25% Statuseffekte"
+        }
+      }
     },
     "lengmo": {
       "name": "Lengmo",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Nachladetempo"
+        },
+        "2": {
+          "wd_by_weapon": {
+            "LMG": 24
+          }
+        },
+        "3": {
+          "wh": 30
+        }
+      },
+      "fragments": [
+        "lengmo"
+      ],
+      "weapon_hint": "LMG",
+      "wd_bonus": "2p: +24% LMG-Schaden"
     },
     "palisade": {
       "name": "Palisade Steelworks",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Rüstung bei Kill"
+        },
+        "2": {
+          "text": "20% Schutz vor Eliten"
+        },
+        "3": {
+          "text": "1 Fertigkeitsstufe"
+        }
+      },
+      "fragments": [
+        "palisade"
+      ]
     },
     "gila": {
       "name": "Gila Guard",
       "group": "utility",
       "fragments": [
         "gila"
-      ]
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "5% Gesamtrüstung"
+        },
+        "2": {
+          "text": "20% Gefahrenschutz"
+        },
+        "3": {
+          "text": "2% Rüstungs-Regeneration"
+        }
+      }
     },
     "5.11 tactical": {
       "name": "5.11 Tactical",
-      "group": "utility"
+      "group": "utility",
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Schutz vor Eliten"
+        },
+        "2": {
+          "text": "100% erhöhte Bedrohung"
+        },
+        "3": {
+          "text": "30% Gefahrenschutz"
+        }
+      },
+      "fragments": [
+        "5.11"
+      ]
+    },
+    "alpssummit": {
+      "name": "Alps Summit Armaments",
+      "group": "utility",
+      "fragments": [
+        "alps summit"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "18% Reparatur-Fertigkeiten"
+        },
+        "2": {
+          "text": "30% Skill-Dauer"
+        },
+        "3": {
+          "text": "30% Skill-Haste"
+        }
+      }
+    },
+    "chinalight": {
+      "name": "China Light Industries Corporation",
+      "group": "utility",
+      "fragments": [
+        "china light"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Explosionsschaden"
+        },
+        "2": {
+          "text": "20% Gefahrenschutz"
+        },
+        "3": {
+          "text": "30% Skill-Haste"
+        }
+      }
+    },
+    "murakami": {
+      "name": "Murakami Industries",
+      "group": "utility",
+      "fragments": [
+        "murakami"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Skill-Dauer"
+        },
+        "2": {
+          "text": "35% Reparatur-Fertigkeiten"
+        },
+        "3": {
+          "text": "18% Skill-Schaden"
+        }
+      }
+    },
+    "richter": {
+      "name": "Richter & Kaiser GmbH",
+      "group": "utility",
+      "fragments": [
+        "richter"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Skill-Haste"
+        },
+        "2": {
+          "text": "40% Explosionsresistenz"
+        },
+        "3": {
+          "text": "52% Reparatur-Fertigkeiten"
+        }
+      }
+    },
+    "hana": {
+      "name": "Hana U Corporation",
+      "group": "utility",
+      "fragments": [
+        "hana u"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Skill-Haste"
+        },
+        "2": {
+          "text": "13% Skill-Schaden"
+        },
+        "3": {
+          "wd": 18
+        }
+      }
+    },
+    "wyvern": {
+      "name": "Wyvern Wear",
+      "group": "utility",
+      "fragments": [
+        "wyvern"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "8% Skill-Schaden"
+        },
+        "2": {
+          "text": "20% Statuseffekte"
+        },
+        "3": {
+          "text": "45% Skill-Dauer"
+        }
+      }
+    },
+    "shiny monkey": {
+      "name": "Shiny Monkey Gear",
+      "group": "utility",
+      "fragments": [
+        "shiny monkey"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Skill-Dauer"
+        },
+        "2": {
+          "text": "5% Skill-Effizienz"
+        },
+        "3": {
+          "text": "52% Reparatur-Fertigkeiten"
+        }
+      }
+    },
+    "edelweiss": {
+      "name": "Edelweiss GPz",
+      "group": "utility",
+      "fragments": [
+        "edelweiss"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "18% Reparatur-Fertigkeiten"
+        },
+        "2": {
+          "text": "20% Skill-Haste"
+        },
+        "3": {
+          "text": "8% Skill-Effizienz"
+        }
+      }
+    },
+    "golan": {
+      "name": "Golan Gear Ltd",
+      "group": "utility",
+      "fragments": [
+        "golan"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "20% Explosionsresistenz"
+        },
+        "2": {
+          "text": "1,5% Rüstungs-Regeneration"
+        },
+        "3": {
+          "text": "150% erhöhte Bedrohung"
+        }
+      }
+    },
+    "uzina": {
+      "name": "Uzina Getica",
+      "group": "utility",
+      "fragments": [
+        "uzina"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "5% Gesamtrüstung"
+        },
+        "2": {
+          "text": "10% Rüstung bei Kill"
+        },
+        "3": {
+          "text": "30% Gefahrenschutz"
+        }
+      }
+    },
+    "yaahl": {
+      "name": "Yaahl Gear",
+      "group": "utility",
+      "fragments": [
+        "yaahl"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "10% Gefahrenschutz"
+        },
+        "2": {
+          "wd": 12
+        },
+        "3": {
+          "text": "40% Pulse-Resistenz"
+        }
+      }
+    },
+    "imminence": {
+      "name": "Imminence Armaments",
+      "group": "utility",
+      "fragments": [
+        "imminence"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wd": 6
+        },
+        "2": {
+          "wd_by_weapon": {
+            "Pistol": 48
+          }
+        },
+        "3": {
+          "text": "30% Skill-Health"
+        }
+      },
+      "weapon_hint": "Pistole",
+      "wd_bonus": "1p: +6% WD / 2p: +48% Pistolen-Schaden"
+    },
+    "legatus": {
+      "name": "Legatus S.p.A.",
+      "group": "utility",
+      "fragments": [
+        "legatus"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Magazingröße"
+        },
+        "2": {
+          "wd_by_weapon": {
+            "MP": 24
+          }
+        },
+        "3": {
+          "text": "105% optimale Reichweite"
+        }
+      },
+      "weapon_hint": "MP",
+      "wd_bonus": "2p: +24% MP-Schaden"
+    },
+    "royalworks": {
+      "name": "Royal Works",
+      "group": "utility",
+      "fragments": [
+        "royal works"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wh": 5
+        },
+        "2": {
+          "wd_by_weapon": {
+            "LMG": 24
+          }
+        },
+        "3": {
+          "text": "50% Präzision"
+        }
+      },
+      "weapon_hint": "LMG",
+      "wd_bonus": "2p: +24% LMG-Schaden"
+    },
+    "urbanlookout": {
+      "name": "Urban Lookout",
+      "group": "utility",
+      "fragments": [
+        "urban lookout"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "wh": 5
+        },
+        "2": {
+          "wd_by_weapon": {
+            "MMR": 24
+          }
+        },
+        "3": {
+          "text": "45% Skill-Dauer"
+        }
+      },
+      "weapon_hint": "MMR",
+      "wd_bonus": "2p: +24% MMR-Schaden"
+    },
+    "zwiadowka": {
+      "name": "Zwiadowka Sp. z o.o.",
+      "group": "utility",
+      "fragments": [
+        "zwiadowka"
+      ],
+      "bonuses_pve": {
+        "1": {
+          "text": "15% Magazingröße"
+        },
+        "2": {
+          "wd_by_weapon": {
+            "Rifle": 24
+          }
+        },
+        "3": {
+          "wh": 30
+        }
+      },
+      "weapon_hint": "Rifle",
+      "wd_bonus": "2p: +24% Rifle-Schaden"
     }
   }
 }
