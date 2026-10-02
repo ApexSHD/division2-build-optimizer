@@ -11158,34 +11158,52 @@
             "is_named": false,
             "replica": false,
             "source": "table (neu hinzugefügt)",
-            "note": "Exotic - fixed mods, its built-in magazine gives +10 rounds",
+            "note": "Exotic - 4 fixe Mods lt. Fandom (Optic CHC/Magazin +10/Underbarrel Handling/Muzzle ReloadSpeed); Talent 'Confirm & Execute' (vorher 'Shakedown'); Damage 92.364 in Fandom nicht gelistet - im Spiel pruefen",
             "stats": {
                 "RPM": 420,
                 "Base Mag Size": 30,
                 "Modded Mag Size": 40,
-                "Empty Reload (secs)": 2.13,
+                "Empty Reload (secs)": 1.64,
                 "Level 40 Damage": 92364,
-                "DPS (rps*dmg)": 646548,
-                "Sustain DPS (dmg/time)": 431895.7916,
+                "DPS (rps*dmg)": 646548.0,
+                "Sustain DPS (dmg/time)": 467609.4503,
                 "Total Mag": 2770920,
-                "Modded Sustain DPS": 470987.434,
+                "Modded Sustain DPS": 502368.2984,
                 "Optimal Range": 45,
-                "Mod Slots": null,
-                "HSD": null
+                "Mod Slots": "N/A",
+                "HSD": 80
             },
-            "named": {
+            "exotic": {
                 "talent": {
-                    "name": "Shakedown",
-                    "key": "shakedown",
-                    "category": "situativ",
-                    "kategorie": "Situativ - nicht numerisch",
-                    "value": 4,
-                    "unit": "%",
-                    "conditional": true,
-                    "condition": "Stacks auf dem Ziel (Körpertreffer), HS-Verbrauch/Weakpoint",
-                    "estimated": false,
-                    "description": "Y8S3-Live: Körpertreffer erzeugen Stacks (10s, max. 4): +4% verstärkter Schaden je Stack. Kopfschuss verbraucht alle Stacks: +11% verstärkt je Stack. Weakpoint-Zerstörung: +30% verstärkt für 5s (PvE)."
-                }
+                    "name": "Confirm & Execute",
+                    "description": "Confirm & Execute\nPvE:\nBody shots add 1 stack to the enemy for 10s. Max stacks: 4. Hitting a different enemy removes all stacks.\nThis weapon deals +4% Amplified Damage per stack.\nYour next headshot on an enemy with stacks consumes all stacks, dealing +11% Amplified Damage per stack.\nDestroying an enemy's weakpoint causes them to take +30% Amplified Damage from you for 5s.\n\nPvP:\nBody shots add 1 stack to the enemy for 6s. Max stacks: 3. Hitting a different enemy removes all stacks.\nThis weapon deals +3% Amplified Damage per stack.\nYour next headshot on an enemy with stacks consumes all stacks, dealing +7% Amplified Damage per stack.\nDestroying an enemy's weakpoint causes them to take +5% Amplified Damage from you for 3s."
+                },
+                "fixedMods": [
+                    {
+                        "slot": "optic",
+                        "attr": "chc",
+                        "value": 15,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "magazine",
+                        "attr": "capacity",
+                        "value": 10,
+                        "unit": "rounds"
+                    },
+                    {
+                        "slot": "underbarrel",
+                        "attr": "handling",
+                        "value": 10,
+                        "unit": "%"
+                    },
+                    {
+                        "slot": "muzzle",
+                        "attr": "reloadSpeed",
+                        "value": 10,
+                        "unit": "%"
+                    }
+                ]
             }
         },
         {
