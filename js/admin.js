@@ -29,7 +29,7 @@ function applyAdminOverrides() {
 
 // ---------- Helpers ----------
 function escAttrJs(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function esc(v) { return String(v == null ? '' : v).replace(/\\/g,'\\\\').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function adminToast(msg, type) { if (typeof showToast === 'function') showToast(msg, type || 'success'); }
 
 function openAdminModal(title) {

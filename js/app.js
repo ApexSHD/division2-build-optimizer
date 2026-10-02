@@ -3978,7 +3978,7 @@
         function gearCritChanceAssumption() {
             const el = document.getElementById('gearCritChanceAssumption');
             let v = el ? parseLocalizedFloat(el.value) : 60;
-            if (isNaN(v) || v < 0 || v > 100) v = 60;
+            if (isNaN(v) || v < 0 || v > 60) v = 60;
             return v / 100;
         }
 
@@ -5332,21 +5332,24 @@ function prefilterItemScore(item, targetWeaponType) {
             }
 
             let allBuilds = [];
-            function permute(currentBuild, slotIndex) {
+            // Issue #44/#99: Spielregel – max. 1 exotisches Gear-Teil pro Build.
+            // Exoten werden waehrend des Aufbaus gezaehlt und ungültige Zweige
+            // frueh abgeschnitten, statt jede Kombination fertig zu bauen und
+            // erst am Ende zu verwerfen.
+            function permute(currentBuild, slotIndex, exoticCount) {
                 if (slotIndex === slots.length) {
-                    // Issue #44: Spielregel erzwingen – max. 1 exotisches Gear-Teil pro Build
-                    const exoticCount = currentBuild.filter(i => isExoticGearName(i.setName)).length;
-                    if (exoticCount > 1) return;
                     allBuilds.push([...currentBuild]);
                     return;
                 }
                 const currentSlot = slots[slotIndex];
                 for (let item of itemsBySlot[currentSlot]) {
-                    permute([...currentBuild, item], slotIndex + 1);
+                    const isExotic = isExoticGearName(item.setName) ? 1 : 0;
+                    if (exoticCount + isExotic > 1) continue;
+                    permute([...currentBuild, item], slotIndex + 1, exoticCount + isExotic);
                 }
             }
 
-            permute([], 0);
+            permute([], 0, 0);
 
             // ===== PERFORMANCE: Dedupe identischer Stat-Profile =====
             // Builds, die sich in keinem relevanten Wert unterscheiden
@@ -6532,7 +6535,7 @@ function prefilterItemScore(item, targetWeaponType) {
             const display = document.getElementById('knowHowBonusDisplay');
             if (!slider || !input || !display) return;
 
-            let val = parseInt(slider.value) || 0;
+            let val = parseInt(slider.value, 10) || 0;
             if (val < 0) val = 0;
             if (val > 30) val = 30;
 
@@ -6545,7 +6548,7 @@ function prefilterItemScore(item, targetWeaponType) {
             const display = document.getElementById('knowHowBonusDisplay');
             if (!slider || !display) return;
 
-            let val = parseInt(valStr);
+            let val = parseInt(valStr, 10);
             if (isNaN(val)) val = 0;
             if (val < 0) val = 0;
             if (val > 30) val = 30;
