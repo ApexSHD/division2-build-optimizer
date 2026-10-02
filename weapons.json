@@ -513,7 +513,7 @@
             "replica": false,
             "source": "table",
             "table_name": "Agitator",
-            "note": "Exotic - fixed mods, its built-in magazine gives +20 rounds",
+            "note": "Exotic - 3 fixe Mods lt. Fandom (Optic/Muzzle/Magazin, kein Underbarrel); eingebautes Magazin +20 Schuss",
             "verified": {
                 "source": "https://thedivision.fandom.com/wiki/Agitator",
                 "date": "2026-02-27"
