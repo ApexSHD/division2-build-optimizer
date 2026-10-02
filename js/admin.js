@@ -579,7 +579,11 @@ function saveBrandForm(key) {
     const newKey = getVal('abKey').trim();
     const name = getVal('abName').trim();
     if (!newKey || !name) { adminToast('Bitte Schl\u00fcssel und Namen angeben.', 'error'); return; }
-    const entry = { name, group: getVal('abGroup') };
+    const prevEntry = (key && key !== 'null') ? BRAND_SET_INFO[key] : null;
+    // Bestehenden Eintrag als Basis uebernehmen: Felder, die das Formular nicht
+    // abbildet (z.B. wd_bonus), bleiben erhalten - inkl. Key-Reihenfolge.
+    const entry = prevEntry ? Object.assign({}, prevEntry) : {};
+    entry.name = name; entry.group = getVal('abGroup');
     const wh = getVal('abWeaponHint').trim(); if (wh) entry.weapon_hint = wh;
     const fr = getVal('abFragments').split(',').map(x => x.trim()).filter(Boolean);
     if (fr.length) entry.fragments = fr;
