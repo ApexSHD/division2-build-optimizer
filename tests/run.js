@@ -830,6 +830,65 @@ const setInput = (id, value) => {
   t('Reset: div2_admin_db entfernt', w.eval(`localStorage.getItem('div2_admin_db') === null`));
   t('Reset: div2_weapons_db_v2 mit entfernt', w.eval(`localStorage.getItem('div2_weapons_db_v2') === null`));
 
+  // ===== 19. STACK_DAMAGE_CONFIG-ABGLEICH gegen gear.json (Issue #95) =====
+  console.log('\n--- Abgleich STACK_DAMAGE_CONFIG vs. gear.json (Issue #95) ---');
+  {
+    // Soll-Werte aus gear.json (green_set_info n4-Texte), verifiziert gegen Fandom
+    const expected = {
+      striker:             { perStackWd: 0.65, maxStacks: 100 },
+      heartbreaker:        { perStackWd: 1.1, maxStacks: 50 },
+      huntersfury:         { flatAmp: 20, perStackWd: 5, maxStacks: 5 },
+      umbra:               { perStackChd: 1.2, perStackRof: 0.4, maxStacks: 50 },
+      hotshot:             { flatAmp: 80, maxStacks: 1 },
+      ongoing:             { flatAmp: 40, maxStacks: 1 },
+      acesandeights:       { flatAmp: 75, maxStacks: 1 },
+      virtuoso:            { flatAmp: 40, maxStacks: 1 },
+      tippingscales:       { perStackChd: 5, perStackWh: 0.5, maxStacks: 50 },
+      concentratedcompany: { perStackWd: 3, perStackChd: 3, maxStacks: 35 },
+      breakingpoint:       { perStackWd: 4, perStackWh: 2, maxStacks: 30 }
+    };
+    const gearRaw = w.eval('JSON.stringify(GREEN_SET_INFO || null)');
+    t('Abgleich: GREEN_SET_INFO geladen', gearRaw !== 'null');
+    const gearInfo = JSON.parse(gearRaw);
+    let allMatch = true; const mism = [];
+    for (const [key, exp] of Object.entries(expected)) {
+      const conf = w.eval(`STACK_DAMAGE_CONFIG[${JSON.stringify(key)}]`);
+      const gs = gearInfo[key];
+      if (!conf || !gs) { allMatch = false; mism.push(key + ' fehlt'); continue; }
+      for (const [f, v] of Object.entries(exp)) {
+        if (Math.abs((conf[f] || 0) - v) > 1e-9) { allMatch = false; mism.push(key + '.' + f + '=' + conf[f] + ' erwartete ' + v); }
+      }
+    }
+    t('Abgleich: alle 11 Set-Grundwerte in STACK_DAMAGE_CONFIG korrekt', allMatch);
+    if (mism.length) console.log('   Abweichungen:', mism.join('; '));
+    // Westen-/Rucksack-Overrides (jeweils gegen gear.json-Texte verifiziert)
+    t('Abgleich: Striker Rucksack 0.65 -> 0.9 pro Stack', w.eval('STACK_DAMAGE_CONFIG.striker.backpackTalent.perStackWd') === 0.9);
+    t('Abgleich: Striker Weste max 100 -> 200 Stacks', w.eval('STACK_DAMAGE_CONFIG.striker.chestTalent.maxStacks') === 200);
+    t('Abgleich: Heartbreaker Weste max 50 -> 100 Stacks', w.eval('STACK_DAMAGE_CONFIG.heartbreaker.chestTalent.maxStacks') === 100);
+    t('Abgleich: Umbra Weste max 50 -> 100 Stacks (From the Shadows)', w.eval('STACK_DAMAGE_CONFIG.umbra.chestTalent.maxStacks') === 100);
+    t('Abgleich: Tipping Scales Rucksack 5 -> 8 CHD pro Stack', w.eval('STACK_DAMAGE_CONFIG.tippingscales.backpackTalent.perStackChd') === 8);
+    t('Abgleich: Tipping Scales Weste max 50 -> 75 Stacks', w.eval('STACK_DAMAGE_CONFIG.tippingscales.chestTalent.maxStacks') === 75);
+    t('Abgleich: Concentrated Company Rucksack 3 -> 6 WD pro Stack', w.eval('STACK_DAMAGE_CONFIG.concentratedcompany.backpackTalent.perStackWd') === 6);
+    t('Abgleich: Breaking Point Rucksack 4 -> 9 WD pro Stack', w.eval('STACK_DAMAGE_CONFIG.breakingpoint.backpackTalent.perStackWd') === 9);
+    t('Abgleich: Ongoing Directive Weste +40% -> +60%', w.eval('STACK_DAMAGE_CONFIG.ongoing.chestTalent.flatAmp') === 60);
+    t('Abgleich: Aces & Eights Weste +75% -> +100%', w.eval('STACK_DAMAGE_CONFIG.acesandeights.chestTalent.flatAmp') === 100);
+    t('Abgleich: Virtuoso Weste ampMult x2', w.eval('STACK_DAMAGE_CONFIG.virtuoso.chestTalent.ampMult') === 2);
+    t('Abgleich: Virtuoso AR/LMG nur +20% statt +40%', w.eval('STACK_DAMAGE_CONFIG.virtuoso.flatAmpByWeapon.AR') === 20 && w.eval('STACK_DAMAGE_CONFIG.virtuoso.flatAmpByWeapon.LMG') === 20);
+    // Abgleich gegen gear.json-Texte: keine Zahl darf stillschweigend abweichen
+    const numChk = w.eval(`(function () {
+      const checks = [
+        ['striker', '0,65', 'perStackWd'], ['heartbreaker', '1,1', 'perStackWd'],
+        ['umbra', '1,2', 'perStackChd'], ['umbra', '0,4', 'perStackRof'],
+        ['huntersfury', 'max. 5 Stacks', 'n4'], ['hotshot', '+80%', 'n4'],
+        ['ongoing', '+40%', 'n4'], ['acesandeights', '+75%', 'n4'],
+        ['tippingscales', '+5% kritischer', 'n4'], ['concentratedcompany', 'max. 35', 'n4'],
+        ['breakingpoint', '+4% WD', 'n4']
+      ];
+      return checks.every(([k, frag]) => (GREEN_SET_INFO[k] || {}).n4.includes(frag));
+    })()`);
+    t('Abgleich: gear.json n4-Texte enthalten die verifizierten Werte', numChk);
+  }
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {
