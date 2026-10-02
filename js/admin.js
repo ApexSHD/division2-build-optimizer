@@ -478,7 +478,7 @@ function renderBrandsAdmin() {
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
             <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">Gruppe</th><th class="py-2 px-3">Waffen-Hint</th><th class="py-2 px-3">Set-Boni</th><th class="py-2 px-3">Aktionen</th>
-        </tr></thead><tbody>${rows || '<tr><td colspan="7" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+        </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
 // Typisierte Bonus-Attribute (Score-Keys) + waffentypbezogener Schaden
@@ -664,19 +664,19 @@ function renderGreensAdmin() {
         el.innerHTML = '<p class="py-6 text-center text-gray-500 text-sm">Bitte zuerst eine Gruppe auswählen.</p>';
         return;
     }
-    const rows = entries.map(([key, g]) => `<tr class="border-t border-gray-800">
-        <td class="py-2 px-3 text-sm font-semibold">${esc(key)}</td>
-        <td class="py-2 px-3 text-sm text-gray-400">${esc(g.name)}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n2 || '')}">${esc(g.n2 || '—')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n3 || '')}">${esc(g.n3 || '—')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(g.n4 || '')}">${esc(g.n4 || '—')}</td>
-        <td class="py-2 px-3 text-sm text-gray-500 max-w-xs truncate" title="${esc(greenBonusesSummary(g) || '')}">${esc(greenBonusesSummary(g) || '—')}</td>
-        <td class="py-2 px-3">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'Löschen')}</td>
+    const rows = entries.map(([key, g]) => `<tr class="border-t border-gray-800 align-top">
+        <td class="py-2 px-3 text-sm font-semibold whitespace-nowrap">${esc(key)}</td>
+        <td class="py-2 px-3 text-sm text-gray-400 whitespace-nowrap">${esc(g.name)}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 min-w-[10rem] break-words" title="${esc(g.n2 || '')}">${esc(g.n2 || '\u2014')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 min-w-[10rem] break-words" title="${esc(g.n3 || '')}">${esc(g.n3 || '\u2014')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 min-w-[12rem] break-words" title="${esc(g.n4 || '')}">${esc(g.n4 || '\u2014')}</td>
+        <td class="py-2 px-3 text-sm text-gray-500 min-w-[12rem] break-words" title="${esc(greenBonusesSummary(g) || '')}">${esc(greenBonusesSummary(g) || '\u2014')}</td>
+        <td class="py-2 px-3 whitespace-nowrap">${actionBtns(`openGreenForm('${esc(key).replace(/'/g, "\\'")}')`, `deleteGreenEntry('${esc(key).replace(/'/g, "\\'")}')`, 'Bearbeiten', 'L\u00f6schen')}</td>
     </tr>`).join('');
     el.innerHTML = `<table class="w-full text-left">
         <thead><tr class="text-xs uppercase text-gray-500">
             <th class="py-2 px-3">Schlüssel</th><th class="py-2 px-3">Name</th><th class="py-2 px-3">2p</th><th class="py-2 px-3">3p</th><th class="py-2 px-3">4p</th><th class="py-2 px-3">Typisierte Boni</th><th class="py-2 px-3">Aktionen</th>
-        </tr></thead><tbody>${rows || '<tr><td colspan="6" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
+        </tr></thead><tbody>${rows || '<tr><td colspan="7" class="py-4 text-center text-gray-500">Keine Treffer</td></tr>'}</tbody></table>`;
 }
 
 function openGreenForm(key) {
