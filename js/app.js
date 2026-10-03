@@ -953,10 +953,14 @@
                 t.type === 'wd' ? 'Waffen-Schaden' :
                 t.type === 'chd' ? 'Krit-Trefferschaden' : 'CHC/CHD';
             const condTxt = t.condition ? ` – Bedingung: ${t.condition}` : '';
+            const synergyTxt = (info && info.synergyVia) ? ` — Bedingung vom Build geliefert (${info.synergyVia})` : '';
             if (active) {
-                return `<p class="${info && info.active ? 'text-emerald-400' : 'text-emerald-500'}">✔ Talent aktiv: ja (+${val}% ${typeLabel} eingerechnet)${condTxt}</p>`;
+                return `<p class="${info && info.active ? 'text-emerald-400' : 'text-emerald-500'}">✔ Talent aktiv: ja (+${val}% ${typeLabel} eingerechnet)${condTxt}${synergyTxt}</p>`;
             }
-            return `<p class="text-gray-500">✖ Talent aktiv: nein (+${val}% ${typeLabel} NICHT eingerechnet)${condTxt} – Haken bei „Bedingte Waffen-Talente“ setzen</p>`;
+            const synergyHint = (info && info.conditional && !info.synergyVia)
+                ? ' – Bedingung vom Build nicht lieferbar: passendes Gear-Talent/Set ergänzen (z.B. Sadist: Trauma-Weste) oder Haken bei „Bedingte Waffen-Talente“ setzen'
+                : ' – Haken bei „Bedingte Waffen-Talente“ setzen';
+            return `<p class="text-gray-500">✖ Talent aktiv: nein (+${val}% ${typeLabel} NICHT eingerechnet)${condTxt}${synergyHint}</p>`;
         }
 
         // ========== TAB-NAVIGATION ==========
@@ -3043,6 +3047,62 @@
         // conditional   -> fließt nur ein, wenn "Bedingte Talente aktiv" an ist
         // onlyWeapons   -> Talent wirkt nur mit diesen Waffengattungen
         // valueByWeapon -> waffengattungsabhängiger Verstärker (Versatile)
+        // ===== TALENT-SYNERGIEN (Issue #108 A2) =====
+        // Bedingte Waffen-Talente (z.B. Sadist: "nur gegen blutende Ziele")
+        // wirken im Spiel nur zuverlaessig, wenn der Build die Bedingung
+        // selbst liefern kann - durch ein passendes Gear-Talent oder Set.
+        // requirements: 'any' = jedes gelistete Gear-Talent/Set erfuellt die
+        // Bedingung; 'selfApply' = Build kann den Status aktiv anwenden.
+        const TALENT_SYNERGY = {
+            // Blutung
+            sadist:        { status: 'blutend', gearTalents: ['trauma'], sets: ['ongoing'] },
+            perfekt_sadist:{ status: 'blutend', gearTalents: ['trauma'], sets: ['ongoing'] },
+            // Blendung
+            blind:         { status: 'geblendet', gearTalents: ['trauma'], sets: [] },
+            perfekt_blind: { status: 'geblendet', gearTalents: ['trauma'], sets: [] },
+            // Brennen (Feuerfaehigkeiten/Brand-Quellen sind skill-abhaengig;
+            // hier genuegt die aktive Annahme, es sei denn Build kann nichts)
+            entzundet:     { status: 'brennend', gearTalents: [], sets: [] },
+            perfekt_entzundet: { status: 'brennend', gearTalents: [], sets: [] },
+            // Puls
+            flachlage:     { status: 'gepulst', gearTalents: [], sets: [] },
+            perfekte_flachlage: { status: 'gepulst', gearTalents: [], sets: [] },
+            // Markierung (Negotiator's Dilemma / Ongoing Directive markieren)
+            vorschlaghammer: { status: 'markiert', gearTalents: [], sets: ['negotiator', 'ongoing'] },
+            perfekt_vorschlaghammer: { status: 'markiert', gearTalents: [], sets: ['negotiator', 'ongoing'] },
+            // Schock
+            donnerkeil:    { status: 'geschockt', gearTalents: ['tamperproof'], sets: [] },
+            perfekt_donnerkeil: { status: 'geschockt', gearTalents: ['tamperproof'], sets: [] },
+            // Beliebiger Statuseffekt
+            druckpunkt:    { status: 'statuseffekt', gearTalents: ['trauma', 'tamperproof'], sets: ['ongoing', 'eclipse'] },
+            perfekt_druckpunkt: { status: 'statuseffekt', gearTalents: ['trauma', 'tamperproof'], sets: ['ongoing', 'eclipse'] },
+            // Verwirrung
+            kopfkratzer:   { status: 'verwirrt', gearTalents: [], sets: [] },
+            perfekter_kopfkratzer: { status: 'verwirrt', gearTalents: [], sets: [] },
+            // Fesseln
+            immobilisieren:{ status: 'gefesselt', gearTalents: [], sets: [] },
+            perfekt_immobilisieren: { status: 'gefesselt', gearTalents: [], sets: [] }
+        };
+        // Prueft, ob ein Build die Bedingung eines bedingten Waffen-Talents
+        // selbst liefern kann. Liefert { possible, via } zurueck.
+        function buildProvidesTalentCondition(talentKey, build) {
+            const syn = TALENT_SYNERGY[talentKey];
+            if (!syn) return { possible: true, via: 'unbedingtes Talent' };
+            // Unbedingte Talente sind immer moeglich
+            if (!build || build.length === 0) return { possible: false, via: '' };
+            for (const item of build) {
+                if (item.talent && syn.gearTalents.includes(item.talent)) {
+                    return { possible: true, via: `Gear-Talent ${GEAR_TALENTS[item.talent] ? GEAR_TALENTS[item.talent].label : item.talent}` };
+                }
+            }
+            for (const setKey of syn.sets) {
+                if (build.some(i => brandKeyMatches((i.setName || '').toLowerCase(), setKey))) {
+                    return { possible: true, via: `Set ${setKey}` };
+                }
+            }
+            // Status ohne bekannte Quelle im Build: nicht selbst lieferbar
+            return { possible: false, via: '' };
+        }
         const GEAR_TALENTS = {
             // ----- Westen-Talente -----
             gunslinger:        { slot: 'Weste', label: 'Gunslinger', type: 'wd', value: 23, conditional: true, condition: 'Waffenwechsel (5s aktiv)', note: 'Waffenwechsel erhöht den Waffenschaden 5s lang um +23%.' },
@@ -4812,7 +4872,19 @@
                     talentInfo = { key: tKey, label: weapon.talent, active: false, unknown: true,
                         note: 'Talent nicht in der Talent-DB gefunden – kein Effekt berechnet' };
                 } else {
-                    const active = !t.conditional || !!talentsActive;
+                    // Talent-Synergie (#108 A2): Ist "Bedingte Talente aktiv"
+                    // AUS, zaehlt ein bedingtes Talent nur, wenn der Build
+                    // die Bedingung selbst liefern kann (z.B. Sadist-Blutung
+                    // via Trauma-Weste). Bei AN gilt wie bisher die pauschale
+                    // Annahme.
+                    let active = !t.conditional || !!talentsActive;
+                    let synergyVia = '';
+                    if (t.conditional && !talentsActive) {
+                        const syn = (typeof buildProvidesTalentCondition === 'function')
+                            ? buildProvidesTalentCondition(tKey, build) : { possible: false, via: '' };
+                        active = syn.possible;
+                        synergyVia = syn.via || '';
+                    }
                     const val = talentValueFor(tKey, weapon.isExotic);
                     let talentMagNote = '';
                     if (active) {
@@ -4840,7 +4912,7 @@
                         else if (t.type === 'rof') talentRof += val;
                         else if (t.type === 'amp') talentAmp += val;
                     }
-                    talentInfo = { key: tKey, label: t.label, active: active, conditional: !!t.conditional, val: val, type: t.type,
+                    talentInfo = { key: tKey, label: t.label, active: active, conditional: !!t.conditional, val: val, type: t.type, synergyVia: synergyVia,
                         situational: !t.type && !talentMagNote,
                         note: (t.note || '') + (talentMagNote ? (t.note ? ' — ' : '') + talentMagNote : '') };
                 }
@@ -5601,6 +5673,9 @@ function prefilterItemScore(item, targetWeaponType) {
                         const rt = resolveTalentDef(weapon.talent);
                         const t = rt.t;
                         if (t) {
+                            // Ohne Build-Kontext (Vorranking): bedingte Talente
+                            // nur bei pauschaler Annahme aktiv; die genaue
+                            // Synergie-Pruefung macht der Hauptvergleich.
                             const active = !t.conditional || !!settings.talentsActive;
                             if (active) {
                                 const val = talentValueFor(rt.key, weapon.isExotic);
