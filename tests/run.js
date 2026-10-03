@@ -292,6 +292,18 @@ const setInput = (id, value) => {
   t('Fixieren: Gear-Liste enthaelt Inventar-Teile', pinGear ? [...pinGear.options].length >= 1 : false);
   t('Fixieren: Waffen-Liste enthaelt Inventar-Waffen', pinWeap ? [...pinWeap.options].length >= 1 : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Gear gerendert', !!($('disabledExoticGearWrap')));
+  // God-Roll-Kennzeichnung: Striker-Standardteile (wd 15, chc 6, chd 12) sind Max-Rolls
+  const godCheck = w.eval(`(function(){
+    const god = { slot: 'Maske', setName: 'Striker', wd: 15, chc: 6, chd: 12, namedKey: '', namedVal: 0 };
+    const notGod = { slot: 'Maske', setName: 'Striker', wd: 15, chc: 3, chd: 12, namedKey: '', namedVal: 0 };
+    const notGodCore = { slot: 'Maske', setName: 'Striker', wd: 12, chc: 6, chd: 12, namedKey: '', namedVal: 0 };
+    return { god: isGearGodRoll(god), notGod: isGearGodRoll(notGod), notGodCore: isGearGodRoll(notGodCore) };
+  })()`);
+  t('Fixieren: God-Roll-Erkennung (alles Max = God-Roll)', godCheck.god === true);
+  t('Fixieren: kein God-Roll bei Teil-Roll (chc 3)', godCheck.notGod === false);
+  t('Fixieren: kein God-Roll bei Kern unter Max (wd 12)', godCheck.notGodCore === false);
+  const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
+  t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
   const firstExoticOpt = pinWeap ? ([...pinWeap.options].find(o => o.textContent.includes('\u2605')) || {}) : {};
   if (firstExoticOpt.value) {
