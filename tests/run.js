@@ -290,6 +290,23 @@ const setInput = (id, value) => {
   t('Fixieren: Gear-Mehrfachauswahl vorhanden', !!pinGear);
   t('Fixieren: Waffen-Mehrfachauswahl vorhanden', !!pinWeap);
   t('Fixieren: Gear-Liste enthaelt Inventar-Teile', pinGear ? [...pinGear.options].length >= 1 : false);
+  // Grüne Fremdset-Teile werden ausgefiltert, passende bleiben (Ziel-Set: Striker)
+  w.eval(`gearInventory.push({ id: 1001, slot: 'Maske', setName: 'Eclipse Protocol', wd: 15, chc: 6, namedKey: '', namedVal: 0 }); renderGearInventory(); updateForceExoticOptions()`);
+  const beforeCount = pinGear ? [...pinGear.options].length : 0;
+  t('Fixieren: Eclipse-Teil bei Striker-Ziel nicht im Dropdown', pinGear ? ![...pinGear.options].some(o => o.textContent.includes('Eclipse')) : false);
+  t('Fixieren: Striker-Teil bleibt bei Striker-Ziel im Dropdown', pinGear ? [...pinGear.options].some(o => o.textContent.includes('Striker')) : false);
+  const eclipseCheck = w.eval(`(function(){
+    const saved = document.getElementById('targetGreenSet').value;
+    document.getElementById('targetGreenSet').value = 'eclipse';
+    updateForceExoticOptions();
+    const hasEclipse = [...document.getElementById('pinnedGearIds').options].some(o => o.textContent.includes('Eclipse'));
+    const hasStriker = [...document.getElementById('pinnedGearIds').options].some(o => o.textContent.includes('Striker'));
+    document.getElementById('targetGreenSet').value = saved;
+    updateForceExoticOptions();
+    return { hasEclipse, hasStriker };
+  })()`);
+  t('Fixieren: Eclipse-Teil erscheint bei Eclipse-Ziel', eclipseCheck.hasEclipse === true);
+  t('Fixieren: Striker-Teil verschwindet bei Eclipse-Ziel', eclipseCheck.hasStriker === false);
   t('Fixieren: Waffen-Liste enthaelt Inventar-Waffen', pinWeap ? [...pinWeap.options].length >= 1 : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Gear gerendert', !!($('disabledExoticGearWrap')));
   // God-Roll-Kennzeichnung: Striker-Standardteile (wd 15, chc 6, chd 12) sind Max-Rolls
