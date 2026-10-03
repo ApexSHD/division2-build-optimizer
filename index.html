@@ -878,19 +878,28 @@
                     </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
                             <label class="block">
-                                <span class="text-xs font-semibold uppercase text-gray-400">Exotisches Gear erzwingen</span>
-                                <select id="forceExoticGear" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); updateSetAvailability();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700">
-                                    <option value="">— kein Exoten-Zwang —</option>
-                                </select>
+                                <span class="text-xs font-semibold uppercase text-gray-400">Gear fixieren (Mehrfachauswahl)</span>
+                                <select id="pinnedGearIds" multiple onchange="syncPinnedFromSelect('gear'); markPinnedStale();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700 h-28"></select>
                             </label>
                             <label class="block">
-                                <span class="text-xs font-semibold uppercase text-gray-400">Exotische Waffe erzwingen</span>
-                                <select id="forceExoticWeapon" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); updateSetAvailability();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700">
-                                    <option value="">— kein Exoten-Zwang —</option>
-                                </select>
+                                <span class="text-xs font-semibold uppercase text-gray-400">Waffe fixieren (Mehrfachauswahl)</span>
+                                <select id="pinnedWeaponIds" multiple onchange="syncPinnedFromSelect('weapon'); markPinnedStale();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700 h-28"></select>
                             </label>
                         </div>
-                        <p class="text-[11px] text-gray-400">Erzwingt ein bestimmtes exotisches Gear-Teil bzw. eine exotische Waffe in allen Vergleichs-Builds — so siehst du direkt, wie sich der Exot gegen die freie Optimierung schlägt. Die Waffen-Gattung wird bei erzwungener Waffe ignoriert.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <span class="text-xs font-semibold uppercase text-gray-400">Exoten abwählen (Gear)</span>
+                                <div id="disabledExoticGearWrap" class="flex flex-wrap gap-1"></div>
+                            </div>
+                            <div>
+                                <span class="text-xs font-semibold uppercase text-gray-400">Exoten abwählen (Waffen)</span>
+                                <div id="disabledExoticWeaponWrap" class="flex flex-wrap gap-1"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <p class="text-[11px] text-gray-400">Fixierte Teile/Waffen werden in jedem Vergleichs-Build verwendet (Striker-Max-Rolls, Lieblings-Exo, Named Items…). Abgewählte Exoten werden ignoriert.</p>
+                            <button type="button" onclick="clearPinned()" class="text-xs px-2 py-1 rounded-lg bg-zinc-800 border border-gray-700 text-gray-300 hover:bg-zinc-700 whitespace-nowrap">Fixierung zurücksetzen</button>
+                        </div>
                     </div>
                 </div>
 

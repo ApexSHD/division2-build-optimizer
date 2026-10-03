@@ -97,6 +97,13 @@ const setSelect = (id, value) => {
   el.dispatchEvent(new w.Event('change', { bubbles: true }));
   return true;
 };
+const pinSelect = (id, values) => {
+  const el = $(id);
+  if (!el) return false;
+  [...el.options].forEach(o => { o.selected = values.includes(o.value); });
+  el.dispatchEvent(new w.Event('change', { bubbles: true }));
+  return true;
+};
 const setInput = (id, value) => {
   const el = $(id);
   if (!el) return false;
@@ -278,29 +285,28 @@ const setInput = (id, value) => {
   w.eval(`gearInventory.push({ id: 999, slot: 'Maske', setName: "Coyote's Mask", chc: 6, chd: 12, wd: 15, namedKey: '', namedVal: 0 }); renderGearInventory()`);
 
   // Dropdowns vorhanden und gefüllt (Standard-Inventar enthält Exoten)
-  const feGear = $('forceExoticGear');
-  const feWeap = $('forceExoticWeapon');
-  t('Exoten-Zwang: Gear-Dropdown vorhanden', !!feGear);
-  t('Exoten-Zwang: Waffen-Dropdown vorhanden', !!feWeap);
-  const feGearOpts = feGear ? [...feGear.options].filter(o => o.value).length : 0;
-  const feWeapOpts = feWeap ? [...feWeap.options].filter(o => o.value).length : 0;
-  t('Exoten-Zwang: Gear-Dropdown listet Exoten aus dem Inventar', feGearOpts >= 1);
-  t('Exoten-Zwang: Waffen-Dropdown listet exotische Waffen', feWeapOpts >= 1);
-
-  // Erzwungene exotische Waffe: alle Ergebnisse nutzen genau diese Waffe
-  const firstExoticWeapon = feWeap ? ([...feWeap.options].find(o => o.value) || {}).value : '';
-  if (firstExoticWeapon) {
-    setSelect('forceExoticWeapon', firstExoticWeapon);
+  const pinGear = $('pinnedGearIds');
+  const pinWeap = $('pinnedWeaponIds');
+  t('Fixieren: Gear-Mehrfachauswahl vorhanden', !!pinGear);
+  t('Fixieren: Waffen-Mehrfachauswahl vorhanden', !!pinWeap);
+  t('Fixieren: Gear-Liste enthaelt Inventar-Teile', pinGear ? [...pinGear.options].length >= 1 : false);
+  t('Fixieren: Waffen-Liste enthaelt Inventar-Waffen', pinWeap ? [...pinWeap.options].length >= 1 : false);
+  t('Fixieren: Abwahl-Chips fuer Exoten-Gear gerendert', !!($('disabledExoticGearWrap')));
+  t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
+  const firstExoticOpt = pinWeap ? ([...pinWeap.options].find(o => o.textContent.includes('\u2605')) || {}) : {};
+  if (firstExoticOpt.value) {
+    pinSelect('pinnedWeaponIds', [firstExoticOpt.value]);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     const forcedResults = w.eval('lastComparisonData || []');
-    t('Exoten-Zwang: mit erzwungener Waffe liefern Ergebnisse', Array.isArray(forcedResults) && forcedResults.length > 0);
-    t('Exoten-Zwang: alle Ergebnisse nutzen die erzwungene Waffe', Array.isArray(forcedResults) && forcedResults.length > 0 && forcedResults.every(r => r.weapon && r.weapon.name === firstExoticWeapon));
-    setSelect('forceExoticWeapon', '');
+    const pinnedW = w.eval(`weaponsInventory.find(w => String(w.id) === '${firstExoticOpt.value}')`);
+    t('Fixieren: mit fixierter Waffe liefern Ergebnisse', Array.isArray(forcedResults) && forcedResults.length > 0);
+    t('Fixieren: alle Ergebnisse nutzen die fixierte Waffe', Array.isArray(forcedResults) && forcedResults.length > 0 && pinnedW && forcedResults.every(r => r.weapon && String(r.weapon.id) === String(pinnedW.id)));
+    pinSelect('pinnedWeaponIds', []);
   } else {
-    t('Exoten-Zwang: alle Ergebnisse nutzen die erzwungene Waffe', true);
+    t('Fixieren: mit fixierter Waffe liefern Ergebnisse', true);
+    t('Fixieren: alle Ergebnisse nutzen die fixierte Waffe', true);
   }
-
   // Exoten-Perk im Vorauswahl-Score: Coyote muss die Vorauswahl verdienen
   // überleben (Perk +10% CHC/+10% CHD schlägt gleiche Stats ohne Perk).
   const perkScore = w.eval(`
@@ -319,22 +325,23 @@ const setInput = (id, value) => {
   t('Exoten-Perk im Vorauswahl-Score: Coyote schlaegt Striker-Maske bei aktiven Perks', perkScore.on > perkScore.striker);
   const perkChk = $('exoticPerksActive'); if (perkChk) perkChk.checked = false;
 
-  // Erzwungenes exotisches Gear: alle Ergebnis-Builds enthalten den Exoten
-  const firstExoticGear = feGear ? ([...feGear.options].find(o => o.value) || {}).value : '';
-  if (firstExoticGear) {
-    setSelect('forceExoticGear', firstExoticGear);
+  // Fixiertes Gear: alle Ergebnis-Builds enthalten das gepinnte Teil
+  const picaroOpt = pinGear ? ([...pinGear.options].find(o => o.textContent.includes("Picaro's Holster")) || {}) : {};
+  if (picaroOpt.value) {
+    pinSelect('pinnedGearIds', [picaroOpt.value]);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     const forcedGearResults = w.eval('lastComparisonData || []');
-    t('Exoten-Zwang: mit erzwungenem Gear liefern Ergebnisse', Array.isArray(forcedGearResults) && forcedGearResults.length > 0);
-    t('Exoten-Zwang: alle Builds enthalten das erzwungene Exoten-Gear', Array.isArray(forcedGearResults) && forcedGearResults.length > 0 && forcedGearResults.every(r => r.build && r.build.some(i => i.setName === firstExoticGear)));
-    setSelect('forceExoticGear', '');
+    t('Fixieren: mit fixiertem Gear liefern Ergebnisse', Array.isArray(forcedGearResults) && forcedGearResults.length > 0);
+    t('Fixieren: alle Builds enthalten das fixierte Teil', Array.isArray(forcedGearResults) && forcedGearResults.length > 0 && forcedGearResults.every(r => r.build && r.build.some(i => i.setName === "Picaro's Holster")));
+    pinSelect('pinnedGearIds', []);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
   } else {
-    t('Exoten-Zwang: alle Builds enthalten das erzwungene Exoten-gear', true);
+    t('Fixieren: mit fixiertem Gear liefern Ergebnisse', true);
+    t('Fixieren: alle Builds enthalten das fixierte Teil', true);
   }
-  // ===== 4c. SPIELREGEL: MAX. 1 EXOT (Issue #44) =====
+  // ===== 4c// ===== 4c. SPIELREGEL: MAX. 1 EXOT (Issue #44) =====
   console.log('\n--- Spielregel: max. 1 Exot pro Build ---');
   // Zweit-Exot ins Inventar (Rucksack-Slot bleibt besetzt -> Kombination prinzipiell moeglich)
   w.eval(`gearInventory.push({ id: 998, slot: 'Rucksack', setName: 'Memento', chc: 0, chd: 0, wd: 15, namedKey: '', namedVal: 0 }); renderGearInventory()`);
@@ -345,12 +352,17 @@ const setInput = (id, value) => {
   const multiExo = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
   t('Spielregel: kein Build ohne Zwang mit mehr als 1 Exot', Array.isArray(freeResults) && freeResults.length > 0 && multiExo === 0);
   // Mit erzwungenem Exot gilt die Regel weiterhin
-  setSelect('forceExoticGear', firstExoticGear || '');
-  await w.eval('calculateCombinedComparison()');
-  await new Promise(r => setTimeout(r, 800));
-  const forcedMulti = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
-  t('Spielregel: kein Build mit erzwungenem Exot enthaelt einen Zweit-Exot', forcedMulti === 0);
-  setSelect('forceExoticGear', '');
+  const picaroOpt2 = pinGear ? ([...pinGear.options].find(o => o.textContent.includes("Picaro's Holster")) || {}) : {};
+  if (picaroOpt2.value) {
+    pinSelect('pinnedGearIds', [picaroOpt2.value]);
+    await w.eval('calculateCombinedComparison()');
+    await new Promise(r => setTimeout(r, 800));
+    const forcedMulti = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
+    t('Spielregel: kein Build mit fixiertem Named-Teil enthaelt einen Zweit-Exot', forcedMulti === 0);
+    pinSelect('pinnedGearIds', []);
+  } else {
+    t('Spielregel: kein Build mit fixiertem Named-Teil enthaelt einen Zweit-Exot', true);
+  }
   w.eval(`gearInventory = gearInventory.filter(i => i.id !== 998); renderGearInventory(); document.getElementById('require4pc').checked = true; updateSetAvailability();`);
 
 
@@ -945,7 +957,7 @@ const setInput = (id, value) => {
     // Pruefung ueber calculateWeaponWithBuild mit scharfschuetzen-Einstellung
     const specHsdCheck = w.eval(`(function () {
       const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, mods: {} };
-      const settings = { targetWeaponType: 'MMR', specialization: 'sharpshooter', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      const settings = { targetWeaponType: 'MMR', specialization: 'sharpshooter', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, pinnedWeapon: [] };
       // Zwei Laeufe: headshot 0 vs 100 -> mit sharpshooter muss der DPS bei 100 steigen
       document.getElementById('headshotShareInput').value = '0';
       const r0 = calculateWeaponWithBuild(fake, [], settings);
@@ -959,7 +971,7 @@ const setInput = (id, value) => {
     // Bodyshot-Modell: Bei headshot 0 darf HSD nichts aendern
     const neutralCheck = w.eval(`(function () {
       const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: 'hsd', core2Val: 50, minorType: null, minorVal: 0, type: 'AR', isExotic: false, mods: {} };
-      const settings = { targetWeaponType: 'MMR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      const settings = { targetWeaponType: 'MMR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, pinnedWeapon: [] };
       document.getElementById('headshotShareInput').value = '0';
       const base = calculateWeaponWithBuild(fake, [], settings).effectiveDPS;
       // Bei 0% Kopfschuss muss Kern2=hsd+50 den DPS nicht erhoehen
@@ -988,7 +1000,7 @@ const setInput = (id, value) => {
     // Integration im Hauptvergleich: Sadist zahlt nur mit Quelle bei talentsActive=false
     const dpsCheck = w.eval(`(function () {
       const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, talent: 'sadist', mods: {} };
-      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, pinnedWeapon: [] };
       const buildOhne = [{ slot: 'Maske', setName: 'Airaldi', talent: '' }];
       const buildMit = [{ slot: 'Weste', setName: 'Grupo Sombra', talent: 'trauma' }];
       const rOhne = calculateWeaponWithBuild(fake, buildOhne, settings);
@@ -1003,7 +1015,7 @@ const setInput = (id, value) => {
     // Schalter an: pauschale Annahme wie bisher (auch ohne Quelle)
     const dpsOn = w.eval(`(function () {
       const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, talent: 'sadist', mods: {} };
-      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, exoticPerksActive: false, forceExoticWeapon: '' };
+      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, exoticPerksActive: false, pinnedWeapon: [] };
       const r = calculateWeaponWithBuild(fake, [{ slot: 'Maske', setName: 'Airaldi', talent: '' }], settings);
       return r.talentInfo.active;
     })()`);
