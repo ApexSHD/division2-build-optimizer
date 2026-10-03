@@ -382,7 +382,39 @@
             const sig = (typeof gearAttrSig === 'function') ? gearAttrSig(item) : '';
             const last = sig ? sig.split('|').pop() : '';
             if (last) attrs.push(last);
-            return attrs.length ? `${base} — ${attrs.join(', ')}` : base;
+            const god = (typeof isGearGodRoll === 'function') && isGearGodRoll(item);
+            const suffix = god ? ' — ★ God-Roll' : '';
+            return attrs.length ? `${base} — ${attrs.join(', ')}${suffix}` : `${base}${suffix}`;
+        }
+        // #108 D: God-Roll-Erkennung für Inventar-Teile (ohne Formular-Kontext).
+        // Kern auf Max (WD 15 / Rüstung 170k / Skill 1; Prototyp ×1,5) und
+        // jedes Attribut auf seinem Max (GEAR_ATTR_TYPES bzw. fixer DB-Wert
+        // bei Named/Exoten). Unbekannte Maxima (null) disqualifizieren nicht.
+        function isGearGodRoll(item) {
+            if (!item) return false;
+            const proto = !!item.proto;
+            const coreType = (typeof gearCoreTypeOf === 'function') ? gearCoreTypeOf(item) : (item.coreType || 'wd');
+            const coreVal = item.coreVal != null ? item.coreVal : (coreType === 'wd' ? (item.wd || 0) : 0);
+            let coreOk = false;
+            if (coreType === 'wd') coreOk = coreVal >= (proto ? 22.5 : 15) - 1e-9;
+            else if (coreType === 'armour') coreOk = coreVal >= (proto ? 255000 : 170000) - 1e-9;
+            else if (coreType === 'skill') coreOk = coreVal >= (proto ? 1.5 : 1) - 1e-9;
+            else coreOk = true;
+            if (!coreOk) return false;
+            const dbE = (typeof GEAR_DB !== 'undefined') ? GEAR_DB[item.setName] : null;
+            const fixedMap = {};
+            (dbE && dbE.fixed || []).forEach(f => { fixedMap[f[0]] = f[1]; });
+            const attrs = (typeof gearItemAttrs === 'function') ? gearItemAttrs(item) : [];
+            return attrs.every(a => {
+                let max = null;
+                if (fixedMap[a.type] != null) max = fixedMap[a.type];
+                else {
+                    const cfg = (typeof GEAR_ATTR_TYPES !== 'undefined') ? GEAR_ATTR_TYPES[a.type] : null;
+                    if (cfg && cfg.max !== null) max = cfg.max;
+                }
+                if (max === null) return true;
+                return a.val >= max - 1e-9;
+            });
         }
         function syncPinnedFromSelect(kind) {
             const sel = document.getElementById(kind === 'gear' ? 'pinnedGearIds' : 'pinnedWeaponIds');
@@ -417,7 +449,7 @@
                     return true;
                 });
                 gearSel.innerHTML = items.map(i =>
-                    `<option value="${escapeHtml(String(i.id))}"${(pinnedGearIds.has(String(i.id)) || prev.has(String(i.id))) ? ' selected' : ''}>${escapeHtml(pinnedGearLabel(i))}</option>`
+                    `<option value="${escapeHtml(String(i.id))}"${(pinnedGearIds.has(String(i.id)) || prev.has(String(i.id))) ? ' selected' : ''}${isGearGodRoll(i) ? ' style="color:#fbbf24;font-weight:600"' : ''}>${escapeHtml(pinnedGearLabel(i))}</option>`
                 ).join('');
                 syncPinnedFromSelect('gear');
             }
