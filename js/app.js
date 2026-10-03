@@ -409,6 +409,21 @@
             if (isGreenGearName(name)) return 1;
             return 2;
         }
+        // Prototyp-Flag fuer die God-Roll-Pruefung: explizites item.proto hat
+        // Vorrang; fehlt es, wird es aus ueber-High-End-Max liegenden Werten
+        // rekonstruiert (Kern WD > 15 bzw. Minor > GEAR_ATTR_TYPES.max).
+        function gearProtoRollFlag(item) {
+            if (!item) return false;
+            if (item.proto != null) return !!item.proto;
+            const coreType = (typeof gearCoreTypeOf === 'function') ? gearCoreTypeOf(item) : (item.coreType || 'wd');
+            const coreVal = item.coreVal != null ? item.coreVal : (coreType === 'wd' ? (item.wd || 0) : 0);
+            if (coreType === 'wd' && coreVal > GEAR_CORE_WD_MAX + 1e-9) return true;
+            const attrs = (typeof gearItemAttrs === 'function') ? gearItemAttrs(item) : [];
+            return attrs.some(a => {
+                const cfg = (typeof GEAR_ATTR_TYPES !== 'undefined') ? GEAR_ATTR_TYPES[a.type] : null;
+                return cfg && cfg.max != null && a.val > cfg.max + 1e-9;
+            });
+        }
         // True, wenn der setName zu einem grünen Gear-Set gehört (Named/Exotic
         // aus der DB werden vorher separat behandelt).
         function isGreenGearName(name) {
@@ -418,7 +433,13 @@
         }
         function isGearGodRoll(item) {
             if (!item) return false;
-            const proto = !!item.proto;
+            // Konsistenz-Check wie beim CSV-Import: Liegt ein Wert über dem
+            // High-End-Maximum, ist es ein Prototyp-Roll (x1,5). Ein Teil mit
+            // Proto-Werten, aber fehlendem proto-Flag (z.B. alter Import oder
+            // nachtraeglich entfernter Haken), wird wie ein Prototyp geprueft -
+            // gegen die Proto-Maxima. Umgekehrt ist ein als Prototyp markiertes
+            // Teil mit reinen High-End-Werten kein God-Roll.
+            const proto = gearProtoRollFlag(item);
             const coreType = (typeof gearCoreTypeOf === 'function') ? gearCoreTypeOf(item) : (item.coreType || 'wd');
             const coreVal = item.coreVal != null ? item.coreVal : (coreType === 'wd' ? (item.wd || 0) : 0);
             let coreOk = false;
