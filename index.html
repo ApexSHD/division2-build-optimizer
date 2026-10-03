@@ -876,17 +876,16 @@
                         </div>
                         <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt / 0 % Kopfschüsse (HSD neutral).</p>
                     </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1">
-                            <label class="block">
-                                <span class="text-xs font-semibold uppercase text-gray-400">Gear fixieren (Mehrfachauswahl) <span class="normal-case font-normal text-amber-400">★ = God-Roll (alle vorgesehenen Attribute erfasst u. auf Max)</span></span>
-                                <input type="text" id="pinnedGearSearch" oninput="filterPinnedGearOptions()" placeholder="Gear suchen (Name, Slot, Attribut)…" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700 mb-1" aria-label="Fixierbares Gear durchsuchen">
-                                <div id="pinnedGearChips" class="flex flex-wrap gap-1 mb-1"></div>
-                                <select id="pinnedGearIds" multiple onchange="syncPinnedFromSelect('gear'); markPinnedStale();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700 h-28"></select>
-                            </label>
-                            <label class="block">
-                                <span class="text-xs font-semibold uppercase text-gray-400">Waffe fixieren (Mehrfachauswahl)</span>
-                                <select id="pinnedWeaponIds" multiple onchange="syncPinnedFromSelect('weapon'); markPinnedStale();" class="w-full p-2 rounded-lg text-sm bg-zinc-800 border border-gray-700 h-28"></select>
-                            </label>
+                        <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                            <div class="flex items-center justify-between flex-wrap gap-1">
+                                <span class="text-xs font-semibold uppercase text-gray-400">Gear fixieren <span class="normal-case font-normal text-amber-400">★ = God-Roll (alle vorgesehenen Attribute erfasst u. auf Max)</span></span>
+                            </div>
+                            <div id="pinnedSlotTiles" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2"></div>
+                            <div id="pinnedSetCounter"></div>
+                        </div>
+                        <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                            <span class="text-xs font-semibold uppercase text-gray-400">Waffen fixieren <span class="normal-case font-normal text-gray-500">(Klick zum An-/Abwählen)</span></span>
+                            <div id="pinnedWeaponCards" class="flex flex-wrap gap-1"></div>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div>
@@ -899,7 +898,7 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between pt-1">
-                            <p class="text-[11px] text-gray-400">Fixierte Teile/Waffen sind in <strong>jedem</strong> Ergebnis-Build enthalten (Striker-Max-Rolls, Lieblings-Exo, Named Items…) — optimale Ergänzung wird drum herum berechnet. Ausgewählte erscheinen als Chips darüber (× entfernt die Fixierung, rote Chips = Slot-Konflikt). Abgewählte Exoten werden ignoriert.</p>
+                            <p class="text-[11px] text-gray-400">Fixierte Teile/Waffen sind in <strong>jedem</strong> Ergebnis-Build enthalten (Striker-Max-Rolls, Lieblings-Exo, Named Items…) — optimale Ergänzung wird drum herum berechnet. Pro Slot-Kachel ist genau ein Teil fixierbar (✕ entfernt die Fixierung). Abgewählte Exoten werden ignoriert.</p>
                             <button type="button" onclick="clearPinned()" class="text-xs px-2 py-1 rounded-lg bg-zinc-800 border border-gray-700 text-gray-300 hover:bg-zinc-700 whitespace-nowrap">Fixierung zurücksetzen</button>
                         </div>
                     </div>

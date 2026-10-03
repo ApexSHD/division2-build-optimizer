@@ -284,69 +284,96 @@ const setInput = (id, value) => {
   // Exoten-Gear ins Test-Inventar legen (Standard-Setup enthält keins)
   w.eval(`gearInventory.push({ id: 999, slot: 'Maske', setName: "Coyote's Mask", chc: 6, chd: 12, wd: 15, namedKey: '', namedVal: 0 }); renderGearInventory()`);
 
-  // Dropdowns vorhanden und gefüllt (Standard-Inventar enthält Exoten)
-  const pinGear = $('pinnedGearIds');
-  const pinWeap = $('pinnedWeaponIds');
-  t('Fixieren: Gear-Mehrfachauswahl vorhanden', !!pinGear);
-  t('Fixieren: Waffen-Mehrfachauswahl vorhanden', !!pinWeap);
-  t('Fixieren: Gear-Liste enthaelt Inventar-Teile', pinGear ? [...pinGear.options].length >= 1 : false);
-  // Grüne Fremdset-Teile werden ausgefiltert, passende bleiben (Ziel-Set: Striker)
+  // Slot-Kacheln (#120): 6 feste Slots statt native Mehrfachauswahl
+  const tilesWrap = $('pinnedSlotTiles');
+  t('Fixieren: Slot-Kachel-Raster vorhanden', !!tilesWrap);
+  t('Fixieren: 6 Slot-Kacheln gerendert', tilesWrap ? tilesWrap.children.length === 6 : false);
+  t('Fixieren: Kachel-Reihenfolge entspricht Loadout (Maske bis Knieschoner)', tilesWrap ? [...tilesWrap.children].every((c, idx, arr) => c.id === 'pinSlot-' + ['Maske','Weste','Rucksack','Handschuhe','Holster','Knieschoner'][idx]) : false);
+  t('Fixieren: Waffen-Karten-Wrapper vorhanden', !!$('pinnedWeaponCards'));
+  const weaponCards = w.eval(`document.getElementById('pinnedWeaponCards').children.length`);
+  t('Fixieren: Waffen-Karten enthalten Inventar-Waffen', weaponCards >= 1);
+  // Grüne Fremdset-Teile werden im Slot-Picker ausgefiltert, passende bleiben (Ziel-Set: Striker)
   w.eval(`gearInventory.push({ id: 1001, slot: 'Maske', setName: 'Eclipse Protocol', wd: 15, chc: 6, namedKey: '', namedVal: 0 }); renderGearInventory(); updateForceExoticOptions()`);
-  const beforeCount = pinGear ? [...pinGear.options].length : 0;
-  t('Fixieren: Eclipse-Teil bei Striker-Ziel nicht im Dropdown', pinGear ? ![...pinGear.options].some(o => o.textContent.includes('Eclipse')) : false);
-  t('Fixieren: Striker-Teil bleibt bei Striker-Ziel im Dropdown', pinGear ? [...pinGear.options].some(o => o.textContent.includes('Striker')) : false);
   const eclipseCheck = w.eval(`(function(){
     const saved = document.getElementById('targetGreenSet').value;
+    const candidatesStriker = pinSlotCandidates('Maske').map(i => i.setName);
     document.getElementById('targetGreenSet').value = 'eclipse';
     updateForceExoticOptions();
-    const hasEclipse = [...document.getElementById('pinnedGearIds').options].some(o => o.textContent.includes('Eclipse'));
-    const hasStriker = [...document.getElementById('pinnedGearIds').options].some(o => o.textContent.includes('Striker'));
+    const candidatesEclipse = pinSlotCandidates('Maske').map(i => i.setName);
     document.getElementById('targetGreenSet').value = saved;
     updateForceExoticOptions();
-    return { hasEclipse, hasStriker };
+    return { hasEclipseInStriker: candidatesStriker.includes('Eclipse Protocol'),
+             hasStrikerInStriker: candidatesStriker.includes('Striker'),
+             hasEclipseInEclipse: candidatesEclipse.includes('Eclipse Protocol'),
+             hasStrikerInEclipse: candidatesEclipse.includes('Striker') };
   })()`);
-  t('Fixieren: Eclipse-Teil erscheint bei Eclipse-Ziel', eclipseCheck.hasEclipse === true);
-  t('Fixieren: Striker-Teil verschwindet bei Eclipse-Ziel', eclipseCheck.hasStriker === false);
-  // Usability: Chips, Slot-Gruppierung, Suchfeld, Konflikt-Markierung
+  t('Fixieren: Eclipse-Teil bei Striker-Ziel nicht im Slot-Picker', eclipseCheck.hasEclipseInStriker === false);
+  t('Fixieren: Striker-Teil bleibt bei Striker-Ziel im Slot-Picker', eclipseCheck.hasStrikerInStriker === true);
+  t('Fixieren: Eclipse-Teil erscheint bei Eclipse-Ziel', eclipseCheck.hasEclipseInEclipse === true);
+  t('Fixieren: Striker-Teil verschwindet bei Eclipse-Ziel', eclipseCheck.hasStrikerInEclipse === false);
+  // Kachel-Interaktion: Pin über selectPinnedGearItem, zweiter Pin im selben Slot ersetzt den ersten
   const pinUi = w.eval(`(function(){
     const out = {};
-    out.hasSearch = !!document.getElementById('pinnedGearSearch');
-    out.hasChipsWrap = !!document.getElementById('pinnedGearChips');
-    out.grouped = [...document.getElementById('pinnedGearIds').querySelectorAll('optgroup')].map(g => g.label);
-    // Zwei Maske-Teile fixieren -> Slot-Konflikt, Chip rot
     const strikerMask = gearInventory.find(i => i.setName === 'Striker' && i.slot === 'Maske');
     const coyote = gearInventory.find(i => i.setName === "Coyote's Mask");
     pinnedGearIds.clear();
-    pinnedGearIds.add(String(strikerMask.id));
-    if (coyote) pinnedGearIds.add(String(coyote.id));
-    renderPinnedGearChips();
-    const chips = [...document.getElementById('pinnedGearChips').children];
-    out.chipCount = chips.length;
-    out.conflictChips = chips.filter(c => c.className.includes('red')).length;
-    // x-Button entfernt Fixierung
-    removePinnedGearItem(String(strikerMask.id));
-    out.afterRemove = pinnedGearIds.size;
-    out.chipsAfterRemove = document.getElementById('pinnedGearChips').children.length;
-    // Suchfeld filtert
-    document.getElementById('pinnedGearSearch').value = 'ceska';
-    filterPinnedGearOptions();
-    const opts = [...document.getElementById('pinnedGearIds').querySelectorAll('option')];
-    out.visibleOptTexts = opts.filter(o => !o.hidden).map(o => o.textContent);
-    document.getElementById('pinnedGearSearch').value = '';
-    filterPinnedGearOptions();
+    selectPinnedGearItem(String(strikerMask.id));
+    out.tileAfterPin = document.getElementById('pinSlot-Maske').textContent.includes('Striker');
+    out.godMark = document.getElementById('pinSlot-Maske').textContent.includes('\u2605');
+    // Coyote in denselben Slot pinnen -> ersetzt Striker (kein Konflikt mehr)
+    if (coyote) selectPinnedGearItem(String(coyote.id));
+    out.replaced = pinnedGearIds.size === 1 && [...pinnedGearIds][0] === String(coyote.id);
+    out.tileAfterReplace = document.getElementById('pinSlot-Maske').textContent.includes("Coyote's Mask");
+    // Slot-Picker oeffnet nur Teile dieses Slots
+    openPinSlotPicker('Weste');
+    const picker = document.getElementById('pinSlotPicker');
+    out.pickerOpen = !!picker;
+    out.pickerOnlyWeste = picker ? [...picker.querySelectorAll('[data-id]')].length > 0 && [...picker.querySelectorAll('[data-id]')].every(b => gearInventory.find(i => String(i.id) === b.dataset.id).slot === 'Weste') : false;
+    // Suchfeld im Picker filtert
+    if (picker) {
+      picker.querySelector('#pinSlotPickerSearch').value = 'striker';
+      filterPinSlotPickerOptions();
+      const vis = [...picker.querySelectorAll('[data-label]')].filter(b => b.style.display !== 'none').map(b => b.textContent);
+      out.pickerFilterHits = vis.length > 0 && vis.every(t => t.toLowerCase().includes('striker'));
+      closePinSlotPicker();
+    }
+    // Per-Slot-Reset ueber Kachel
+    removePinnedGearItemBySlot('Maske');
+    out.afterSlotReset = pinnedGearIds.size === 0 && !document.getElementById('pinSlot-Maske').textContent.includes("Coyote's Mask");
+    // Live-Feedback: Set-Zaehler
+    selectPinnedGearItem(String(strikerMask.id));
+    const strikerGloves = gearInventory.find(i => i.setName === 'Striker' && i.slot === 'Handschuhe');
+    if (strikerGloves) selectPinnedGearItem(String(strikerGloves.id));
+    out.counterText = document.getElementById('pinnedSetCounter').textContent;
     pinnedGearIds.clear();
-    syncPinnedFromSelect('gear');
-    renderPinnedGearChips();
+    renderPinnedUI();
     return out;
   })()`);
-  t('Fixieren: Suchfeld vorhanden', pinUi.hasSearch === true);
-  t('Fixieren: Chips-Wrapper vorhanden', pinUi.hasChipsWrap === true);
-  t('Fixieren: Dropdown nach Slots gruppiert', Array.isArray(pinUi.grouped) && pinUi.grouped.includes('Maske'));
-  t('Fixieren: fixierte Teile als Chips gerendert', pinUi.chipCount === 2);
-  t('Fixieren: Slot-Konflikt als roter Chip markiert', pinUi.conflictChips === 2);
-  t('Fixieren: x-Button entfernt Fixierung', pinUi.afterRemove === 1 && pinUi.chipsAfterRemove === 1);
-  t('Fixieren: Suchfeld filtert Optionen (Ceska)', JSON.stringify(pinUi.visibleOptTexts).includes('Ceska') && !JSON.stringify(pinUi.visibleOptTexts).includes('Striker'));
-  t('Fixieren: Waffen-Liste enthaelt Inventar-Waffen', pinWeap ? [...pinWeap.options].length >= 1 : false);
+  t('Fixieren: Pin zeigt Teil in der Slot-Kachel', pinUi.tileAfterPin === true);
+  t('Fixieren: God-Roll in Kachel markiert (★)', pinUi.godMark === true);
+  t('Fixieren: zweiter Pin im selben Slot ersetzt den ersten (kein Slot-Konflikt mehr)', pinUi.replaced === true && pinUi.tileAfterReplace === true);
+  t('Fixieren: Slot-Picker oeffnet und zeigt nur Teile dieses Slots', pinUi.pickerOpen === true && pinUi.pickerOnlyWeste === true);
+  t('Fixieren: Suche im Slot-Picker filtert (Striker)', pinUi.pickerFilterHits === true);
+  t('Fixieren: Per-Slot-Reset leert die Kachel', pinUi.afterSlotReset === true);
+  t('Fixieren: Set-Zaehler zeigt Striker 2/6', (pinUi.counterText || '').includes('Striker 2/6'));
+  // Warnhinweis: fixierte Nicht-Set-Weste + Westen-Zwang
+  const pinWarn = w.eval(`(function(){
+    pinnedGearIds.clear();
+    let ceska = gearInventory.find(i => i.setName === 'Ceska' && i.slot === 'Weste');
+    if (!ceska) {
+      ceska = { id: 1002, slot: 'Weste', setName: 'Ceska', wd: 15, chc: 6, chd: 12, namedKey: '', namedVal: 0 };
+      gearInventory.push(ceska);
+      renderGearInventory();
+    }
+    selectPinnedGearItem(String(ceska.id));
+    const warn = document.getElementById('pinnedSetCounter').textContent;
+    pinnedGearIds.clear();
+    gearInventory = gearInventory.filter(i => i.id !== 1002);
+    renderGearInventory();
+    renderPinnedUI();
+    return warn;
+  })()`);
+  t('Fixieren: Warnung bei fixierter Nicht-Set-Weste + Westen-Zwang', (pinWarn || '').includes('Weste'));
   t('Fixieren: Abwahl-Chips fuer Exoten-Gear gerendert', !!($('disabledExoticGearWrap')));
   // God-Roll-Kennzeichnung: Striker-Standardteile (wd 15, chc 6, chd 12) sind Max-Rolls
   const godCheck = w.eval(`(function(){
@@ -405,20 +432,32 @@ const setInput = (id, value) => {
   t('Fixieren: Proto-Werte ohne Flag rekonstruiert (WD 22,5 + CHC 9 + CHD 18 = God-Roll)', protoFlagCheck.noFlagFull === true);
   t('Fixieren: Green-Teil ohne Flag mit Proto-Max-Minor (WD 22,5 + CHC 9) = God-Roll', protoFlagCheck.noFlagLow === true);
   t('Fixieren: proto-Flag mit High-End-Werten = kein God-Roll (WD 15 + CHC 6)', protoFlagCheck.flagLow === false);
-  const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
-  t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
-  t('Fixieren: Kernattribut im Dropdown-Label sichtbar (Waffenschaden 15)', godOption.textContent ? godOption.textContent.includes('Waffenschaden 15') : false);
+  const godOption = w.eval(`(function(){
+    const strikerMask = gearInventory.find(i => i.setName === 'Striker' && i.slot === 'Maske');
+    if (!strikerMask) return {};
+    pinnedGearIds.clear();
+    selectPinnedGearItem(String(strikerMask.id));
+    const tile = document.getElementById('pinSlot-Maske').textContent;
+    pinnedGearIds.clear();
+    renderPinnedUI();
+    return { label: pinnedGearLabel(strikerMask), tile };
+  })()`);
+  t('Fixieren: God-Roll-Teil in Slot-Kachel mit Kennzeichnung', (godOption.tile || '').includes('\u2605'));
+  t('Fixieren: Kernattribut im Kachel-Label sichtbar (+15%)', (godOption.tile || '').includes('+15%'));
   t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
-  const firstExoticOpt = pinWeap ? ([...pinWeap.options].find(o => o.textContent.includes('\u2605')) || {}) : {};
-  if (firstExoticOpt.value) {
-    pinSelect('pinnedWeaponIds', [firstExoticOpt.value]);
+  const firstExoticWeaponId = w.eval(`(function(){
+    const w = weaponsInventory.find(w => w.isExotic);
+    return w ? String(w.id) : '';
+  })()`);
+  if (firstExoticWeaponId) {
+    w.eval(`togglePinnedWeapon('${firstExoticWeaponId}')`);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     const forcedResults = w.eval('lastComparisonData || []');
-    const pinnedW = w.eval(`weaponsInventory.find(w => String(w.id) === '${firstExoticOpt.value}')`);
+    const pinnedW = w.eval(`weaponsInventory.find(w => String(w.id) === '${firstExoticWeaponId}')`);
     t('Fixieren: mit fixierter Waffe liefern Ergebnisse', Array.isArray(forcedResults) && forcedResults.length > 0);
     t('Fixieren: alle Ergebnisse nutzen die fixierte Waffe', Array.isArray(forcedResults) && forcedResults.length > 0 && pinnedW && forcedResults.every(r => r.weapon && String(r.weapon.id) === String(pinnedW.id)));
-    pinSelect('pinnedWeaponIds', []);
+    w.eval(`togglePinnedWeapon('${firstExoticWeaponId}')`);
   } else {
     t('Fixieren: mit fixierter Waffe liefern Ergebnisse', true);
     t('Fixieren: alle Ergebnisse nutzen die fixierte Waffe', true);
@@ -442,15 +481,18 @@ const setInput = (id, value) => {
   const perkChk = $('exoticPerksActive'); if (perkChk) perkChk.checked = false;
 
   // Fixiertes Gear: alle Ergebnis-Builds enthalten das gepinnte Teil
-  const picaroOpt = pinGear ? ([...pinGear.options].find(o => o.textContent.includes("Picaro's Holster")) || {}) : {};
-  if (picaroOpt.value) {
-    pinSelect('pinnedGearIds', [picaroOpt.value]);
+  const picaroId = w.eval(`(function(){
+    const i = gearInventory.find(i => i.setName === "Picaro's Holster");
+    return i ? String(i.id) : '';
+  })()`);
+  if (picaroId) {
+    w.eval(`selectPinnedGearItem('${picaroId}')`);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     const forcedGearResults = w.eval('lastComparisonData || []');
     t('Fixieren: mit fixiertem Gear liefern Ergebnisse', Array.isArray(forcedGearResults) && forcedGearResults.length > 0);
     t('Fixieren: alle Builds enthalten das fixierte Teil', Array.isArray(forcedGearResults) && forcedGearResults.length > 0 && forcedGearResults.every(r => r.build && r.build.some(i => i.setName === "Picaro's Holster")));
-    pinSelect('pinnedGearIds', []);
+    w.eval(`removePinnedGearItem('${picaroId}')`);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
   } else {
@@ -468,14 +510,17 @@ const setInput = (id, value) => {
   const multiExo = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
   t('Spielregel: kein Build ohne Zwang mit mehr als 1 Exot', Array.isArray(freeResults) && freeResults.length > 0 && multiExo === 0);
   // Mit erzwungenem Exot gilt die Regel weiterhin
-  const picaroOpt2 = pinGear ? ([...pinGear.options].find(o => o.textContent.includes("Picaro's Holster")) || {}) : {};
-  if (picaroOpt2.value) {
-    pinSelect('pinnedGearIds', [picaroOpt2.value]);
+  const picaroId2 = w.eval(`(function(){
+    const i = gearInventory.find(i => i.setName === "Picaro's Holster");
+    return i ? String(i.id) : '';
+  })()`);
+  if (picaroId2) {
+    w.eval(`selectPinnedGearItem('${picaroId2}')`);
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     const forcedMulti = w.eval(`(() => (lastComparisonData || []).filter(r => r.build.filter(i => isExoticGearName(i.setName)).length > 1).length)()`);
     t('Spielregel: kein Build mit fixiertem Named-Teil enthaelt einen Zweit-Exot', forcedMulti === 0);
-    pinSelect('pinnedGearIds', []);
+    w.eval(`removePinnedGearItem('${picaroId2}')`);
   } else {
     t('Spielregel: kein Build mit fixiertem Named-Teil enthaelt einen Zweit-Exot', true);
   }
