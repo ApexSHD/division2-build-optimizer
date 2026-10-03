@@ -6675,13 +6675,12 @@ function prefilterItemScore(item, targetWeaponType) {
                 const frags = (binfo && Array.isArray(binfo.fragments)) ? binfo.fragments : [];
                 if (!frags.length) return;
                 BIS_SLOT_ORDER.forEach(slot => {
-                    const frag = frags[0];
-                    if (!frag) return;
-                    const type = String(frag).toLowerCase();
-                    const attrType = (type === 'wd') ? 'wd' : (GEAR_ATTR_TYPES[type] ? type : 'chc');
                     [false, true].forEach(isProto => {
-                        const max = bisAttrMax(attrType, isProto);
-                        items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', [{ type: attrType, val: max != null ? max : 6 }], isProto));
+                        const attrs = [
+                            { type: 'chc', val: bisAttrMax('chc', isProto) },
+                            { type: 'chd', val: bisAttrMax('chd', isProto) }
+                        ];
+                        items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', attrs, isProto));
                     });
                 });
             });
