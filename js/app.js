@@ -6665,21 +6665,30 @@ function prefilterItemScore(item, targetWeaponType) {
             Object.entries(GEAR_DB).forEach(([name, e]) => {
                 if (!e || !e.slot || BIS_SLOT_ORDER.indexOf(e.slot) < 0) return;
                 const proto = !!e.proto;
-                const mkAttrs = (isProto) => {
+                const mkAttrs = (isProto, freeType) => {
                     const fixed = (e.fixed || []).map(([type, val]) => ({ type, val: val * (isProto ? GEAR_PROTO_FACTOR : 1) }));
                     const free = e.free || 0;
                     const attrs = [...fixed];
                     for (let f = 0; f < free; f++) {
-                        const max = bisAttrMax('chc', isProto);
-                        if (max != null) attrs.push({ type: 'chc', val: max });
+                        const max = bisAttrMax(freeType || 'chc', isProto);
+                        if (max != null) attrs.push({ type: freeType || 'chc', val: max });
                     }
                     return attrs;
                 };
+                const freeCount = e.free || 0;
                 items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(proto), proto));
+                // Freie Roll-Slots alternativ als CHD statt CHC: Bei CHC ueber
+                // dem 60%-Cap ist Kritschaden optimal — der Optimierer waehlt.
+                if (freeCount > 0) {
+                    items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(proto, 'chd'), proto));
+                }
                 // Prototyp-Variante (x1,5): nur fuer Nicht-Exoten sinnvoll —
                 // Exoten haben fixe Werte ohne Prototyp-Bonus.
                 if (e.cls !== 'exotic' && !proto) {
                     items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(true), true));
+                    if (freeCount > 0) {
+                        items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(true, 'chd'), true));
+                    }
                 }
             });
             // 2) Green-Set-Teile des Ziel-Sets (alle 6 Slots; als Prototyp x1,5)
@@ -6687,7 +6696,9 @@ function prefilterItemScore(item, targetWeaponType) {
             if (greenInfo) {
                 BIS_SLOT_ORDER.forEach(slot => {
                     items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', false) }], false));
+                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chd', val: bisAttrMax('chd', false) }], false));
                     items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', true) }], true));
+                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chd', val: bisAttrMax('chd', true) }], true));
                 });
             }
             // 3) Marken-Fragmente je Slot (Brand-Sets mit WD-/CHC-/CHD-Fragmenten;
@@ -6787,13 +6798,15 @@ function prefilterItemScore(item, targetWeaponType) {
                             <p class="text-xs text-gray-400 mt-1">Ø Schuss: ${formatGermanNumber(Math.round(best.avgDmg))} · Effektiver DPS: <strong class="text-emerald-400">${formatGermanNumber(Math.round(best.effectiveDPS))}</strong></p>
                             <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-gray-300 mt-2">
                                 <p>WD: <strong>+${formatGermanNumber(Math.round(best.totalWd * 10) / 10)}%</strong></p>
-                                <p>CHC: <strong>${formatGermanNumber(Math.min(Math.round(best.finalChc * 10) / 10, 60))}%</strong>${best.finalChc > 60 ? ' <span class="text-amber-400" title="Cap 60% erreicht — überschüssige CHC wirken nicht">(cap: ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '%)</span>' : ''}</p>
+                                <p>CHC: <strong>${formatGermanNumber(Math.min(Math.round(best.finalChc * 10) / 10, 60))}%</strong>${best.finalChc > 60 ? ' <span class="text-amber-400" title="Die rollbare Kritchance wäre ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '% — über dem Cap. Alles über 60% CHC wirkt NICHT; der Überschuss wäre verschenkt.">(CHC über Cap: ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '% rollbar, wirksam nur 60%)</span>' : ''}</p>
                                 <p>CHD: <strong>+${formatGermanNumber(Math.round(best.finalChd * 10) / 10)}%</strong></p>
                                 <p>DTA: <strong>+${formatGermanNumber(Math.round((best.dtaBonus || 0) * 10) / 10)}%</strong></p>
                                 <p>DTToOC: <strong>+${formatGermanNumber(Math.round((best.dttoocBonus || 0) * 10) / 10)}%</strong></p>
                                 <p>DTH: <strong>+${formatGermanNumber(Math.round((best.dthBonus || 0) * 10) / 10)}%</strong></p>
                             </div>
-                            ${ownDps ? (() => { const gapRounded = Math.round(gap * 10) / 10; const gapTxt = gap >= 0 ? `+${formatGermanNumber(gapRounded)}%` : `${formatGermanNumber(gapRounded)}%`; const gapPhrase = gap >= 0 ? `Differenz: <strong class="text-amber-400">${gapTxt}</strong>` : `dein Build liegt <strong class="text-amber-400">${formatGermanNumber(Math.abs(gapRounded))}%</strong> über dem theoretischen Optimum (BiS priorisiert Kritchance; deine Kritschaden-lastigen Rollen können lokal besser sein)`; return `<p class="text-xs text-gray-400 mt-2">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — ${gapPhrase}</p>`; })() : ''}
+                            <p class="text-xs text-gray-400 mt-2">🔧 Gear-Mod-Plätze: ${(best.mods && best.mods.chcCount) || 0}× Kritische Trefferchance (+6%) und ${(best.mods && best.mods.chdCount) || 0}× Kritischer Trefferschaden (+12%)</p>
+                            <p class="text-[10px] text-gray-500">Waffen-Mods: aus deiner besten Waffe (Visier/Mündung/Unterlauf/Magazin, s. Detailansicht)</p>
+                            ${ownDps ? (() => { const gapRounded = Math.round(gap * 10) / 10; const gapTxt = gap >= 0 ? `+${formatGermanNumber(gapRounded)}%` : `${formatGermanNumber(gapRounded)}%`; const gapPhrase = gap >= 0 ? `Differenz: <strong class="text-amber-400">${gapTxt}</strong>` : `dein Build liegt <strong class="text-amber-400">${formatGermanNumber(Math.abs(gapRounded))}%</strong> über dem BiS-Vorschlag — bei rollbarer CHC über dem 60%-Cap können deine Kritschaden-lastigen Rollen dem theoretischen Optimum voraus sein`; return `<p class="text-xs text-gray-400 mt-2">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — ${gapPhrase}</p>`; })() : ''}
                             <p class="text-xs text-gray-400 mt-1">${setChips}</p>
                         </div>
                     </div>

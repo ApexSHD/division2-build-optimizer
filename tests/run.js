@@ -1238,6 +1238,18 @@ const setInput = (id, value) => {
   t('BiS: Prototyp-Waffen-Variante verfuegbar (Nicht-Exotin)', bis.protoWeaponOk === true);
   t('BiS: Marken-Teile mit 2 Minor-Attributen (CHC+CHD)', bis.brandMinorOk === true);
   t('BiS: Marken-Prototyp-Varianten mit x1,5 CHD (18)', bis.brandProtoOk === true);
+  // Freie Roll-Slots muessen auch als CHD-Variante vorliegen, damit der
+  // Optimierer bei CHC ueber dem 60%-Cap auf Kritschaden ausweichen kann.
+  const bisChdVariants = w.eval(`(function () {
+    const synth = bisGearItemsForDb('striker');
+    const withFree = synth.filter(i => (GEAR_DB[i.setName] && (GEAR_DB[i.setName].free || 0) > 0));
+    const chdVariant = withFree.filter(i => (i.attrs || []).some(a => a.type === 'chd') && (i.attrs || []).every(a => a.type !== 'chc' || (GEAR_DB[i.setName].fixed || []).some(f => f[0] === 'chc')));
+    const green = synth.filter(i => i.cls === 'green');
+    const greenChd = green.filter(i => (i.attrs || []).length === 1 && i.attrs[0].type === 'chd');
+    return { freeOk: withFree.length === 0 || chdVariant.length > 0, greenOk: green.length > 0 && greenChd.length > 0, greenChdCount: greenChd.length };
+  })()`);
+  t('BiS: CHD-Roll-Varianten fuer freie Slots (Cap-Ausweichmoeglichkeit)', bisChdVariants.freeOk === true);
+  t('BiS: Green-Set-Teile auch als CHD-Variante', bisChdVariants.greenOk === true && bisChdVariants.greenChdCount >= 6);
   // computeBuildCache muss attrs-Array-Teile (synthetische BiS-Teile haben
   // KEINE chc/chd-Legacy-Felder) vollstaendig summieren - vorher gingen die
   // Attribute komplett verloren (BiS zeigte z.B. nur 27% CHC statt ~57%).
