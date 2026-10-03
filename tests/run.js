@@ -353,6 +353,19 @@ const setInput = (id, value) => {
   t('Fixieren: kein God-Roll bei Named-Item mit fehlendem fixen Attribut', slotCheck.namedPartial === false);
   t('Fixieren: God-Roll Exotic mit allen fixen Attributen (Catharsis)', slotCheck.exoticFull === true);
   t('Fixieren: kein God-Roll bei Exotic mit fehlendem fixen Attribut', slotCheck.exoticPartial === false);
+  // Proto-Konsistenz: Teil mit Proto-Werten, aber fehlendem proto-Flag
+  const protoFlagCheck = w.eval(`(function(){
+    // WD 22,5 + CHC 9 ohne proto-Flag -> Proto-Maxima gelten, CHD fehlt -> false
+    const noFlagLow = { slot: 'Maske', setName: 'Striker', wd: 22.5, attrs: [{ type: 'chc', val: 9 }], namedKey: '', namedVal: 0 };
+    // WD 22,5 + CHC 9 + CHD 18 ohne proto-Flag -> rekonstruiert als Proto -> true
+    const noFlagFull = { slot: 'Maske', setName: 'Striker', wd: 22.5, attrs: [{ type: 'chc', val: 9 }, { type: 'chd', val: 18 }], namedKey: '', namedVal: 0 };
+    // proto-Flag gesetzt, aber nur High-End-Werte (WD 15 + CHC 6) -> false
+    const flagLow = { slot: 'Maske', setName: 'Striker', proto: true, wd: 15, attrs: [{ type: 'chc', val: 6 }], namedKey: '', namedVal: 0 };
+    return { noFlagLow: isGearGodRoll(noFlagLow), noFlagFull: isGearGodRoll(noFlagFull), flagLow: isGearGodRoll(flagLow) };
+  })()`);
+  t('Fixieren: Proto-Werte ohne Flag rekonstruiert (WD 22,5 + CHC 9 + CHD 18 = God-Roll)', protoFlagCheck.noFlagFull === true);
+  t('Fixieren: Green-Teil ohne Flag mit Proto-Max-Minor (WD 22,5 + CHC 9) = God-Roll', protoFlagCheck.noFlagLow === true);
+  t('Fixieren: proto-Flag mit High-End-Werten = kein God-Roll (WD 15 + CHC 6)', protoFlagCheck.flagLow === false);
   const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
   t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
   t('Fixieren: Kernattribut im Dropdown-Label sichtbar (Waffenschaden 15)', godOption.textContent ? godOption.textContent.includes('Waffenschaden 15') : false);
