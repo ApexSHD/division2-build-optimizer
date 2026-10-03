@@ -188,6 +188,8 @@
         function exoticWeaponTalentBonus(weapon) {
             const def = exoticWeaponTalentDef(weapon);
             if (!def) return null;
+            // #108 D: Abgewaehlte Exoten-Waffe: Talent-Modell ruht
+            if (weapon && weapon.isExotic && disabledExoticWeapons.has(String(weapon.id))) return null;
             const activeEl = (typeof document !== 'undefined') && document.getElementById('exoticPerksActive');
             if (activeEl && !activeEl.checked) return null;
             const b = { wd: 0, chc: 0, chd: 0, amp: 0, rof: 0, hsd: 0, dttooc: 0, dta: 0, skillTierWd: 0 };
@@ -323,6 +325,7 @@
             if (typeof EXOTIC_GEAR_PERKS === 'undefined' || !item || !item.setName) return null;
             const def = EXOTIC_GEAR_PERKS[item.setName];
             if (!def) return null;
+            if (isExoticGearDisabled(item)) return null;
             const activeEl = (typeof document !== 'undefined') && document.getElementById('exoticPerksActive');
             if (activeEl && !activeEl.checked) return null;
             let bonus = { wd: 0, chc: 0, chd: 0, amp: 0, rof: 0 };
@@ -359,6 +362,18 @@
         // (GEAR_DB cls==='exotic' bzw. weapon.isExotic) erscheinen zur
         // Auswahl; die aktuelle Auswahl bleibt erhalten, wenn das Item
         // noch existiert.
+        // ===== FIXIEREN / EXOTEN ABWAEHLEN (#108 D) =====
+        let pinnedWeaponId = '';
+        const pinnedGearIds = new Set();
+        const disabledExoticGear = new Set();
+        const disabledExoticWeapons = new Set();
+
+        function pinnedGearItems() {
+            return gearInventory.filter(i => pinnedGearIds.has(i.id));
+        }
+        function isExoticGearDisabled(item) {
+            return !!(item && item.setName && disabledExoticGear.has(item.setName));
+        }
         function updateForceExoticOptions() {
             const gearSel = document.getElementById('forceExoticGear');
             const weapSel = document.getElementById('forceExoticWeapon');
@@ -4719,6 +4734,8 @@
                 build.forEach(item => {
                     const def = EXOTIC_GEAR_PERKS[item.setName];
                     if (!def) return;
+                    // #108 D: Abgewaehlte Exoten: kein Perk
+                    if (isExoticGearDisabled(item)) return;
                     let utilization = 100;
                     if (def.perStackWd) {
                         const slider = document.getElementById('exoticStackUtil_' + slugify(item.setName));
@@ -5349,7 +5366,10 @@ function prefilterItemScore(item, targetWeaponType) {
     return gearItemScore(item, targetWeaponType).score;
 }
 
-        function generateAllGearBuilds(items, targetGreenSet, targetWeaponType, forceExoticGear) {
+        function generateAllGearBuilds(items, targetGreenSet, targetWeaponType, forceExoticGear, pinnedIds) {
+            const pinnedSet = new Set((pinnedIds || []).map(Number));
+            // #108 D: deaktivierte Exoten fliegen raus, fixierte Teile sind
+            // vom Pre-Filter geschuetzt und Pflicht in jedem Build.
             const slots = ['Maske', 'Rucksack', 'Weste', 'Handschuhe', 'Holster', 'Knieschoner'];
             let itemsBySlot = {};
 
@@ -5370,6 +5390,13 @@ function prefilterItemScore(item, targetWeaponType) {
             const MAX_PER_SLOT = 4;
             const TARGET_KEEP = 2;
             function preFilterSlot(slotItems) {
+                // #108 D: Fixierte Teile sind immer dabei und vom Pre-Filter
+                // ausgenommen (auch vom Dedupe - jedes gepinnte Teil zaehlt).
+                const pinnedHere = slotItems.filter(i => pinnedSet.has(i.id));
+                const pinnedHereIds = new Set(pinnedHere.map(i => i.id));
+                slotItems = slotItems.filter(i => !pinnedHereIds.has(i.id));
+                // #108 D: Abgewaehlte Exoten raus (Perk + Build-Generierung)
+                slotItems = slotItems.filter(i => !isExoticGearDisabled(i));
                 // Stufe 1: Item-Dedupe
                 const seenItems = new Set();
                 const distinct = [];
@@ -5419,7 +5446,7 @@ function prefilterItemScore(item, targetWeaponType) {
                     }
                     kept = final;
                 }
-                return kept;
+                return pinnedHere.concat(kept);
             }
 
             slots.forEach(s => {
@@ -5444,7 +5471,10 @@ function prefilterItemScore(item, targetWeaponType) {
                     return;
                 }
                 const currentSlot = slots[slotIndex];
-                for (let item of itemsBySlot[currentSlot]) {
+                // #108 D: Fixierter Slot -> nur das gepinnte Teil ist Option
+                const pinnedInSlot = itemsBySlot[currentSlot].filter(i => pinnedSet.has(i.id));
+                const candidates = pinnedInSlot.length ? pinnedInSlot : itemsBySlot[currentSlot];
+                for (let item of candidates) {
                     const isExotic = isExoticGearName(item.setName) ? 1 : 0;
                     if (exoticCount + isExotic > 1) continue;
                     permute([...currentBuild, item], slotIndex + 1, exoticCount + isExotic);
@@ -5533,7 +5563,7 @@ function prefilterItemScore(item, targetWeaponType) {
 
             try {
                 // Alle Builds generieren
-                const allBuilds = generateAllGearBuilds(gearInventory, settings.targetGreenSet, settings.targetWeaponType, settings.forceExoticGear);
+                const allBuilds = generateAllGearBuilds(gearInventory, settings.targetGreenSet, settings.targetWeaponType, settings.forceExoticGear, [...pinnedGearIds]);
 
                 // PERFORMANCE (Schritt 2): Alle waffenunabhängigen Build-Effekte
                 // (Attribut-Summen, Set-/Stack-/Marken-Boni) einmal pro Build
@@ -5629,9 +5659,14 @@ function prefilterItemScore(item, targetWeaponType) {
             // "LMG"). Ohne diesen Filter würden hier die Waffen mit dem
             // höchsten geschätzten DPS-Wert aus dem GESAMTEN Inventar
             // herangezogen werden – unabhängig von ihrer Gattung.
-            const weaponsOfType = settings.forceExoticWeapon
+            const pinnedWeapon = (pinnedWeaponId)
+                ? weaponsInventory.find(w => String(w.id) === String(pinnedWeaponId)) : null;
+            const weaponsOfType = pinnedWeapon
+                ? [pinnedWeapon]
+                : settings.forceExoticWeapon
                 ? weaponsInventory.filter(w => w.name === settings.forceExoticWeapon)
-                : weaponsInventory.filter(w => w.type === settings.targetWeaponType);
+                : weaponsInventory.filter(w => w.type === settings.targetWeaponType
+                    && !(w.isExotic && disabledExoticWeapons.has(String(w.id))));
             const ep = enemyProfile();
             const knowHowLevel = settings.knowHowLevel || 30;
             const knowHowMult = 1 + (knowHowLevel / 100);
