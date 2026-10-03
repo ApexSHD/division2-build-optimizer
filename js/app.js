@@ -405,12 +405,13 @@
             const fixedMap = {};
             (dbE && dbE.fixed || []).forEach(f => { fixedMap[f[0]] = f[1]; });
             const attrs = (typeof gearItemAttrs === 'function') ? gearItemAttrs(item) : [];
+            const protoFactor = proto ? GEAR_PROTO_FACTOR : 1;
             return attrs.every(a => {
                 let max = null;
-                if (fixedMap[a.type] != null) max = fixedMap[a.type];
+                if (fixedMap[a.type] != null) max = fixedMap[a.type] * protoFactor;
                 else {
                     const cfg = (typeof GEAR_ATTR_TYPES !== 'undefined') ? GEAR_ATTR_TYPES[a.type] : null;
-                    if (cfg && cfg.max !== null) max = cfg.max;
+                    if (cfg && cfg.max !== null) max = cfg.max * protoFactor;
                 }
                 if (max === null) return true;
                 return a.val >= max - 1e-9;
