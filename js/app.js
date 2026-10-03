@@ -6014,6 +6014,15 @@ function prefilterItemScore(item, targetWeaponType) {
                 }
 
                 renderComparison();
+                // Perfektes Build (#124): synthetisches DB-Inventar durch dieselbe
+                // Optimierung schicken und parallel zum Inventar-Ergebnis anzeigen.
+                try {
+                    bisBuildResult = calculateBestInSlotBuild(settings);
+                } catch (bisErr) {
+                    console.warn('Best-in-Slot-Berechnung fehlgeschlagen:', bisErr);
+                    bisBuildResult = null;
+                }
+                renderBestInSlotCard();
                 updateTabUI();
                 showToast(`Vergleich berechnet: ${lastComparisonData.length} Top-Kombinationen aus ${allBuilds.length} Build-Kandidaten (heuristische Vorauswahl: beste Teile je Slot)!`, 'success');
             } finally {
@@ -6563,6 +6572,127 @@ function prefilterItemScore(item, targetWeaponType) {
             `;
         }
 
+        // ========== PERFEKTES BUILD / BEST-IN-SLOT (#124) ==========
+        // Synthetisiert ein "ideales Inventar" aus den JSON-Datenbanken
+        // (GEAR_DB: Named/Exotic + Brand-Fragmente + Green-Set-Teile, alle
+        // Werte auf God-Roll-Maxima) und schickt es durch dieselbe
+        // Optimierungs-Pipeline wie das echte Inventar. Ergebnis: das
+        // theoretisch beste Build unter den aktuellen Einstellungen
+        // (Ziel-Set, Gattung, Know-How, SHD, Gegnerprofil, Set-Zwänge).
+        let bisBuildResult = null;
+        const BIS_SLOT_ORDER = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
+        function bisAttrMax(type, proto) {
+            const cfg = GEAR_ATTR_TYPES[type];
+            let max = (cfg && cfg.max != null) ? cfg.max : null;
+            if (max != null && proto) max *= GEAR_PROTO_FACTOR;
+            return max;
+        }
+        function bisGearItemsForDb(targetGreenSet) {
+            const items = [];
+            let nextId = 900000;
+            const mk = (slot, setName, cls, coreType, attrs, proto) => {
+                const it = {
+                    id: nextId++, slot, setName, cls, proto: !!proto,
+                    namedKey: '', namedVal: 0,
+                    coreType: coreType || 'wd',
+                    attrs
+                };
+                if (coreType === 'wd') it.wd = proto ? 22.5 : 15;
+                else if (coreType === 'armour') it.coreVal = proto ? 255000 : 170000;
+                else if (coreType === 'skill') it.coreVal = proto ? 1.5 : 1;
+                return it;
+            };
+            // 1) Named- und Exotic-Teile aus der GEAR_DB (fixe Attribute auf DB-Max)
+            Object.entries(GEAR_DB).forEach(([name, e]) => {
+                if (!e || !e.slot || BIS_SLOT_ORDER.indexOf(e.slot) < 0) return;
+                const proto = !!e.proto;
+                const fixed = (e.fixed || []).map(([type, val]) => ({ type, val: val * (proto ? GEAR_PROTO_FACTOR : 1) }));
+                const free = e.free || 0;
+                const attrs = [...fixed];
+                for (let f = 0; f < free; f++) {
+                    const t = (targetGreenSet && brandKeyMatches(name.toLowerCase(), targetGreenSet)) ? 'chc' : 'chc';
+                    const max = bisAttrMax(t, proto);
+                    if (max != null) attrs.push({ type: t, val: max });
+                }
+                items.push(mk(e.slot, name, e.cls, e.core, attrs, proto));
+            });
+            // 2) Green-Set-Teile des Ziel-Sets (alle 6 Slots)
+            const greenInfo = GREEN_SET_INFO[targetGreenSet];
+            if (greenInfo) {
+                BIS_SLOT_ORDER.forEach(slot => {
+                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: 6 }], false));
+                });
+            }
+            // 3) Marken-Fragmente je Slot (Brand-Sets mit WD-/CHC-/CHD-Fragmenten)
+            Object.entries(BRAND_SET_INFO).forEach(([bkey, binfo]) => {
+                const frags = (binfo && Array.isArray(binfo.fragments)) ? binfo.fragments : [];
+                if (!frags.length) return;
+                BIS_SLOT_ORDER.forEach(slot => {
+                    const frag = frags[0];
+                    if (!frag) return;
+                    const type = String(frag).toLowerCase();
+                    const attrType = (type === 'wd') ? 'wd' : (GEAR_ATTR_TYPES[type] ? type : 'chc');
+                    const max = bisAttrMax(attrType, false);
+                    items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', [{ type: attrType, val: max != null ? max : 6 }], false));
+                });
+            });
+            return items;
+        }
+        function calculateBestInSlotBuild(settings) {
+            const synth = bisGearItemsForDb(settings.targetGreenSet);
+            const builds = generateAllGearBuilds(synth, settings.targetGreenSet, settings.targetWeaponType, '', []);
+            if (!builds.length) return null;
+            const caches = new WeakMap();
+            const bestWeapon = calculateTopWeapons(settings)[0] || null;
+            if (!bestWeapon) return null;
+            const scored = calculateTopBuildsForWeapon(bestWeapon, builds, settings, caches);
+            if (!scored.length) return null;
+            scored.sort((a, b) => b.effectiveDPS - a.effectiveDPS);
+            return { result: scored[0], weapon: bestWeapon, synthCount: synth.length };
+        }
+        function renderBestInSlotCard() {
+            const box = document.getElementById('bisBuildCard');
+            if (!box) return;
+            if (!bisBuildResult || !bisBuildResult.result) { box.innerHTML = ''; return; }
+            const best = bisBuildResult.result;
+            const weapon = bisBuildResult.weapon;
+            const ownBest = (lastComparisonData && lastComparisonData[0]) || null;
+            const ownDps = ownBest ? ownBest.effectiveDPS : null;
+            const gap = (ownDps && best.effectiveDPS) ? ((best.effectiveDPS / ownDps - 1) * 100) : null;
+            const setCount = {};
+            best.build.forEach(i => { const k = brandKeyMatches((i.setName || '').toLowerCase(), document.getElementById('targetGreenSet').value) ? document.getElementById('targetGreenSet').value : (i.setName || ''); setCount[k] = (setCount[k] || 0) + 1; });
+            const setChips = Object.entries(setCount).map(([n, c]) => `${escapeHtml(GREEN_SET_INFO[n] ? GREEN_SET_INFO[n].name : n)} ×${c}`).join(' · ');
+            const slotRows = BIS_SLOT_ORDER.map(slot => {
+                const i = best.build.find(x => x.slot === slot);
+                if (!i) return `<tr><td class="py-1 pr-2 text-gray-400">${escapeHtml(slot)}</td><td class="py-1 text-gray-500">—</td></tr>`;
+                const dbE = GEAR_DB[i.setName];
+                const cls = dbE ? dbE.cls : '';
+                const god = isGearGodRoll(i);
+                return `<tr><td class="py-1 pr-2 text-gray-400 whitespace-nowrap">${escapeHtml(slot)}</td><td class="py-1">${cls === 'exotic' ? '🟠 ' : (cls === 'named' ? '🟡 ' : '')}${escapeHtml(i.setName)}${god ? ' <span class="text-amber-400">★</span>' : ''}<br><span class="text-[10px] text-gray-400">${escapeHtml(gearCoreDisplay(i))} · ${escapeHtml(gearItemAttrs(i).map(a => { const cfg = GEAR_ATTR_TYPES[a.type]; return (cfg ? cfg.label : a.type) + ' ' + formatGermanNumber(a.val); }).join(' · '))}</span></td></tr>`;
+            }).join('');
+            box.innerHTML = `
+                <div class="div-card p-6 rounded-xl border border-amber-500/30">
+                    <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
+                        <span class="text-amber-400">💎</span> Perfektes Build (Best-in-Slot)
+                        <span class="ml-auto text-xs font-normal text-gray-400">Maximum aus der Datenbank — God-Rolls, Set-Zwänge &amp; Gegnerprofil berücksichtigt</span>
+                    </h3>
+                    <p class="text-xs text-gray-400 mt-2">Theoretisches Optimum unter den aktuellen Einstellungen (${escapeHtml(weaponTypeLabel(bisTargetWeaponType()))} · ${escapeHtml(GREEN_SET_INFO[document.getElementById('targetGreenSet').value]?.name || '')}${document.getElementById('require4pc').checked ? ' · 4p erzwungen' : ''}).</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <table class="w-full text-xs text-gray-200"><tbody>${slotRows}</tbody></table>
+                        <div>
+                            <p class="text-sm"><strong class="text-gray-300">Waffe:</strong> ${escapeHtml(weapon.name)}${rarityBadge(weapon.isExotic, weaponIsNamed(weapon))}</p>
+                            <p class="text-xs text-gray-400 mt-1">Ø Schuss: ${formatGermanNumber(Math.round(best.avgDmg))} · Effektiver DPS: <strong class="text-emerald-400">${formatGermanNumber(Math.round(best.effectiveDPS))}</strong></p>
+                            ${ownDps ? `<p class="text-xs text-gray-400 mt-1">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — Differenz: <strong class="text-amber-400">+${formatGermanNumber(Math.round(gap * 10) / 10)}%</strong></p>` : ''}
+                            <p class="text-xs text-gray-400 mt-1">${setChips}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        function bisTargetWeaponType() {
+            const el = document.getElementById('targetWeaponType');
+            return el ? el.value : 'AR';
+        }
         function renderComparison() {
             if (!lastComparisonData || lastComparisonData.length === 0) {
                 document.getElementById('comparisonResults').innerHTML = `
