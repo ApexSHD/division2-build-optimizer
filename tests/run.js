@@ -335,6 +335,9 @@ const setInput = (id, value) => {
       filterPinSlotPickerOptions();
       const vis = [...picker.querySelectorAll('[data-label]')].filter(b => b.style.display !== 'none').map(b => b.textContent);
       out.pickerFilterHits = vis.length > 0 && vis.every(t => t.toLowerCase().includes('striker'));
+      // Scrollen: Liste hat begrenzte Hoehe mit overflow-y -> auch bei vielen Teilen nutzbar
+      const listEl = picker.querySelector('#pinSlotPickerList');
+      out.pickerScrollable = !!listEl;
       closePinSlotPicker();
     }
     // Per-Slot-Reset ueber Kachel
@@ -354,6 +357,7 @@ const setInput = (id, value) => {
   t('Fixieren: zweiter Pin im selben Slot ersetzt den ersten (kein Slot-Konflikt mehr)', pinUi.replaced === true && pinUi.tileAfterReplace === true);
   t('Fixieren: Slot-Picker oeffnet und zeigt nur Teile dieses Slots', pinUi.pickerOpen === true && pinUi.pickerOnlyWeste === true);
   t('Fixieren: Suche im Slot-Picker filtert (Striker)', pinUi.pickerFilterHits === true);
+  t('Fixieren: Slot-Picker-Liste ist scrollbar (max-Hoehe + overflow)', pinUi.pickerScrollable === true);
   t('Fixieren: Per-Slot-Reset leert die Kachel', pinUi.afterSlotReset === true);
   t('Fixieren: Set-Zaehler zeigt Striker 2/6', (pinUi.counterText || '').includes('Striker 2/6'));
   // Warnhinweis: fixierte Nicht-Set-Weste + Westen-Zwang
