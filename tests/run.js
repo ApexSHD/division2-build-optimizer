@@ -1187,6 +1187,47 @@ const setInput = (id, value) => {
     t('Synergie: Schalter an = pauschale Annahme (unveraehrtes Verhalten)', dpsOn === true);
   }
 
+  // ===== 6. PERFEKTES BUILD / BEST-IN-SLOT (#124) =====
+  console.log('\n--- Perfektes Build (Best-in-Slot) ---');
+  // Vorher leeren die Storage-Tests das Inventar -> eine AR fuer die
+  // Waffen-Auswahl des BiS-Builds zuruecklegen.
+  w.eval(`if (!weaponsInventory.some(x => x.type === 'AR')) { weaponsInventory.push({ id: 'bis-ar', name: 'BiS-Test-AR', type: 'AR', baseDmg: 58897, core1: 15, core2Type: 'dth', core2Val: 10, minorType: 'chc', minorVal: 6, talent: 'none', isExotic: false, mods: {} }); renderWeaponsInventory(); }`);
+  const bis = w.eval(`(function () {
+    const settings = {
+      targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 30, shdMax: false,
+      shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0,
+      require4pc: true, targetGreenSet: 'striker', forceChest: true, forceBackpack: true,
+      talentsActive: false, exoticPerksActive: false, pinnedWeapon: []
+    };
+    const res = calculateBestInSlotBuild(settings);
+    if (!res || !res.result) return { ok: false };
+    const b = res.result;
+    return {
+      ok: true,
+      synth: res.synthCount,
+      dps: b.effectiveDPS,
+      weapon: res.weapon.name,
+      slots: b.build.map(i => i.slot),
+      striker: b.build.filter(i => (i.setName || '').toLowerCase().includes('striker')).length,
+      exotics: b.build.filter(i => { const e = GEAR_DB[i.setName]; return e && e.cls === 'exotic'; }).length
+    };
+  })()`);
+  t('BiS: Berechnung liefert ein Ergebnis', bis.ok === true);
+  t('BiS: alle 6 Slots belegt', Array.isArray(bis.slots) && bis.slots.length === 6);
+  t('BiS: 4 Striker-Teile bei erzwungenem 4p', bis.striker === 4);
+  t('BiS: hoechstens 1 Exot (Spielregel)', (bis.exotics || 0) <= 1);
+  t('BiS: synthetisches Inventar aus der DB erzeugt', (bis.synth || 0) > 50);
+  // BiS-Karte wird nach der Optimierung gerendert und zeigt Slot-Details
+  w.eval(`if (gearInventory.length < 6) { ['Maske','Weste','Rucksack','Handschuhe','Holster','Knieschoner'].forEach((slot, idx) => gearInventory.push({ id: 'bis-gear-' + idx, slot, setName: 'Striker', wd: 15, chc: 6, chd: 12, namedKey: '', namedVal: 0 })); renderGearInventory(); }`);
+  const bisCard = await w.eval(`(async function () {
+    await calculateCombinedComparison();
+    await new Promise(r => setTimeout(r, 500));
+    const card = document.getElementById('bisBuildCard');
+    return { rendered: !!card && card.textContent.includes('Perfektes Build'), text: card ? card.textContent.replace(/\\s+/g, ' ') : '' };
+  })()`);
+  t('BiS: Karte im Ergebnisbereich gerendert', (await bisCard).rendered === true);
+  t('BiS: Karte nennt DPS und Waffe', /(DPS|Schuss)/.test((await bisCard).text) && !!(await bisCard).text.includes('Waffe:'));
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {
