@@ -6603,28 +6603,38 @@ function prefilterItemScore(item, targetWeaponType) {
                 else if (coreType === 'skill') it.coreVal = proto ? 1.5 : 1;
                 return it;
             };
-            // 1) Named- und Exotic-Teile aus der GEAR_DB (fixe Attribute auf DB-Max)
+            // 1) Named- und Exotic-Teile aus der GEAR_DB (fixe Attribute auf DB-Max;
+            //    Nicht-Exoten zusaetzlich als Prototyp-Variante mit +50% Maxima)
             Object.entries(GEAR_DB).forEach(([name, e]) => {
                 if (!e || !e.slot || BIS_SLOT_ORDER.indexOf(e.slot) < 0) return;
                 const proto = !!e.proto;
-                const fixed = (e.fixed || []).map(([type, val]) => ({ type, val: val * (proto ? GEAR_PROTO_FACTOR : 1) }));
-                const free = e.free || 0;
-                const attrs = [...fixed];
-                for (let f = 0; f < free; f++) {
-                    const t = (targetGreenSet && brandKeyMatches(name.toLowerCase(), targetGreenSet)) ? 'chc' : 'chc';
-                    const max = bisAttrMax(t, proto);
-                    if (max != null) attrs.push({ type: t, val: max });
+                const mkAttrs = (isProto) => {
+                    const fixed = (e.fixed || []).map(([type, val]) => ({ type, val: val * (isProto ? GEAR_PROTO_FACTOR : 1) }));
+                    const free = e.free || 0;
+                    const attrs = [...fixed];
+                    for (let f = 0; f < free; f++) {
+                        const max = bisAttrMax('chc', isProto);
+                        if (max != null) attrs.push({ type: 'chc', val: max });
+                    }
+                    return attrs;
+                };
+                items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(proto), proto));
+                // Prototyp-Variante (x1,5): nur fuer Nicht-Exoten sinnvoll —
+                // Exoten haben fixe Werte ohne Prototyp-Bonus.
+                if (e.cls !== 'exotic' && !proto) {
+                    items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(true), true));
                 }
-                items.push(mk(e.slot, name, e.cls, e.core, attrs, proto));
             });
-            // 2) Green-Set-Teile des Ziel-Sets (alle 6 Slots)
+            // 2) Green-Set-Teile des Ziel-Sets (alle 6 Slots; als Prototyp x1,5)
             const greenInfo = GREEN_SET_INFO[targetGreenSet];
             if (greenInfo) {
                 BIS_SLOT_ORDER.forEach(slot => {
-                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: 6 }], false));
+                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', false) }], false));
+                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', true) }], true));
                 });
             }
-            // 3) Marken-Fragmente je Slot (Brand-Sets mit WD-/CHC-/CHD-Fragmenten)
+            // 3) Marken-Fragmente je Slot (Brand-Sets mit WD-/CHC-/CHD-Fragmenten;
+            //    ebenfalls mit Prototyp-Variante)
             Object.entries(BRAND_SET_INFO).forEach(([bkey, binfo]) => {
                 const frags = (binfo && Array.isArray(binfo.fragments)) ? binfo.fragments : [];
                 if (!frags.length) return;
@@ -6633,11 +6643,35 @@ function prefilterItemScore(item, targetWeaponType) {
                     if (!frag) return;
                     const type = String(frag).toLowerCase();
                     const attrType = (type === 'wd') ? 'wd' : (GEAR_ATTR_TYPES[type] ? type : 'chc');
-                    const max = bisAttrMax(attrType, false);
-                    items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', [{ type: attrType, val: max != null ? max : 6 }], false));
+                    [false, true].forEach(isProto => {
+                        const max = bisAttrMax(attrType, isProto);
+                        items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', [{ type: attrType, val: max != null ? max : 6 }], isProto));
+                    });
                 });
             });
             return items;
+        }
+        // Prototyp-Variante (x1,5) einer Waffe: Kern 1, Kern 2 und Nebenattribut
+        // auf Prototyp-Maxima. Exoten behalten fixe Werte (kein Proto-Bonus).
+        function bisWeaponProtoVariant(weapon, settings) {
+            if (!weapon || weapon.isExotic || weapon.isPrototype) return null;
+            const core1 = core1Max(true);
+            const core2Type = weapon.core2Type || (WEAPON_CORE_ATTRIBUTES[weapon.type] || {}).core2;
+            const core2Val = core2Max(true, weapon.type, core2Type);
+            const minorType = weapon.minorType || 'chc';
+            const minorCfg = WEAPON_MINOR_ATTRIBUTES[minorType];
+            const minorVal = minorCfg ? minorCfg.max * 1.5 : null;
+            const proto = {
+                ...weapon,
+                id: 'bis-proto-' + weapon.id,
+                isPrototype: true,
+                core1,
+                core2Type,
+                core2Val: core2Val != null ? core2Val : weapon.core2Val,
+                minorType,
+                minorVal: minorVal != null ? minorVal : weapon.minorVal
+            };
+            return proto;
         }
         function calculateBestInSlotBuild(settings) {
             const synth = bisGearItemsForDb(settings.targetGreenSet);
@@ -6646,10 +6680,22 @@ function prefilterItemScore(item, targetWeaponType) {
             const caches = new WeakMap();
             const bestWeapon = calculateTopWeapons(settings)[0] || null;
             if (!bestWeapon) return null;
-            const scored = calculateTopBuildsForWeapon(bestWeapon, builds, settings, caches);
-            if (!scored.length) return null;
-            scored.sort((a, b) => b.effectiveDPS - a.effectiveDPS);
-            return { result: scored[0], weapon: bestWeapon, synthCount: synth.length };
+            // Waffen-Kandidaten: beste Inventar-Waffe + deren Prototyp-Variante
+            // (x1,5 Maxima) — die bessere gewinnt.
+            const weaponCandidates = [bestWeapon];
+            const protoWeapon = bisWeaponProtoVariant(bestWeapon, settings);
+            if (protoWeapon) weaponCandidates.push(protoWeapon);
+            let best = null;
+            weaponCandidates.forEach(wc => {
+                const scored = calculateTopBuildsForWeapon(wc, builds, settings, caches);
+                if (!scored.length) return;
+                scored.sort((a, b) => b.effectiveDPS - a.effectiveDPS);
+                if (!best || scored[0].effectiveDPS > best.result.effectiveDPS) {
+                    best = { result: scored[0], weapon: wc };
+                }
+            });
+            if (!best) return null;
+            return { result: best.result, weapon: best.weapon, synthCount: synth.length };
         }
         function renderBestInSlotCard() {
             const box = document.getElementById('bisBuildCard');

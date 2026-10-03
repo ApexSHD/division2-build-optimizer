@@ -1209,12 +1209,22 @@ const setInput = (id, value) => {
       weapon: res.weapon.name,
       slots: b.build.map(i => i.slot),
       striker: b.build.filter(i => (i.setName || '').toLowerCase().includes('striker')).length,
-      exotics: b.build.filter(i => { const e = GEAR_DB[i.setName]; return e && e.cls === 'exotic'; }).length
+      exotics: b.build.filter(i => { const e = GEAR_DB[i.setName]; return e && e.cls === 'exotic'; }).length,
+      // Prototyp: WD-Kern 22,5 (statt 15) muss im synthetischen Inventar sein
+      // und im Optimum benutzt werden (Striker-Teile sind Nicht-Exoten).
+      protoWd: b.build.some(i => i.proto && i.wd === 22.5),
+      // Prototyp-Waffen-Variante: fuer jede Nicht-Exotin erzeugbar, mit Kern 22,5
+      protoWeaponOk: weaponsInventory.filter(x => !x.isExotic).every(x => {
+        const pv = bisWeaponProtoVariant(x, settings);
+        return pv === null || (pv.isPrototype === true && pv.core1 === 22.5);
+      })
     };
   })()`);
   t('BiS: Berechnung liefert ein Ergebnis', bis.ok === true);
   t('BiS: alle 6 Slots belegt', Array.isArray(bis.slots) && bis.slots.length === 6);
   t('BiS: 4 Striker-Teile bei erzwungenem 4p', bis.striker === 4);
+  t('BiS: Prototyp-Teile eingerechnet (WD-Kern 22,5 bei Proto-Teil)', bis.protoWd === true);
+  t('BiS: Prototyp-Waffen-Variante verfuegbar (Nicht-Exotin)', bis.protoWeaponOk === true);
   t('BiS: hoechstens 1 Exot (Spielregel)', (bis.exotics || 0) <= 1);
   t('BiS: synthetisches Inventar aus der DB erzeugt', (bis.synth || 0) > 50);
   // BiS-Karte wird nach der Optimierung gerendert und zeigt Slot-Details
