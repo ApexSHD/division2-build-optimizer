@@ -467,79 +467,178 @@
             });
         }
         function syncPinnedFromSelect(kind) {
+            // Kompatibilitaet: uebernimmt die Auswahl in die internen Sets.
             const sel = document.getElementById(kind === 'gear' ? 'pinnedGearIds' : 'pinnedWeaponIds');
             if (!sel) return;
             const ids = [...sel.selectedOptions].map(o => o.value);
             const target = (kind === 'gear') ? pinnedGearIds : pinnedWeaponIds;
             target.clear();
             ids.forEach(id => target.add(id));
+            renderPinnedUI();
         }
         function clearPinned() {
             pinnedGearIds.clear();
             pinnedWeaponIds.clear();
-            const gs = document.getElementById('pinnedGearIds');
-            const ws = document.getElementById('pinnedWeaponIds');
-            if (gs) [...gs.selectedOptions].forEach(o => o.selected = false);
-            if (ws) [...ws.selectedOptions].forEach(o => o.selected = false);
-            renderPinnedGearChips();
+            renderPinnedUI();
+            markPinnedStale();
+        }
+        // ===== FIXIEREN: SLOT-KACHELN (#120) =====
+        const PIN_SLOT_ORDER = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
+        const PIN_SLOT_ICONS = { 'Maske': '🎭', 'Weste': '🦺', 'Rucksack': '🎒', 'Handschuhe': '🧤', 'Holster': '🔫', 'Knieschoner': '🦵' };
+        // Auswählbare Teile für einen Slot (glebe Filter-Logik wie bisher:
+        // Fremd-Set-Teile des Ziel-Sets werden ausgeblendet).
+        function pinSlotCandidates(slot) {
+            const targetKey = (document.getElementById('targetGreenSet') || {}).value || '';
+            const seen = new Set();
+            return gearInventory.filter(i => {
+                if (i.slot !== slot) return false;
+                const k = String(i.id);
+                if (seen.has(k)) return false;
+                seen.add(k);
+                if (GEAR_DB[i.setName]) return true;
+                if (isGreenGearName(i.setName)) {
+                    return !targetKey || brandKeyMatches((i.setName || '').toLowerCase(), targetKey);
+                }
+                return true;
+            });
+        }
+        function pinSlotTileId(slot) { return 'pinSlot-' + slot; }
+        function pinnedItemForSlot(slot) {
+            return gearInventory.find(i => pinnedGearIds.has(String(i.id)) && i.slot === slot) || null;
+        }
+        function pinTileCoreLabel(item) {
+            const coreType = (typeof gearCoreTypeOf === 'function') ? gearCoreTypeOf(item) : (item.coreType || 'wd');
+            if (gearIsTriCoreItem && gearIsTriCoreItem(item)) return 'WD+Rüst+Skill';
+            const ct = (typeof GEAR_CORE_TYPES !== 'undefined') ? (GEAR_CORE_TYPES[coreType] || {}) : {};
+            const icon = ct.icon || '';
+            if (coreType === 'wd') return `${icon} +${formatGermanNumber(item.wd || 0)}%`;
+            if (coreType === 'armour') return `${icon} ${formatGermanNumber(item.coreVal || 0)}`;
+            if (coreType === 'skill') return `${icon} +${formatGermanNumber(gearSkillTiersOf ? gearSkillTiersOf(item) : (item.coreVal != null ? item.coreVal : 1))}${item.proto ? ' (P)' : ''}`;
+            return '';
+        }
+        function pinTileAttrLabel(item) {
+            return gearItemAttrs(item).slice(0, 2).map(a => {
+                const cfg = (typeof GEAR_ATTR_TYPES !== 'undefined') ? GEAR_ATTR_TYPES[a.type] : null;
+                const label = cfg ? cfg.label : a.type;
+                return `${label} ${formatGermanNumber(a.val)}`;
+            }).join(' · ');
+        }
+        function renderPinnedSlotTiles() {
+            const wrap = document.getElementById('pinnedSlotTiles');
+            if (!wrap) return;
+            wrap.innerHTML = PIN_SLOT_ORDER.map(slot => {
+                const item = pinnedItemForSlot(slot);
+                if (item) {
+                    const god = isGearGodRoll(item);
+                    const conflict = false; // Slot-Kacheln erlauben nur 1 Teil pro Slot -> kein Konflikt mehr moeglich
+                    return `<div id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" title="${escapeHtml(pinnedGearLabel(item))}" class="relative cursor-pointer text-left p-2.5 rounded-lg border transition ${conflict ? 'border-red-500/50 bg-red-500/10' : 'border-div-accent/60 bg-div-accent/10 hover:bg-div-accent/20'}">
+                        <button type="button" onclick="event.stopPropagation(); removePinnedGearItemBySlot('${escapeHtml(slot)}')" aria-label="${escapeHtml(slot)}-Fixierung aufheben" class="absolute top-1 right-1 w-4 h-4 leading-none rounded-full bg-zinc-700 hover:bg-red-600 text-gray-300 hover:text-white text-[10px]">×</button>
+                        <div class="text-[10px] uppercase text-gray-400 flex items-center gap-1">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}${god ? ' <span class="text-amber-400">★</span>' : ''}</div>
+                        <div class="text-xs font-semibold text-white truncate">${escapeHtml(item.setName)}</div>
+                        <div class="text-[10px] text-gray-300 truncate">${escapeHtml(pinTileCoreLabel(item))}</div>
+                        <div class="text-[10px] text-gray-400 truncate">${escapeHtml(pinTileAttrLabel(item))}</div>
+                    </div>`;
+                }
+                return `<button type="button" id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" class="text-left p-2.5 rounded-lg border border-dashed border-gray-600 hover:border-div-accent/60 hover:bg-zinc-800/60 transition">
+                    <div class="text-[10px] uppercase text-gray-400 flex items-center gap-1">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}</div>
+                    <div class="text-sm text-gray-500">＋</div>
+                </button>`;
+            }).join('');
+        }
+        function removePinnedGearItemBySlot(slot) {
+            const item = pinnedItemForSlot(slot);
+            if (!item) return;
+            pinnedGearIds.delete(String(item.id));
+            renderPinnedUI();
+            markPinnedStale();
+        }
+        // Slot-Auswahl (Popover): zeigt nur Teile dieses Slots, Suche inklusive.
+        function openPinSlotPicker(slot) {
+            closePinSlotPicker();
+            const anchor = document.getElementById(pinSlotTileId(slot));
+            if (!anchor) return;
+            const pop = document.createElement('div');
+            pop.id = 'pinSlotPicker';
+            pop.className = 'fixed z-50 bg-zinc-900 border border-gray-700 rounded-xl shadow-xl p-2 w-72 max-h-72 overflow-auto';
+            const candidates = pinSlotCandidates(slot);
+            const god = candidates.filter(isGearGodRoll).length;
+            const search = `<input type="text" id="pinSlotPickerSearch" oninput="filterPinSlotPickerOptions()" placeholder="${escapeHtml(slot)} durchsuchen…" class="w-full p-1.5 mb-1 rounded-lg text-xs bg-zinc-800 border border-gray-700" aria-label="${escapeHtml(slot)} durchsuchen">`;
+            const list = candidates.length
+                ? `<div id="pinSlotPickerList">` + candidates.map(i =>
+                    `<button type="button" data-id="${escapeHtml(String(i.id))}" data-label="${escapeHtml(pinnedGearLabel(i).toLowerCase() + ' ' + slot.toLowerCase())}" onclick="selectPinnedGearItem('${escapeHtml(String(i.id))}');" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-zinc-800 text-[11px] ${isGearGodRoll(i) ? 'text-amber-400 font-semibold' : 'text-gray-200'}">${escapeHtml(pinnedGearLabel(i))}</button>`
+                ).join('') + `</div>`
+                : `<p class="text-[11px] text-gray-500 p-2">Keine ${escapeHtml(slot)}-Teile im Inventar.</p>`;
+            pop.innerHTML = `<div class="flex items-center justify-between mb-1"><span class="text-xs font-bold uppercase text-gray-400">${escapeHtml(slot)} fixieren ${god ? `<span class="text-amber-400 normal-case font-normal">★ ${god} God-Roll${god > 1 ? 's' : ''}</span>` : ''}</span><button type="button" onclick="closePinSlotPicker()" aria-label="Schließen" class="text-gray-400 hover:text-white">×</button></div>${search}${list}`;
+            document.body.appendChild(pop);
+            const rect = anchor.getBoundingClientRect();
+            const popW = 288;
+            let left = rect.left;
+            if (left + popW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - popW - 8);
+            pop.style.left = left + 'px';
+            pop.style.top = Math.min(rect.bottom + 6, window.innerHeight - rect.height - 12) + 'px';
+            if (candidates.length) {
+                const inp = pop.querySelector('#pinSlotPickerSearch');
+                if (inp) inp.focus();
+            }
+        }
+        function filterPinSlotPickerOptions() {
+            const pop = document.getElementById('pinSlotPicker');
+            const inp = pop && pop.querySelector('#pinSlotPickerSearch');
+            if (!pop || !inp) return;
+            const q = inp.value.trim().toLowerCase();
+            [...pop.querySelectorAll('#pinSlotPickerList [data-label]')].forEach(b => {
+                const match = !q || b.dataset.label.includes(q);
+                b.style.display = match ? '' : 'none';
+            });
+        }
+        function selectPinnedGearItem(id) {
+            const item = gearInventory.find(i => String(i.id) === String(id));
+            if (!item) return;
+            // Slot-Kachel: vorheriges Teil im selben Slot ersetzen -> Konflikte praeventiv vermeiden
+            const prev = pinnedItemForSlot(item.slot);
+            if (prev) pinnedGearIds.delete(String(prev.id));
+            pinnedGearIds.add(String(item.id));
+            closePinSlotPicker();
+            renderPinnedUI();
+            markPinnedStale();
+        }
+        function closePinSlotPicker() {
+            const pop = document.getElementById('pinSlotPicker');
+            if (pop) pop.remove();
+        }
+        document.addEventListener('click', (e) => {
+            const pop = document.getElementById('pinSlotPicker');
+            if (pop && !pop.contains(e.target) && !e.target.closest('#pinnedSlotTiles')) pop.remove();
+        });
+        // ===== FIXIEREN: WAFFEN-KARTEN (#120) =====
+        function renderPinnedWeaponCards() {
+            const wrap = document.getElementById('pinnedWeaponCards');
+            if (!wrap) return;
+            const seen = new Set();
+            const weapons = weaponsInventory.filter(w => {
+                const k = String(w.id);
+                if (seen.has(k)) return false;
+                seen.add(k);
+                return true;
+            });
+            if (!weapons.length) { wrap.innerHTML = '<p class="text-[11px] text-gray-500">Keine Waffen im Inventar.</p>'; return; }
+            wrap.innerHTML = weapons.map(w => {
+                const sel = pinnedWeaponIds.has(String(w.id));
+                return `<button type="button" onclick="togglePinnedWeapon('${escapeHtml(String(w.id))}');" aria-pressed="${sel}" class="text-left px-2 py-1.5 rounded-lg border text-[11px] transition ${sel ? 'bg-div-accent/20 border-div-accent/60 text-white font-semibold' : 'bg-zinc-800 border-gray-700 text-gray-200 hover:bg-zinc-700'}">${escapeHtml(w.name)}${w.isExotic ? ' <span class="text-amber-400">★</span>' : ''}${sel ? ' <span class="text-div-accent">✓</span>' : ''}</button>`;
+            }).join('');
+        }
+        function togglePinnedWeapon(id) {
+            const k = String(id);
+            if (pinnedWeaponIds.has(k)) pinnedWeaponIds.delete(k);
+            else pinnedWeaponIds.add(k);
+            renderPinnedUI();
             markPinnedStale();
         }
         function isExoticGearDisabled(item) {
             return !!(item && item.setName && disabledExoticGear.has(item.setName));
         }
         function updateForceExoticOptions() {
-            const gearSel = document.getElementById('pinnedGearIds');
-            const weapSel = document.getElementById('pinnedWeaponIds');
-            if (gearSel) {
-                const prev = new Set([...gearSel.selectedOptions].map(o => o.value));
-                const seen = new Set();
-                const targetKey = (document.getElementById('targetGreenSet') || {}).value || '';
-                const items = gearInventory.filter(i => {
-                    const k = String(i.id);
-                    if (seen.has(k)) return false;
-                    seen.add(k);
-                    // Named-/Exotic-Teile sind immer auswählbar.
-                    if (GEAR_DB[i.setName]) return true;
-                    // Grüne Gear-Set-Teile nur, wenn sie zum zu optimierenden Set passen
-                    // (z.B. bei Striker-Ziel keine Eclipse-Teile anzeigen).
-                    if (isGreenGearName(i.setName)) {
-                        return !targetKey || brandKeyMatches((i.setName || '').toLowerCase(), targetKey);
-                    }
-                    return true;
-                });
-                // Nach Slot gruppieren (Maske, Weste, ...) und Label als
-                // "Slot — Set (Attribute)" aufbauen: der Slot ist beim Scannen
-                // das primäre Suchkriterium.
-                const GEAR_SLOT_ORDER = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
-                const bySlot = {};
-                items.forEach(i => { (bySlot[i.slot] = bySlot[i.slot] || []).push(i); });
-                const slots = Object.keys(bySlot).sort((a, b) => {
-                    const ia = GEAR_SLOT_ORDER.indexOf(a), ib = GEAR_SLOT_ORDER.indexOf(b);
-                    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b, 'de');
-                });
-                gearSel.innerHTML = slots.map(slot =>
-                    `<optgroup label="${escapeHtml(slot)}">` +
-                    bySlot[slot].map(i =>
-                        `<option value="${escapeHtml(String(i.id))}"${(pinnedGearIds.has(String(i.id)) || prev.has(String(i.id))) ? ' selected' : ''}${isGearGodRoll(i) ? ' style="color:#fbbf24;font-weight:600"' : ''}>${escapeHtml(pinnedGearLabel(i))}</option>`
-                    ).join('') + '</optgroup>'
-                ).join('');
-                syncPinnedFromSelect('gear');
-                renderPinnedGearChips();
-            }
-            if (weapSel) {
-                const prev = new Set([...weapSel.selectedOptions].map(o => o.value));
-                const seen = new Set();
-                const weapons = weaponsInventory.filter(w => {
-                    const k = String(w.id);
-                    if (seen.has(k)) return false;
-                    seen.add(k);
-                    return true;
-                });
-                weapSel.innerHTML = weapons.map(w =>
-                    `<option value="${escapeHtml(String(w.id))}"${(pinnedWeaponIds.has(String(w.id)) || prev.has(String(w.id))) ? ' selected' : ''}>${escapeHtml(w.name)}${w.isExotic ? ' ★' : ''}</option>`
-                ).join('');
-                syncPinnedFromSelect('weapon');
-            }
+            renderPinnedUI();
             renderDisabledExoticToggles();
             markPinnedStale();
         }
@@ -563,7 +662,7 @@
             pinnedGearIds.delete(k);
             const sel = document.getElementById('pinnedGearIds');
             if (sel) [...sel.options].forEach(o => { if (o.value === k) o.selected = false; });
-            renderPinnedGearChips();
+            renderPinnedUI();
             markPinnedStale();
         }
         // Suchfeld: Optionen im Pin-Dropdown nach Name/Slot/Attribut filtern.
@@ -579,6 +678,50 @@
                 o.hidden = !match;
                 o.disabled = !match;
             });
+        }
+        // ===== FIXIEREN: LIVE-FEEDBACK (#120) =====
+        // Set-Zaehler (z.B. "Striker 2/6 fixiert") + Warnhinweise, wenn die
+        // Fixierung mit require4pc / forceChest / forceBackpack kollidiert.
+        function renderPinnedSetCounter() {
+            const wrap = document.getElementById('pinnedSetCounter');
+            if (!wrap) return;
+            const items = pinnedGearItems();
+            if (!items.length) { wrap.innerHTML = ''; return; }
+            const setCount = {};
+            items.forEach(i => { setCount[i.setName] = (setCount[i.setName] || 0) + 1; });
+            const sel = document.getElementById('targetGreenSet');
+            const key = sel ? sel.value : '';
+            const info = (typeof GREEN_SET_INFO !== 'undefined') ? GREEN_SET_INFO[key] : null;
+            const warnings = [];
+            if (key && info) {
+                const setKey = (i) => brandKeyMatches((i.setName || '').toLowerCase(), key);
+                const pinnedSetCount = items.filter(setKey).length;
+                if (pinnedSetCount) {
+                    const need4 = document.getElementById('require4pc')?.checked;
+                    if (need4 && pinnedSetCount > 4) warnings.push(`mehr als 4 ${escapeHtml(info.name)}-Teile fixiert — „4 Set-Teile erzwingen“ erlaubt nur 4`);
+                    const setPiecesTotal = gearInventory.filter(i => setKey(i)).length;
+                    if (need4 && setPiecesTotal < 4) warnings.push(`4 Set-Teile erzwungen, aber nur ${setPiecesTotal} ${escapeHtml(info.name)}-Teile im Inventar`);
+                } else {
+                    if (document.getElementById('require4pc')?.checked) warnings.push(`fixierte Teile sind kein ${escapeHtml(info.name)} — „4 Set-Teile erzwingen“ benötigt 4 weitere Set-Teile in den übrigen Slots`);
+                }
+                if (document.getElementById('forceChest')?.checked) {
+                    const pinnedChest = items.find(i => i.slot === 'Weste');
+                    if (pinnedChest && !setKey(pinnedChest)) warnings.push(`fixierte Weste (${escapeHtml(pinnedChest.setName)}) ist keine ${escapeHtml(info.name)}-Weste — kollidiert mit „Weste aus diesem Set erzwingen“`);
+                }
+                if (document.getElementById('forceBackpack')?.checked) {
+                    const pinnedBp = items.find(i => i.slot === 'Rucksack');
+                    if (pinnedBp && !setKey(pinnedBp)) warnings.push(`fixierter Rucksack (${escapeHtml(pinnedBp.setName)}) ist kein ${escapeHtml(info.name)}-Rucksack — kollidiert mit „Rucksack aus diesem Set erzwingen“`);
+                }
+            }
+            const chips = Object.entries(setCount).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'de')).map(([n, c]) => `${escapeHtml(n)} ${c}/6`);
+            const warnHtml = warnings.length ? `<div class="w-full text-[11px] rounded-lg p-1.5 mt-1 border bg-amber-500/10 border-amber-500/40 text-amber-300">⚠️ ${warnings.join(' · ')}</div>` : '';
+            wrap.innerHTML = `<div class="flex flex-wrap gap-1">${chips.map(c => `<span class="text-[11px] px-2 py-0.5 rounded-full border bg-zinc-800 border-gray-700 text-gray-200">${c}</span>`).join('')}</div>${warnHtml}`;
+        }
+        function renderPinnedUI() {
+            renderPinnedSlotTiles();
+            renderPinnedGearChips();
+            renderPinnedWeaponCards();
+            renderPinnedSetCounter();
         }
         function renderDisabledExoticToggles() {
             const gearWrap = document.getElementById('disabledExoticGearWrap');
