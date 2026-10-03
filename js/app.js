@@ -530,17 +530,16 @@
                 const item = pinnedItemForSlot(slot);
                 if (item) {
                     const god = isGearGodRoll(item);
-                    const conflict = false; // Slot-Kacheln erlauben nur 1 Teil pro Slot -> kein Konflikt mehr moeglich
-                    return `<div id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" title="${escapeHtml(pinnedGearLabel(item))}" class="relative cursor-pointer text-left p-2.5 rounded-lg border transition ${conflict ? 'border-red-500/50 bg-red-500/10' : 'border-div-accent/60 bg-div-accent/10 hover:bg-div-accent/20'}">
-                        <button type="button" onclick="event.stopPropagation(); removePinnedGearItemBySlot('${escapeHtml(slot)}')" aria-label="${escapeHtml(slot)}-Fixierung aufheben" class="absolute top-1 right-1 w-4 h-4 leading-none rounded-full bg-zinc-700 hover:bg-red-600 text-gray-300 hover:text-white text-[10px]">×</button>
-                        <div class="text-[10px] uppercase text-gray-400 flex items-center gap-1">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}${god ? ' <span class="text-amber-400">★</span>' : ''}</div>
+                    return `<div id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" title="${escapeHtml(pinnedGearLabel(item))}" class="pinned-tile">
+                        <button type="button" onclick="event.stopPropagation(); removePinnedGearItemBySlot('${escapeHtml(slot)}')" aria-label="${escapeHtml(slot)}-Fixierung aufheben" class="pin-tile-remove">×</button>
+                        <div class="text-[10px] uppercase text-gray-400">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}${god ? ' <span class="text-amber-400">★</span>' : ''}</div>
                         <div class="text-xs font-semibold text-white truncate">${escapeHtml(item.setName)}</div>
                         <div class="text-[10px] text-gray-300 truncate">${escapeHtml(pinTileCoreLabel(item))}</div>
                         <div class="text-[10px] text-gray-400 truncate">${escapeHtml(pinTileAttrLabel(item))}</div>
                     </div>`;
                 }
-                return `<button type="button" id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" class="text-left p-2.5 rounded-lg border border-dashed border-gray-600 hover:border-div-accent/60 hover:bg-zinc-800/60 transition">
-                    <div class="text-[10px] uppercase text-gray-400 flex items-center gap-1">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}</div>
+                return `<button type="button" id="${pinSlotTileId(slot)}" onclick="openPinSlotPicker('${escapeHtml(slot)}')" class="pinned-tile-empty">
+                    <div class="text-[10px] uppercase text-gray-400">${PIN_SLOT_ICONS[slot] || ''} ${escapeHtml(slot)}</div>
                     <div class="text-sm text-gray-500">＋</div>
                 </button>`;
             }).join('');
@@ -568,14 +567,16 @@
                     `<button type="button" data-id="${escapeHtml(String(i.id))}" data-label="${escapeHtml(pinnedGearLabel(i).toLowerCase() + ' ' + slot.toLowerCase())}" onclick="selectPinnedGearItem('${escapeHtml(String(i.id))}');" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-zinc-800 text-[11px] ${isGearGodRoll(i) ? 'text-amber-400 font-semibold' : 'text-gray-200'}">${escapeHtml(pinnedGearLabel(i))}</button>`
                 ).join('') + `</div>`
                 : `<p class="text-[11px] text-gray-500 p-2">Keine ${escapeHtml(slot)}-Teile im Inventar.</p>`;
-            pop.innerHTML = `<div class="flex items-center justify-between mb-1"><span class="text-xs font-bold uppercase text-gray-400">${escapeHtml(slot)} fixieren ${god ? `<span class="text-amber-400 normal-case font-normal">★ ${god} God-Roll${god > 1 ? 's' : ''}</span>` : ''}</span><button type="button" onclick="closePinSlotPicker()" aria-label="Schließen" class="text-gray-400 hover:text-white">×</button></div>${search}${list}`;
+            pop.innerHTML = `<div class="pin-picker-head"><span class="text-xs font-bold uppercase text-gray-400">${escapeHtml(slot)} fixieren ${god ? `<span class="text-amber-400 normal-case font-normal">★ ${god} God-Roll${god > 1 ? 's' : ''}</span>` : ''}</span><button type="button" onclick="closePinSlotPicker()" aria-label="Schließen" class="text-gray-400 hover:text-white">×</button></div>${search}${list}`;
             document.body.appendChild(pop);
             const rect = anchor.getBoundingClientRect();
-            const popW = 288;
+            const popW = pop.offsetWidth;
             let left = rect.left;
             if (left + popW > window.innerWidth - 8) left = Math.max(8, window.innerWidth - popW - 8);
             pop.style.left = left + 'px';
-            pop.style.top = Math.min(rect.bottom + 6, window.innerHeight - rect.height - 12) + 'px';
+            let top = rect.bottom + 6;
+            if (top + pop.offsetHeight > window.innerHeight - 8) top = Math.max(8, rect.top - pop.offsetHeight - 6);
+            pop.style.top = top + 'px';
             if (candidates.length) {
                 const inp = pop.querySelector('#pinSlotPickerSearch');
                 if (inp) inp.focus();
@@ -624,7 +625,7 @@
             if (!weapons.length) { wrap.innerHTML = '<p class="text-[11px] text-gray-500">Keine Waffen im Inventar.</p>'; return; }
             wrap.innerHTML = weapons.map(w => {
                 const sel = pinnedWeaponIds.has(String(w.id));
-                return `<button type="button" onclick="togglePinnedWeapon('${escapeHtml(String(w.id))}');" aria-pressed="${sel}" class="text-left px-2 py-1.5 rounded-lg border text-[11px] transition ${sel ? 'bg-div-accent/20 border-div-accent/60 text-white font-semibold' : 'bg-zinc-800 border-gray-700 text-gray-200 hover:bg-zinc-700'}">${escapeHtml(w.name)}${w.isExotic ? ' <span class="text-amber-400">★</span>' : ''}${sel ? ' <span class="text-div-accent">✓</span>' : ''}</button>`;
+                return `<button type="button" onclick="togglePinnedWeapon('${escapeHtml(String(w.id))}');" aria-pressed="${sel}" class="pinned-weapon-card${sel ? ' active' : ''}">${escapeHtml(w.name)}${w.isExotic ? ' <span class="text-amber-400">★</span>' : ''}${sel ? ' <span class="div-accent">✓</span>' : ''}</button>`;
             }).join('');
         }
         function togglePinnedWeapon(id) {
@@ -714,7 +715,7 @@
                 }
             }
             const chips = Object.entries(setCount).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'de')).map(([n, c]) => `${escapeHtml(n)} ${c}/6`);
-            const warnHtml = warnings.length ? `<div class="w-full text-[11px] rounded-lg p-1.5 mt-1 border bg-amber-500/10 border-amber-500/40 text-amber-300">⚠️ ${warnings.join(' · ')}</div>` : '';
+            const warnHtml = warnings.length ? `<div class="pin-set-warn">⚠️ ${warnings.join(' · ')}</div>` : '';
             wrap.innerHTML = `<div class="flex flex-wrap gap-1">${chips.map(c => `<span class="text-[11px] px-2 py-0.5 rounded-full border bg-zinc-800 border-gray-700 text-gray-200">${c}</span>`).join('')}</div>${warnHtml}`;
         }
         function renderPinnedUI() {
