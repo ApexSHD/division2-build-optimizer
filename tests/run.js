@@ -1217,7 +1217,18 @@ const setInput = (id, value) => {
       protoWeaponOk: weaponsInventory.filter(x => !x.isExotic).every(x => {
         const pv = bisWeaponProtoVariant(x, settings);
         return pv === null || (pv.isPrototype === true && pv.core1 === 22.5);
-      })
+      }),
+      brandMinorOk: (() => {
+        const brand = bisGearItemsForDb(settings.targetGreenSet).filter(i => i.cls === 'brand');
+        return brand.length > 0 && brand.every(i => {
+          const attrs = (i.attrs || []).filter(a => a.type !== 'wd');
+          return attrs.length === 2 && attrs.some(a => a.type === 'chc') && attrs.some(a => a.type === 'chd');
+        });
+      })(),
+      brandProtoOk: (() => {
+        const brand = bisGearItemsForDb(settings.targetGreenSet).filter(i => i.cls === 'brand' && i.proto);
+        return brand.length > 0 && brand.every(i => (i.attrs || []).some(a => a.type === 'chd' && a.val > 12));
+      })()
     };
   })()`);
   t('BiS: Berechnung liefert ein Ergebnis', bis.ok === true);
@@ -1225,6 +1236,8 @@ const setInput = (id, value) => {
   t('BiS: 4 Striker-Teile bei erzwungenem 4p', bis.striker === 4);
   t('BiS: Prototyp-Teile eingerechnet (WD-Kern 22,5 bei Proto-Teil)', bis.protoWd === true);
   t('BiS: Prototyp-Waffen-Variante verfuegbar (Nicht-Exotin)', bis.protoWeaponOk === true);
+  t('BiS: Marken-Teile mit 2 Minor-Attributen (CHC+CHD)', bis.brandMinorOk === true);
+  t('BiS: Marken-Prototyp-Varianten mit x1,5 CHD (18)', bis.brandProtoOk === true);
   t('BiS: hoechstens 1 Exot (Spielregel)', (bis.exotics || 0) <= 1);
   t('BiS: synthetisches Inventar aus der DB erzeugt', (bis.synth || 0) > 50);
   // BiS-Karte wird nach der Optimierung gerendert und zeigt Slot-Details
