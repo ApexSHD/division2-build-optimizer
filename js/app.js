@@ -378,6 +378,11 @@
         function pinnedGearLabel(item) {
             const base = `${item.setName} (${item.slot})`;
             const attrs = [];
+            // Kernattribut zuerst (z.B. "Waffenschaden 15"), damit der Anwender
+            // auf einen Blick sieht, ob Kern + alle Attribute auf Max sind.
+            const coreType = (typeof gearCoreTypeOf === 'function') ? gearCoreTypeOf(item) : (item.coreType || 'wd');
+            const coreVal = item.coreVal != null ? item.coreVal : (coreType === 'wd' ? (item.wd || 0) : 0);
+            if (coreVal > 0) attrs.push(`${gearCoreLabel(coreType)} ${formatGermanNumber(coreVal)}`);
             if (item.namedKey) attrs.push(`${item.namedKey} ${formatGermanNumber(item.namedVal || 0)}%`);
             const sig = (typeof gearAttrSig === 'function') ? gearAttrSig(item) : '';
             const last = sig ? sig.split('|').pop() : '';
