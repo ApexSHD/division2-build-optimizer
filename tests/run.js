@@ -1238,6 +1238,25 @@ const setInput = (id, value) => {
   t('BiS: Prototyp-Waffen-Variante verfuegbar (Nicht-Exotin)', bis.protoWeaponOk === true);
   t('BiS: Marken-Teile mit 2 Minor-Attributen (CHC+CHD)', bis.brandMinorOk === true);
   t('BiS: Marken-Prototyp-Varianten mit x1,5 CHD (18)', bis.brandProtoOk === true);
+  // computeBuildCache muss attrs-Array-Teile (synthetische BiS-Teile haben
+  // KEINE chc/chd-Legacy-Felder) vollstaendig summieren - vorher gingen die
+  // Attribute komplett verloren (BiS zeigte z.B. nur 27% CHC statt ~57%).
+  const bisCache = w.eval(`(function () {
+    const synth = bisGearItemsForDb('striker');
+    const attrsOnly = synth.filter(i => (i.attrs || []).length > 0 && !i.chc && !i.chd);
+    const bc = computeBuildCache(attrsOnly.slice(0, 6), { targetGreenSet: 'striker', targetWeaponType: 'AR', specialization: 'none' });
+    let sumChc = 0, sumChd = 0, sumDta = 0, sumDttooc = 0;
+    attrsOnly.slice(0, 6).forEach(i => (i.attrs || []).forEach(a => {
+      if (a.type === 'chc') sumChc += a.val;
+      if (a.type === 'chd') sumChd += a.val;
+      if (a.type === 'dta') sumDta += a.val;
+      if (a.type === 'dttooc') sumDttooc += a.val;
+    }));
+    return { hasAttrsOnly: attrsOnly.length > 0, chcOk: Math.abs(bc.buildChc - sumChc) < 1e-9, chdOk: Math.abs(bc.buildChd - sumChd) < 1e-9, dtaOk: Math.abs((bc.buildDta || 0) - sumDta) < 1e-9, dttoocOk: Math.abs((bc.buildDttooc || 0) - sumDttooc) < 1e-9, bcChc: bc.buildChc, sumChc };
+  })()`);
+  t('BiS: Build-Cache summiert attrs-Array-Teile (CHC)', bisCache.chcOk === true && bisCache.bcChc > 0);
+  t('BiS: Build-Cache summiert attrs-Array-Teile (CHD)', bisCache.chdOk === true);
+  t('BiS: Build-Cache summiert Nicht-CHC/CHD-Attribute (DTA/DTToOC)', bisCache.dtaOk === true && bisCache.dttoocOk === true);
   t('BiS: hoechstens 1 Exot (Spielregel)', (bis.exotics || 0) <= 1);
   t('BiS: synthetisches Inventar aus der DB erzeugt', (bis.synth || 0) > 50);
   // BiS-Karte wird nach der Optimierung gerendert und zeigt Slot-Details

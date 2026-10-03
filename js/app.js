@@ -4918,10 +4918,23 @@
         function computeBuildCache(build, settings) {
             const targetGreenSet = settings.targetGreenSet;
             const targetWeaponType = settings.targetWeaponType;
+            // Attribut-Summen aus gearItemAttrs: Nutzt das attrs-Array, wenn
+            // vorhanden (synthetische BiS-Teile, DB-Import), sonst die
+            // Legacy-Felder chc/chd. Echte Teile speichern beides mit
+            // identischen Werten - gearItemAttrs verhindert Doppelzaehlung.
+            const attrSumOf = (type) => build.reduce((sum, i) => sum + gearItemAttrs(i)
+                .filter(a => a.type === type && a.val > 0)
+                .reduce((x, a) => x + a.val, 0), 0);
             const cache = {
-                buildChc: build.reduce((s, i) => s + (i.chc || 0), 0),
-                buildChd: build.reduce((s, i) => s + (i.chd || 0), 0),
-                buildWd: build.reduce((s, i) => s + (i.wd || 0) + (gearIsTriCoreItem(i) && gearCoreTypeOf(i) !== 'wd' ? (i.proto ? 22.5 : 15) : 0), 0),
+                buildChc: attrSumOf('chc'),
+                buildChd: attrSumOf('chd'),
+                buildDta: attrSumOf('dta'),
+                buildDttooc: attrSumOf('dttooc'),
+                buildDth: attrSumOf('dth'),
+                buildHsd: attrSumOf('hsd'),
+                buildRof: attrSumOf('rof'),
+                buildWh: attrSumOf('wh'),
+                buildWd: build.reduce((s, i) => s + (i.wd || 0) + (gearIsTriCoreItem(i) && gearCoreTypeOf(i) !== 'wd' ? (i.proto ? 22.5 : 15) : 0), 0) + attrSumOf('wd'),
                 buildSkillTiers: build.reduce((s, i) => s + gearSkillTiersOf(i), 0),
                 buildArmorCores: build.reduce((s, i) => s + (gearCoreTypeOf(i) === 'armour' || gearIsTriCoreItem(i) ? 1 : 0), 0),
                 named: { wd: 0, chc: 0, chd: 0, dta: 0, dttooc: 0, dth: 0 },
@@ -5358,7 +5371,7 @@
             // wirkt in-game v.a. als Nachladetempo → fließt über den
             // Sustain-Faktor (Feuerzeit vs. Feuerzeit+Nachladezeit) in den
             // zeitlichen Schaden ein. 1% WH ≈ 1% Nachladetempo.
-            const buildWh = bc.delta.wh || 0;
+            const buildWh = (bc.delta.wh || 0) + (bc.buildWh || 0);
             let buildChc = bc.buildChc;
             let buildChd = bc.buildChd;
             let buildWd = bc.buildWd;
@@ -5370,6 +5383,14 @@
             totalChc += bc.named.chc;
             totalChd += bc.named.chd;
             totalWd += bc.named.wd;
+            // Gear-Minor-Attribute aus dem Build (nicht-CHC/CHD-Typen wie
+            // DTA/DTToOC/HSD/RoF/WH) - bisher nur via attrs-Array erfasst
+            // und von der Summe uebersehen worden.
+            totalDta += bc.buildDta || 0;
+            totalDttooc += bc.buildDttooc || 0;
+            totalDth += bc.buildDth || 0;
+            totalHsd += bc.buildHsd || 0;
+            totalRof += bc.buildRof || 0;
 
             // Herkunfts-Snapshot 2: Named-Item-Boni (Differenz zur Waffe)
             const srcNamed = { wd: bc.named.wd, chc: bc.named.chc, chd: bc.named.chd };
