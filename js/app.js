@@ -388,8 +388,23 @@
         }
         // #108 D: God-Roll-Erkennung für Inventar-Teile (ohne Formular-Kontext).
         // Kern auf Max (WD 15 / Rüstung 170k / Skill 1; Prototyp ×1,5) und
-        // jedes Attribut auf seinem Max (GEAR_ATTR_TYPES bzw. fixer DB-Wert
-        // bei Named/Exoten). Unbekannte Maxima (null) disqualifizieren nicht.
+        // ALLE vorgesehenen Attribut-Slots auf ihrem Max (GEAR_ATTR_TYPES bzw.
+        // fixer DB-Wert bei Named/Exoten). God-Roll nur, wenn die Anzahl der
+        // erfassten Attribute der Soll-Anzahl der Klasse entspricht:
+        // Named/Exotic = fixed + free (DB), grüne Gear-Sets = 1 Minor,
+        // Brand-/Standard-Teile = 2 Minors. Unbekannte Maxima (null) disqualifizieren nicht.
+        function gearExpectedAttrCount(item) {
+            if (!item || !item.setName) return null;
+            const name = (item.setName + '').toLowerCase().replace(/’/g, "'");
+            const dbKey = (typeof GEAR_DB !== 'undefined') && Object.keys(GEAR_DB).find(n => n.toLowerCase() === name);
+            if (dbKey) {
+                const e = GEAR_DB[dbKey];
+                return (e.fixed || []).length + (e.free || 0);
+            }
+            const isGreen = (typeof GREEN_SET_MATCH !== 'undefined') && Object.keys(GREEN_SET_MATCH).some(key => (GREEN_SET_MATCH[key] || []).some(f => name.includes(f)));
+            if (isGreen) return 1;
+            return 2;
+        }
         function isGearGodRoll(item) {
             if (!item) return false;
             const proto = !!item.proto;
@@ -405,6 +420,8 @@
             const fixedMap = {};
             (dbE && dbE.fixed || []).forEach(f => { fixedMap[f[0]] = f[1]; });
             const attrs = (typeof gearItemAttrs === 'function') ? gearItemAttrs(item) : [];
+            const expected = (typeof gearExpectedAttrCount === 'function') ? gearExpectedAttrCount(item) : null;
+            if (expected !== null && attrs.length < expected) return false;
             const protoFactor = proto ? GEAR_PROTO_FACTOR : 1;
             return attrs.every(a => {
                 let max = null;
