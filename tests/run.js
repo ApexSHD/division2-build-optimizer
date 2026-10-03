@@ -309,6 +309,33 @@ const setInput = (id, value) => {
   t('Fixieren: Prototyp God-Roll (Kern 22,5 + CHC 9 + CHD 18 = Proto-Max)', godCheck.protoGod === true);
   t('Fixieren: Prototyp kein God-Roll bei Normal-Max-Attribut (CHC 6 < 9)', godCheck.protoNotGod === false);
   t('Fixieren: Prototyp kein God-Roll bei Normal-Max-Kern (wd 15 < 22,5)', godCheck.protoNotGodCore === false);
+  // God-Roll nur, wenn ALLE vorgesehenen Attribut-Slots erfasst und auf Max sind
+  const slotCheck = w.eval(`(function(){
+    // Grünes Gear-Set (Striker): 1 Minor-Slot -> nur 1 Attribut nötig, aber auf Max
+    const greenFull = { slot: 'Maske', setName: 'Striker', wd: 15, attrs: [{ type: 'chc', val: 6 }], namedKey: '', namedVal: 0 };
+    const greenPartial = { slot: 'Maske', setName: 'Striker', wd: 15, attrs: [], namedKey: '', namedVal: 0 };
+    // Brand-Set (Ceska): 2 Minor-Slots -> beide müssen erfasst sein
+    const brandFull = { slot: 'Maske', setName: 'Ceska', wd: 15, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 12 }], namedKey: '', namedVal: 0 };
+    const brandPartial = { slot: 'Maske', setName: 'Ceska', wd: 15, attrs: [{ type: 'chc', val: 6 }], namedKey: '', namedVal: 0 };
+    // Named (Coyote's Mask): DB fixed chc 6 + chd 12, free 0 -> beide fixen Attribute nötig
+    const namedFull = { slot: 'Maske', setName: "Coyote's Mask", wd: 15, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 12 }], namedKey: '', namedVal: 0 };
+    const namedPartial = { slot: 'Maske', setName: "Coyote's Mask", wd: 15, attrs: [{ type: 'chc', val: 6 }], namedKey: '', namedVal: 0 };
+    // Exotic (Catharsis): DB fixed incomrepair 20 + armorregen 4925, free 0
+    const exoticFull = { slot: 'Maske', setName: 'Catharsis', coreType: 'skill', coreVal: 1, attrs: [{ type: 'incomrepair', val: 20 }, { type: 'armorregen', val: 4925 }], namedKey: '', namedVal: 0 };
+    const exoticPartial = { slot: 'Maske', setName: 'Catharsis', coreType: 'skill', coreVal: 1, attrs: [{ type: 'incomrepair', val: 20 }], namedKey: '', namedVal: 0 };
+    return { greenFull: isGearGodRoll(greenFull), greenPartial: isGearGodRoll(greenPartial),
+             brandFull: isGearGodRoll(brandFull), brandPartial: isGearGodRoll(brandPartial),
+             namedFull: isGearGodRoll(namedFull), namedPartial: isGearGodRoll(namedPartial),
+             exoticFull: isGearGodRoll(exoticFull), exoticPartial: isGearGodRoll(exoticPartial) };
+  })()`);
+  t('Fixieren: God-Roll Green-Set mit vollem Minor-Slot (Striker chc 6)', slotCheck.greenFull === true);
+  t('Fixieren: kein God-Roll bei Green-Set ohne erfasste Attribute', slotCheck.greenPartial === false);
+  t('Fixieren: God-Roll Brand-Set mit beiden Minors auf Max (chc 6 + chd 12)', slotCheck.brandFull === true);
+  t('Fixieren: kein God-Roll bei Brand-Set mit nur 1 von 2 Attributen', slotCheck.brandPartial === false);
+  t('Fixieren: God-Roll Named-Item mit allen fixen Attributen (Coyote chc 6 + chd 12)', slotCheck.namedFull === true);
+  t('Fixieren: kein God-Roll bei Named-Item mit fehlendem fixen Attribut', slotCheck.namedPartial === false);
+  t('Fixieren: God-Roll Exotic mit allen fixen Attributen (Catharsis)', slotCheck.exoticFull === true);
+  t('Fixieren: kein God-Roll bei Exotic mit fehlendem fixen Attribut', slotCheck.exoticPartial === false);
   const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
   t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
