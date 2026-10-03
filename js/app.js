@@ -481,6 +481,7 @@
             const ws = document.getElementById('pinnedWeaponIds');
             if (gs) [...gs.selectedOptions].forEach(o => o.selected = false);
             if (ws) [...ws.selectedOptions].forEach(o => o.selected = false);
+            renderPinnedGearChips();
             markPinnedStale();
         }
         function isExoticGearDisabled(item) {
@@ -506,10 +507,24 @@
                     }
                     return true;
                 });
-                gearSel.innerHTML = items.map(i =>
-                    `<option value="${escapeHtml(String(i.id))}"${(pinnedGearIds.has(String(i.id)) || prev.has(String(i.id))) ? ' selected' : ''}${isGearGodRoll(i) ? ' style="color:#fbbf24;font-weight:600"' : ''}>${escapeHtml(pinnedGearLabel(i))}</option>`
+                // Nach Slot gruppieren (Maske, Weste, ...) und Label als
+                // "Slot — Set (Attribute)" aufbauen: der Slot ist beim Scannen
+                // das primäre Suchkriterium.
+                const GEAR_SLOT_ORDER = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
+                const bySlot = {};
+                items.forEach(i => { (bySlot[i.slot] = bySlot[i.slot] || []).push(i); });
+                const slots = Object.keys(bySlot).sort((a, b) => {
+                    const ia = GEAR_SLOT_ORDER.indexOf(a), ib = GEAR_SLOT_ORDER.indexOf(b);
+                    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b, 'de');
+                });
+                gearSel.innerHTML = slots.map(slot =>
+                    `<optgroup label="${escapeHtml(slot)}">` +
+                    bySlot[slot].map(i =>
+                        `<option value="${escapeHtml(String(i.id))}"${(pinnedGearIds.has(String(i.id)) || prev.has(String(i.id))) ? ' selected' : ''}${isGearGodRoll(i) ? ' style="color:#fbbf24;font-weight:600"' : ''}>${escapeHtml(pinnedGearLabel(i))}</option>`
+                    ).join('') + '</optgroup>'
                 ).join('');
                 syncPinnedFromSelect('gear');
+                renderPinnedGearChips();
             }
             if (weapSel) {
                 const prev = new Set([...weapSel.selectedOptions].map(o => o.value));
@@ -527,6 +542,43 @@
             }
             renderDisabledExoticToggles();
             markPinnedStale();
+        }
+        // Fixierte Gear-Teile als Chips darstellen (Sichtbarkeit + 1-Klick-Entfernung).
+        // Slot-Konflikte (mehrere fixierte Teile im selben Slot) werden rot markiert.
+        function renderPinnedGearChips() {
+            const wrap = document.getElementById('pinnedGearChips');
+            if (!wrap) return;
+            const items = pinnedGearItems();
+            if (!items.length) { wrap.innerHTML = ''; return; }
+            const slotCount = {};
+            items.forEach(i => { slotCount[i.slot] = (slotCount[i.slot] || 0) + 1; });
+            wrap.innerHTML = items.map(i => {
+                const conflict = slotCount[i.slot] > 1;
+                const tip = conflict ? ` title="Slot ${escapeHtml(i.slot)} ist mehrfach fixiert — im Build passt nur ein Teil pro Slot"` : '';
+                return `<span${tip} class="inline-flex items-center gap-1 text-[11px] pl-2 pr-1 py-0.5 rounded-full border ${conflict ? 'bg-red-500/10 border-red-500/50 text-red-300' : 'bg-zinc-800 border-gray-700 text-gray-200'}">${isGearGodRoll(i) ? '<span class="text-amber-400">★</span> ' : ''}${escapeHtml(i.setName)} (${escapeHtml(i.slot)})<button type="button" onclick="removePinnedGearItem('${String(i.id)}')" aria-label="Fixierung aufheben" class="w-4 h-4 leading-none rounded-full bg-zinc-700 hover:bg-red-600 text-gray-300 hover:text-white">×</button></span>`;
+            }).join('');
+        }
+        function removePinnedGearItem(id) {
+            const k = String(id);
+            pinnedGearIds.delete(k);
+            const sel = document.getElementById('pinnedGearIds');
+            if (sel) [...sel.options].forEach(o => { if (o.value === k) o.selected = false; });
+            renderPinnedGearChips();
+            markPinnedStale();
+        }
+        // Suchfeld: Optionen im Pin-Dropdown nach Name/Slot/Attribut filtern.
+        function filterPinnedGearOptions() {
+            const sel = document.getElementById('pinnedGearIds');
+            const searchEl = document.getElementById('pinnedGearSearch');
+            if (!sel || !searchEl) return;
+            const q = searchEl.value.trim().toLowerCase();
+            [...sel.querySelectorAll('option')].forEach(o => {
+                const t = o.textContent.toLowerCase();
+                const slot = (o.closest('optgroup') || {}).label || '';
+                const match = !q || t.includes(q) || slot.toLowerCase().includes(q);
+                o.hidden = !match;
+                o.disabled = !match;
+            });
         }
         function renderDisabledExoticToggles() {
             const gearWrap = document.getElementById('disabledExoticGearWrap');

@@ -307,6 +307,45 @@ const setInput = (id, value) => {
   })()`);
   t('Fixieren: Eclipse-Teil erscheint bei Eclipse-Ziel', eclipseCheck.hasEclipse === true);
   t('Fixieren: Striker-Teil verschwindet bei Eclipse-Ziel', eclipseCheck.hasStriker === false);
+  // Usability: Chips, Slot-Gruppierung, Suchfeld, Konflikt-Markierung
+  const pinUi = w.eval(`(function(){
+    const out = {};
+    out.hasSearch = !!document.getElementById('pinnedGearSearch');
+    out.hasChipsWrap = !!document.getElementById('pinnedGearChips');
+    out.grouped = [...document.getElementById('pinnedGearIds').querySelectorAll('optgroup')].map(g => g.label);
+    // Zwei Maske-Teile fixieren -> Slot-Konflikt, Chip rot
+    const strikerMask = gearInventory.find(i => i.setName === 'Striker' && i.slot === 'Maske');
+    const coyote = gearInventory.find(i => i.setName === "Coyote's Mask");
+    pinnedGearIds.clear();
+    pinnedGearIds.add(String(strikerMask.id));
+    if (coyote) pinnedGearIds.add(String(coyote.id));
+    renderPinnedGearChips();
+    const chips = [...document.getElementById('pinnedGearChips').children];
+    out.chipCount = chips.length;
+    out.conflictChips = chips.filter(c => c.className.includes('red')).length;
+    // x-Button entfernt Fixierung
+    removePinnedGearItem(String(strikerMask.id));
+    out.afterRemove = pinnedGearIds.size;
+    out.chipsAfterRemove = document.getElementById('pinnedGearChips').children.length;
+    // Suchfeld filtert
+    document.getElementById('pinnedGearSearch').value = 'ceska';
+    filterPinnedGearOptions();
+    const opts = [...document.getElementById('pinnedGearIds').querySelectorAll('option')];
+    out.visibleOptTexts = opts.filter(o => !o.hidden).map(o => o.textContent);
+    document.getElementById('pinnedGearSearch').value = '';
+    filterPinnedGearOptions();
+    pinnedGearIds.clear();
+    syncPinnedFromSelect('gear');
+    renderPinnedGearChips();
+    return out;
+  })()`);
+  t('Fixieren: Suchfeld vorhanden', pinUi.hasSearch === true);
+  t('Fixieren: Chips-Wrapper vorhanden', pinUi.hasChipsWrap === true);
+  t('Fixieren: Dropdown nach Slots gruppiert', Array.isArray(pinUi.grouped) && pinUi.grouped.includes('Maske'));
+  t('Fixieren: fixierte Teile als Chips gerendert', pinUi.chipCount === 2);
+  t('Fixieren: Slot-Konflikt als roter Chip markiert', pinUi.conflictChips === 2);
+  t('Fixieren: x-Button entfernt Fixierung', pinUi.afterRemove === 1 && pinUi.chipsAfterRemove === 1);
+  t('Fixieren: Suchfeld filtert Optionen (Ceska)', JSON.stringify(pinUi.visibleOptTexts).includes('Ceska') && !JSON.stringify(pinUi.visibleOptTexts).includes('Striker'));
   t('Fixieren: Waffen-Liste enthaelt Inventar-Waffen', pinWeap ? [...pinWeap.options].length >= 1 : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Gear gerendert', !!($('disabledExoticGearWrap')));
   // God-Roll-Kennzeichnung: Striker-Standardteile (wd 15, chc 6, chd 12) sind Max-Rolls
