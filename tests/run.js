@@ -338,6 +338,7 @@ const setInput = (id, value) => {
   t('Fixieren: kein God-Roll bei Exotic mit fehlendem fixen Attribut', slotCheck.exoticPartial === false);
   const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
   t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
+  t('Fixieren: Kernattribut im Dropdown-Label sichtbar (Waffenschaden 15)', godOption.textContent ? godOption.textContent.includes('Waffenschaden 15') : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
   const firstExoticOpt = pinWeap ? ([...pinWeap.options].find(o => o.textContent.includes('\u2605')) || {}) : {};
   if (firstExoticOpt.value) {
