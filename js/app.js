@@ -406,9 +406,15 @@
                 const e = GEAR_DB[dbKey];
                 return (e.fixed || []).length + (e.free || 0);
             }
-            const isGreen = (typeof GREEN_SET_MATCH !== 'undefined') && Object.keys(GREEN_SET_MATCH).some(key => (GREEN_SET_MATCH[key] || []).some(f => name.includes(f)));
-            if (isGreen) return 1;
+            if (isGreenGearName(name)) return 1;
             return 2;
+        }
+        // True, wenn der setName zu einem grünen Gear-Set gehört (Named/Exotic
+        // aus der DB werden vorher separat behandelt).
+        function isGreenGearName(name) {
+            const n = (name || '').toLowerCase().replace(/’/g, "'");
+            if (!n) return false;
+            return (typeof GREEN_SET_MATCH !== 'undefined') && Object.keys(GREEN_SET_MATCH).some(key => (GREEN_SET_MATCH[key] || []).some(f => n.includes(f)));
         }
         function isGearGodRoll(item) {
             if (!item) return false;
@@ -465,10 +471,18 @@
             if (gearSel) {
                 const prev = new Set([...gearSel.selectedOptions].map(o => o.value));
                 const seen = new Set();
+                const targetKey = (document.getElementById('targetGreenSet') || {}).value || '';
                 const items = gearInventory.filter(i => {
                     const k = String(i.id);
                     if (seen.has(k)) return false;
                     seen.add(k);
+                    // Named-/Exotic-Teile sind immer auswählbar.
+                    if (GEAR_DB[i.setName]) return true;
+                    // Grüne Gear-Set-Teile nur, wenn sie zum zu optimierenden Set passen
+                    // (z.B. bei Striker-Ziel keine Eclipse-Teile anzeigen).
+                    if (isGreenGearName(i.setName)) {
+                        return !targetKey || brandKeyMatches((i.setName || '').toLowerCase(), targetKey);
+                    }
                     return true;
                 });
                 gearSel.innerHTML = items.map(i =>
@@ -6786,6 +6800,7 @@ function prefilterItemScore(item, targetWeaponType) {
                 document.getElementById('forceBackpackLabel').textContent = `Rucksack aus ${info.name} erzwingen`;
                 document.getElementById('greenSetHint').textContent = `2p: ${info.n2} · 3p: ${info.n3} · 4p: ${info.n4} — Hinweis: ${info.modeled}.`;
             }
+            if (typeof updateForceExoticOptions === 'function') updateForceExoticOptions();
             updateSetAvailability();
         }
 
