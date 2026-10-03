@@ -6014,15 +6014,17 @@ function prefilterItemScore(item, targetWeaponType) {
                     showToast('⚠️ Mein Spiel-Build konnte nicht berechnet werden: ' + mbErr.message, 'error');
                 }
 
-                renderComparison();
                 // Perfektes Build (#124): synthetisches DB-Inventar durch dieselbe
                 // Optimierung schicken und parallel zum Inventar-Ergebnis anzeigen.
+                // Vor renderComparison() berechnen, damit der Schadensverlauf-Chart
+                // die BiS-Vergleichskurve bereits kennt.
                 try {
                     bisBuildResult = calculateBestInSlotBuild(settings);
                 } catch (bisErr) {
                     console.warn('Best-in-Slot-Berechnung fehlgeschlagen:', bisErr);
                     bisBuildResult = null;
                 }
+                renderComparison();
                 renderBestInSlotCard();
                 updateTabUI();
                 showToast(`Vergleich berechnet: ${lastComparisonData.length} Top-Kombinationen aus ${allBuilds.length} Build-Kandidaten (heuristische Vorauswahl: beste Teile je Slot)!`, 'success');
@@ -6404,8 +6406,33 @@ function prefilterItemScore(item, targetWeaponType) {
                 if (v.points[v.points.length - 1].s !== v.max) v.points.push({ s: v.max, dmg: dmgAt(v.max, v.perWd, v.perChd, v.flat) });
             });
 
+            // Perfektes Build (#124): BiS-Kurve mit denselben Stack-Parametern
+            // wie der aktive Build, aber mit den BiS-Werten (gestrichelt, gold).
+            const bisRes = (typeof bisBuildResult !== 'undefined') ? bisBuildResult : null;
+            let bisPoints = null;
+            if (bisRes && bisRes.result && bisRes.result.stackInfo && bisRes.result.nonCritHit) {
+                const bsi = bisRes.result.stackInfo;
+                const bisNonCritNoStack = ((bsi.wd || 0) > 0 ? bisRes.result.nonCritHit / (1 + (bsi.wd || 0) / 100) : bisRes.result.nonCritHit)
+                    / (1 + (bsi.flatAmp || 0) / 100);
+                const bisChcFrac = Math.min(bisRes.result.cappedChc || 0, 60) / 100;
+                const bisChd0 = (bisRes.result.finalChd || 0) - (bsi.chd || 0);
+                const bisDmgAt = (stacks, perWd, perChd, flat) =>
+                    bisNonCritNoStack * (1 + (stacks * perWd) / 100) * (1 + ((flat || 0)) / 100) *
+                    ((1 - bisChcFrac) + (1 + (bisChd0 + stacks * perChd) / 100) * bisChcFrac);
+                const curVariant = variants.find(v => (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0))) || variants[0];
+                const stepB = Math.max(1, Math.ceil(curVariant.max / 100));
+                bisPoints = [];
+                for (let s = 0; s <= curVariant.max; s += stepB) {
+                    bisPoints.push({ s, dmg: bisDmgAt(s, curVariant.perWd, curVariant.perChd, curVariant.flat) });
+                }
+                if (bisPoints[bisPoints.length - 1].s !== curVariant.max) bisPoints.push({ s: curVariant.max, dmg: bisDmgAt(curVariant.max, curVariant.perWd, curVariant.perChd, curVariant.flat) });
+            }
             const maxTime = secPerStack ? secPerStack * Math.max(...variants.map(v => v.max)) : Math.max(...variants.map(v => v.max));
-            const yMin = dmgAt(0, basePerWd, basePerChd), yMax = Math.max(...variants.map(v => dmgAt(v.max, v.perWd, v.perChd, v.flat)));
+            let yMin = dmgAt(0, basePerWd, basePerChd), yMax = Math.max(...variants.map(v => dmgAt(v.max, v.perWd, v.perChd, v.flat)));
+            if (bisPoints && bisPoints.length) {
+                yMin = Math.min(yMin, bisPoints[0].dmg);
+                yMax = Math.max(yMax, bisPoints[bisPoints.length - 1].dmg);
+            }
             const W = 800, H = 300, padL = 70, padR = 16, padT = 16, padB = 40;
             const px = s => padL + ((secPerStack ? s * secPerStack : s) / maxTime) * (W - padL - padR);
             const py = d => H - padB - ((d - yMin) / ((yMax - yMin) || 1)) * (H - padT - padB);
@@ -6449,6 +6476,14 @@ function prefilterItemScore(item, targetWeaponType) {
                 }
             });
 
+            // BiS-Kurve zeichnen: gold, gestrichelt, mit Endpunkt-Wert
+            if (bisPoints && bisPoints.length) {
+                const d = bisPoints.map((p, i) => (i === 0 ? 'M' : 'L') + px(p.s).toFixed(1) + ',' + py(p.dmg).toFixed(1)).join(' ');
+                paths += `<path d="${d}" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 4" opacity="0.9"></path>`;
+                const last = bisPoints[bisPoints.length - 1];
+                paths += `<circle class="stack-chart-point" cx="${px(last.s).toFixed(1)}" cy="${py(last.dmg).toFixed(1)}" r="4" fill="#fbbf24"></circle>`;
+                paths += `<text class="stack-chart-value" x="${Math.min(px(last.s) + 6, W - padR - 60).toFixed(1)}" y="${(py(last.dmg) - 8).toFixed(1)}" fill="#fbbf24">${(last.dmg / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })}k</text>`;
+            }
             const legend = variants.map(v => {
                 const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0));
                 return `<span class="inline-flex items-center gap-1.5 ${isCurrent ? 'font-bold text-white' : 'text-gray-400'}">
@@ -6456,7 +6491,8 @@ function prefilterItemScore(item, targetWeaponType) {
                     ${escapeHtml(v.label)} <span class="text-[10px] text-gray-500">(max. ${v.max} × ${[v.perWd ? `+${formatGermanNumber(v.perWd)}% WD` : '', v.perChd ? `+${formatGermanNumber(v.perChd)}% CHD` : '', v.perRof ? `+${formatGermanNumber(v.perRof)}% RPM` : ''].filter(Boolean).join(' & ')}/Stack)</span>
                     ${isCurrent ? '<span class="text-[10px] text-div-accent">◄ dieser Build</span>' : ''}
                 </span>`;
-            }).join('<span class="text-gray-600 mx-2">·</span>');
+            }).join('<span class="text-gray-600 mx-2">·</span>')
+            + ((bisPoints && bisPoints.length) ? '<span class="text-gray-600 mx-2">·</span><span class="inline-flex items-center gap-1.5 font-bold text-amber-400"><span style="display:inline-block;width:18px;height:3px;background:#fbbf24;opacity:.9"></span>Perfektes Build (BiS) <span class="text-[10px] text-gray-500">— Maximum aus der DB zum Vergleich</span></span>' : '');
 
             const tFull = secPerStack ? (si.maxStacks * secPerStack).toFixed(1) + 's' : si.maxStacks + (conf.killBased ? ' Kills' : ' Treffer');
             return `
@@ -6727,9 +6763,17 @@ function prefilterItemScore(item, targetWeaponType) {
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <table class="w-full text-xs text-gray-200"><tbody>${slotRows}</tbody></table>
                         <div>
-                            <p class="text-sm"><strong class="text-gray-300">Waffe:</strong> ${escapeHtml(weapon.name)}${rarityBadge(weapon.isExotic, weaponIsNamed(weapon))}</p>
+                            <p class="text-sm"><strong class="text-gray-300">Waffe:</strong> ${escapeHtml(weapon.name)}${rarityBadge(weapon.isExotic, weaponIsNamed(weapon))}${weapon.isPrototype ? protoBadge() : ''}</p>
                             <p class="text-xs text-gray-400 mt-1">Ø Schuss: ${formatGermanNumber(Math.round(best.avgDmg))} · Effektiver DPS: <strong class="text-emerald-400">${formatGermanNumber(Math.round(best.effectiveDPS))}</strong></p>
-                            ${ownDps ? `<p class="text-xs text-gray-400 mt-1">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — Differenz: <strong class="text-amber-400">+${formatGermanNumber(Math.round(gap * 10) / 10)}%</strong></p>` : ''}
+                            <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-gray-300 mt-2">
+                                <p>WD: <strong>+${formatGermanNumber(Math.round(best.totalWd * 10) / 10)}%</strong></p>
+                                <p>CHC: <strong>${formatGermanNumber(Math.min(Math.round(best.finalChc * 10) / 10, 60))}%</strong>${best.finalChc > 60 ? ' <span class="text-amber-400" title="Cap 60% erreicht — überschüssige CHC wirken nicht">(cap: ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '%)</span>' : ''}</p>
+                                <p>CHD: <strong>+${formatGermanNumber(Math.round(best.finalChd * 10) / 10)}%</strong></p>
+                                <p>DTA: <strong>+${formatGermanNumber(Math.round((best.dtaBonus || 0) * 10) / 10)}%</strong></p>
+                                <p>DTToOC: <strong>+${formatGermanNumber(Math.round((best.dttoocBonus || 0) * 10) / 10)}%</strong></p>
+                                <p>DTH: <strong>+${formatGermanNumber(Math.round((best.dthBonus || 0) * 10) / 10)}%</strong></p>
+                            </div>
+                            ${ownDps ? (() => { const gapRounded = Math.round(gap * 10) / 10; const gapTxt = gap >= 0 ? `+${formatGermanNumber(gapRounded)}%` : `${formatGermanNumber(gapRounded)}%`; const gapPhrase = gap >= 0 ? `Differenz: <strong class="text-amber-400">${gapTxt}</strong>` : `dein Build liegt <strong class="text-amber-400">${formatGermanNumber(Math.abs(gapRounded))}%</strong> über dem theoretischen Optimum (BiS priorisiert Kritchance; deine Kritschaden-lastigen Rollen können lokal besser sein)`; return `<p class="text-xs text-gray-400 mt-2">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — ${gapPhrase}</p>`; })() : ''}
                             <p class="text-xs text-gray-400 mt-1">${setChips}</p>
                         </div>
                     </div>

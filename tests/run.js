@@ -1237,6 +1237,15 @@ const setInput = (id, value) => {
   })()`);
   t('BiS: Karte im Ergebnisbereich gerendert', (await bisCard).rendered === true);
   t('BiS: Karte nennt DPS und Waffe', /(DPS|Schuss)/.test((await bisCard).text) && !!(await bisCard).text.includes('Waffe:'));
+  // BiS-Karte zeigt die Kennwerte (WD/CHC/CHD) und beachtet den CHC-Cap
+  t('BiS: Karte zeigt WD/CHC/CHD-Werte', (await bisCard).text.includes('WD: +') && (await bisCard).text.includes('CHC: ') && (await bisCard).text.includes('CHD: +'));
+  const bisChart = w.eval(`(function () {
+    const results = document.getElementById('comparisonResults');
+    const svg = results ? results.querySelector('svg.stack-chart') : null;
+    return { chart: !!svg, bisCurve: svg ? svg.innerHTML.includes('#fbbf24') : false, legend: results ? results.textContent.includes('Perfektes Build (BiS)') : false };
+  })()`);
+  t('BiS: Schadensverlauf-Chart enthaelt BiS-Vergleichskurve (gold)', bisChart.bisCurve === true);
+  t('BiS: Legende nennt Perfektes Build (BiS)', bisChart.legend === true);
 
   console.log('\n--- Zusammenfassung ---');
   summary();
