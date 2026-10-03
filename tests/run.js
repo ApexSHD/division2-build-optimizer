@@ -1218,6 +1218,10 @@ const setInput = (id, value) => {
         const pv = bisWeaponProtoVariant(x, settings);
         return pv === null || (pv.isPrototype === true && pv.core1 === 22.5);
       }),
+      // Optimierer soll CHD-Varianten waehlen, statt CHC ueber den 60%-Cap
+      // zu verschwenden: finalChc des Optimums darf den Cap nicht nennenswert
+      // ueberschreiten (kleine Toleranz fuer Mod-Rundungen).
+      chcWasteOk: (() => {        const r = res.result;        return r && r.finalChc <= 61;      })(),
       brandMinorOk: (() => {
         const brand = bisGearItemsForDb(settings.targetGreenSet).filter(i => i.cls === 'brand');
         return brand.length > 0 && brand.every(i => {
@@ -1236,6 +1240,7 @@ const setInput = (id, value) => {
   t('BiS: 4 Striker-Teile bei erzwungenem 4p', bis.striker === 4);
   t('BiS: Prototyp-Teile eingerechnet (WD-Kern 22,5 bei Proto-Teil)', bis.protoWd === true);
   t('BiS: Prototyp-Waffen-Variante verfuegbar (Nicht-Exotin)', bis.protoWeaponOk === true);
+  t('BiS: verschwendet keine CHC ueber den 60%-Cap (waehlt CHD)', bis.chcWasteOk === true);
   t('BiS: Marken-Teile mit 2 Minor-Attributen (CHC+CHD)', bis.brandMinorOk === true);
   t('BiS: Marken-Prototyp-Varianten mit x1,5 CHD (18)', bis.brandProtoOk === true);
   // Freie Roll-Slots muessen auch als CHD-Variante vorliegen, damit der
