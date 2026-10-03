@@ -78,3 +78,21 @@ body {
 /* Issue #79: horizontal scrollbare Tab-Leiste ohne sichtbare Scrollbar */
 .tabbar-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 .tabbar-scroll::-webkit-scrollbar { display: none; }
+/* Issue #120: Slot-Picker (Fixieren) - fixe Hoehe mit Scrollen und Suche bleibt sichtbar */
+#pinSlotPicker { position: fixed; z-index: 50; background-color: #18181b; border: 1px solid #374151; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,.6); padding: 8px; width: 320px; max-width: calc(100vw - 16px); }
+#pinSlotPicker .pin-picker-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+#pinSlotPicker #pinSlotPickerList { max-height: 45vh; overflow-y: auto; }
+/* Issue #120: Slot-Kacheln + Waffen-Karten (Fixieren) */
+#pinnedSlotTiles { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+@media (min-width: 640px) { #pinnedSlotTiles { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (min-width: 768px) { #pinnedSlotTiles { grid-template-columns: repeat(6, minmax(0,1fr)); } }
+.pinned-tile { position: relative; text-align: left; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,102,0,.6); background: rgba(255,102,0,.08); cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.pinned-tile:hover { background: rgba(255,102,0,.16); }
+.pinned-tile-empty { text-align: left; padding: 10px; border-radius: 8px; border: 1px dashed #4b5563; background: transparent; cursor: pointer; transition: border-color .15s ease, background .15s ease; }
+.pinned-tile-empty:hover { border-color: rgba(255,102,0,.6); background: rgba(39,39,42,.6); }
+.pin-tile-remove { position: absolute; top: 4px; right: 4px; width: 16px; height: 16px; line-height: 1; border-radius: 9999px; background: #3f3f46; color: #d1d5db; font-size: 10px; cursor: pointer; border: none; }
+.pin-tile-remove:hover { background: #dc2626; color: #fff; }
+.pinned-weapon-card { text-align: left; padding: 6px 8px; border-radius: 8px; border: 1px solid #374151; background: #27272a; color: #e5e7eb; font-size: 11px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.pinned-weapon-card:hover { background: #33333b; }
+.pinned-weapon-card.active { background: rgba(255,102,0,.18); border-color: rgba(255,102,0,.6); color: #fff; font-weight: 600; }
+.pin-set-warn { width: 100%; font-size: 11px; border-radius: 8px; padding: 6px; margin-top: 4px; border: 1px solid rgba(245,158,11,.4); background: rgba(245,158,11,.1); color: #fbbf24; }
