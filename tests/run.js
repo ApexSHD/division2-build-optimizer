@@ -297,11 +297,18 @@ const setInput = (id, value) => {
     const god = { slot: 'Maske', setName: 'Striker', wd: 15, chc: 6, chd: 12, namedKey: '', namedVal: 0 };
     const notGod = { slot: 'Maske', setName: 'Striker', wd: 15, chc: 3, chd: 12, namedKey: '', namedVal: 0 };
     const notGodCore = { slot: 'Maske', setName: 'Striker', wd: 12, chc: 6, chd: 12, namedKey: '', namedVal: 0 };
-    return { god: isGearGodRoll(god), notGod: isGearGodRoll(notGod), notGodCore: isGearGodRoll(notGodCore) };
+    // Prototyp: alle Maxima x1,5 (Kern 22,5%, CHC 9%, CHD 18%)
+    const protoGod = { slot: 'Maske', setName: 'Striker', proto: true, wd: 22.5, chc: 9, chd: 18, namedKey: '', namedVal: 0 };
+    const protoNotGod = { slot: 'Maske', setName: 'Striker', proto: true, wd: 22.5, chc: 6, chd: 18, namedKey: '', namedVal: 0 };
+    const protoNotGodCore = { slot: 'Maske', setName: 'Striker', proto: true, wd: 15, chc: 9, chd: 18, namedKey: '', namedVal: 0 };
+    return { god: isGearGodRoll(god), notGod: isGearGodRoll(notGod), notGodCore: isGearGodRoll(notGodCore), protoGod: isGearGodRoll(protoGod), protoNotGod: isGearGodRoll(protoNotGod), protoNotGodCore: isGearGodRoll(protoNotGodCore) };
   })()`);
   t('Fixieren: God-Roll-Erkennung (alles Max = God-Roll)', godCheck.god === true);
   t('Fixieren: kein God-Roll bei Teil-Roll (chc 3)', godCheck.notGod === false);
   t('Fixieren: kein God-Roll bei Kern unter Max (wd 12)', godCheck.notGodCore === false);
+  t('Fixieren: Prototyp God-Roll (Kern 22,5 + CHC 9 + CHD 18 = Proto-Max)', godCheck.protoGod === true);
+  t('Fixieren: Prototyp kein God-Roll bei Normal-Max-Attribut (CHC 6 < 9)', godCheck.protoNotGod === false);
+  t('Fixieren: Prototyp kein God-Roll bei Normal-Max-Kern (wd 15 < 22,5)', godCheck.protoNotGodCore === false);
   const godOption = pinGear ? ([...pinGear.options].find(o => o.textContent.includes('Striker (Maske)')) || {}) : {};
   t('Fixieren: God-Roll-Teil im Dropdown mit Kennzeichnung', godOption.textContent ? godOption.textContent.includes('God-Roll') : false);
   t('Fixieren: Abwahl-Chips fuer Exoten-Waffen gerendert', !!($('disabledExoticWeaponWrap')));
