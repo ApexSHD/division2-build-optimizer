@@ -970,6 +970,46 @@ const setInput = (id, value) => {
     t('HSD neutral bei 0% Kopfschuss (Kern-2-HSD aendert DPS nicht)', Math.abs(neutralCheck.a - neutralCheck.b) < 1e-6);
   }
 
+  // ===== 22. TALENT-SYNERGIEN (Issue #108 A2) =====
+  console.log('\n--- Talent-Synergien ---');
+  {
+    // buildProvidesTalentCondition: Sadist ohne Quelle vs. mit Trauma-Weste
+    const syn1 = w.eval(`buildProvidesTalentCondition('sadist', [{ slot: 'Weste', setName: 'Grupo Sombra', talent: '' }])`);
+    t('Synergie: Sadist ohne Quelle nicht lieferbar', syn1.possible === false);
+    const syn2 = w.eval(`buildProvidesTalentCondition('sadist', [{ slot: 'Weste', setName: 'Grupo Sombra', talent: 'trauma' }])`);
+    t('Synergie: Sadist mit Trauma-Weste lieferbar', syn2.possible === true && /Trauma/.test(syn2.via));
+    const syn3 = w.eval(`buildProvidesTalentCondition('sadist', [{ slot: 'Maske', setName: 'Ongoing Directive Maske', talent: '' }])`);
+    t('Synergie: Sadist mit Ongoing-Directive-Teil lieferbar', syn3.possible === true);
+    const syn4 = w.eval(`buildProvidesTalentCondition('vorschlaghammer', [{ slot: 'Weste', setName: "Negotiator's Dilemma Weste", talent: '' }])`);
+    t('Synergie: Vorschlaghammer mit Negotiator-Set lieferbar', syn4.possible === true);
+    const syn5 = w.eval(`buildProvidesTalentCondition('killer', [{ slot: 'Maske', setName: 'Airaldi', talent: '' }])`);
+    t('Synergie: Killer hat keine Synergie-Anforderung (immer moeglich)', syn5.possible === true);
+
+    // Integration im Hauptvergleich: Sadist zahlt nur mit Quelle bei talentsActive=false
+    const dpsCheck = w.eval(`(function () {
+      const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, talent: 'sadist', mods: {} };
+      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, exoticPerksActive: false, forceExoticWeapon: '' };
+      const buildOhne = [{ slot: 'Maske', setName: 'Airaldi', talent: '' }];
+      const buildMit = [{ slot: 'Weste', setName: 'Grupo Sombra', talent: 'trauma' }];
+      const rOhne = calculateWeaponWithBuild(fake, buildOhne, settings);
+      const rMit = calculateWeaponWithBuild(fake, buildMit, settings);
+      return { ohnetalent: rOhne.talentInfo.active, mit: rMit.talentInfo.active, via: rMit.talentInfo.synergyVia, dOhne: rOhne.effectiveDPS, dMit: rMit.effectiveDPS };
+    })()`);
+    t('Synergie: Sadist inaktiv ohne Quelle (Schalter aus)', dpsCheck.ohnetalent === false);
+    t('Synergie: Sadist aktiv mit Trauma-Weste (Schalter aus)', dpsCheck.mit === true);
+    t('Synergie: Synergie-Quelle im Ergebnis ausgewiesen', /Trauma/.test(dpsCheck.via || ''));
+    t('Synergie: DPS mit Synergie hoeher als ohne', dpsCheck.dMit > dpsCheck.dOhne);
+
+    // Schalter an: pauschale Annahme wie bisher (auch ohne Quelle)
+    const dpsOn = w.eval(`(function () {
+      const fake = { name: 'ACR', baseDmg: 100000, core1: 10, core2Type: null, core2Val: 0, minorType: null, minorVal: 0, type: 'AR', isExotic: false, talent: 'sadist', mods: {} };
+      const settings = { targetWeaponType: 'AR', specialization: 'none', knowHowLevel: 0, shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, exoticPerksActive: false, forceExoticWeapon: '' };
+      const r = calculateWeaponWithBuild(fake, [{ slot: 'Maske', setName: 'Airaldi', talent: '' }], settings);
+      return r.talentInfo.active;
+    })()`);
+    t('Synergie: Schalter an = pauschale Annahme (unveraehrtes Verhalten)', dpsOn === true);
+  }
+
   console.log('\n--- Zusammenfassung ---');
   summary();
 })().catch(e => {
