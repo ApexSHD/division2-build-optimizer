@@ -741,29 +741,8 @@
                     </div>
 
 
-                    <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold uppercase text-div-accent">Bedingte Waffen-Talente</label>
-                            <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
-                        </div>
-                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="talentsActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="rounded accent-orange-500 w-4 h-4">
-                            <span>Talent-Bedingung erfüllt <span class="text-gray-400 text-xs">(z.B. Sadist: Ziel blutet, Killer: nach Crit-Kill)</span></span>
-                        </label>
-                        <p class="text-xs text-gray-400">Beeinflusst nur Talente mit Voraussetzung. <strong>Aus</strong> (empfohlen): bedingte Talente zählen nur, wenn der Build die Bedingung selbst liefern kann (z.B. Sadist-Blutung über Trauma-Weste oder Ongoing Directive) — Synergien werden im Ergebnis ausgewiesen. <strong>An</strong>: Bedingungen pauschal als erfüllt angenommen. Das Ergebnis zeigt getrennt, ob und mit welchem Bonus das Talent eingerechnet wurde. Magazin-abhängige Talente (Optimist, Angespannt, Raserei) werden als Ø über ein volles Magazin berechnet (RPM, Magazingröße &amp; Nachladezeit aus der Waffen-DB).</p>
-                    </div>
-                    <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold uppercase text-div-accent">Exoten-Perks</label>
-                            <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
-                        </div>
-                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="exoticPerksActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderExoticPerkList();" class="rounded accent-orange-500 w-4 h-4">
-                            <span>Exotische Gear-Perks einrechnen <span class="text-gray-400 text-xs">(z.B. Catharsis, Memento, Coyote's Mask)</span></span>
-                        </label>
-                        <div id="exoticPerkListWrap" style="display:none" class="space-y-2"></div>
-                        <p class="text-xs text-gray-400">Rechnet die Perks numerisch erfassbarer Exoten ein (Catharsis, Memento, Catalyst, Sawyer's, Harrier Pride, Bloody Knuckles, Beacon, Investor, Blacklisters, Overdogs, Centurion Scabbard, Coyote's Mask). Stack-basierte Perks nutzen die Stack-Auslastung der Set-Stacks. Situative Perks gelten als aktiv. Utility-Perks (Heilung, Support) bleiben unberücksichtigt.</p>
-                    </div>
+                    
+                    
 
                     <div class="pt-3 border-t border-gray-800 space-y-2">
                         <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Zu optimierendes grünes Markenset</label>
@@ -851,31 +830,7 @@
                             </div>
                         </div>
 
-                    <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
-                        <label class="block text-xs font-bold uppercase text-div-accent">Gegnerprofil (Annahmen für DTA / DTH / DTToOC)</label>
-                        <p class="text-[11px] text-gray-400">Rüstungs- und Lebensenergie-Anteil gewichten, wie viel des Kampfes gegen die Rüstungs- bzw. Lebensenergie-Leiste stattfindet; der Ungedeckt-Anteil, wie viel Schaden DTToOC tatsächlich verstärkt. „Nur Lebensenergie“ = Rüstung 0 % / Lebensenergie 100 % (DTA bringt dann nichts).</p>
-                        <div class="flex items-center gap-3">
-                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Rüstungs-Anteil (%)</label>
-                            <input type="range"  aria-label="Gegnerprofil: Ruestungs-Anteil" id="enemyArmorShare" min="0" max="100" value="80" oninput="syncEnemySliders('armor')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ruestungs-Anteil (Eingabe)" id="enemyArmorShareInput" value="80" oninput="syncEnemySliders('armor')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Lebensenergie-Anteil (%)</label>
-                            <input type="range"  aria-label="Gegnerprofil: Lebensenergie-Anteil" id="enemyHealthShare" min="0" max="100" value="20" oninput="syncEnemySliders('health')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Lebensenergie-Anteil (Eingabe)" id="enemyHealthShareInput" value="20" oninput="syncEnemySliders('health')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Ungedeckt-Anteil (%)</label>
-                            <input type="range"  aria-label="Gegnerprofil: Ungedeckt-Anteil" id="enemyOocShare" min="0" max="100" value="70" oninput="syncEnemySliders('ooc')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ungedeckt-Anteil (Eingabe)" id="enemyOocShareInput" value="70" oninput="syncEnemySliders('ooc')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Kopfschuss-Anteil (%)</label>
-                            <input type="range"  aria-label="Gegnerprofil: Kopfschuss-Anteil" id="headshotShare" min="0" max="100" value="0" oninput="syncEnemySliders('headshot')" class="flex-1 accent-orange-500 cursor-pointer">
-                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Kopfschuss-Anteil (Eingabe)" id="headshotShareInput" value="0" oninput="syncEnemySliders('headshot')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
-                        </div>
-                        <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt / 0 % Kopfschüsse (HSD neutral).</p>
-                    </div>
+                    
                         <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
                             <div class="flex items-center justify-between flex-wrap gap-1">
                                 <span class="text-xs font-semibold uppercase text-gray-400">Gear fixieren <span class="normal-case font-normal text-amber-400">★ = God-Roll (alle vorgesehenen Attribute erfasst u. auf Max)</span></span>
@@ -961,6 +916,55 @@
                     <input type="number"  aria-label="Mindest-CHC" id="targetChc" min="0" max="100" value="50" class="w-16 p-1.5 rounded-lg text-xs text-center font-bold">
                     <span class="text-[11px] text-gray-400">Mod-Konfigurationen unterhalb dieses CHC-Werts werden bei der Optimierung übersprungen. Ist das Minimum mit keiner Konfiguration erreichbar, greift automatisch die beste verfügbare (mit Hinweis im Ergebnis).</span>
                     </div>
+            <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold uppercase text-div-accent">Bedingte Waffen-Talente</label>
+                            <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
+                        </div>
+                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
+                            <input type="checkbox" id="talentsActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="rounded accent-orange-500 w-4 h-4">
+                            <span>Talent-Bedingung erfüllt <span class="text-gray-400 text-xs">(z.B. Sadist: Ziel blutet, Killer: nach Crit-Kill)</span></span>
+                        </label>
+                        <p class="text-xs text-gray-400">Beeinflusst nur Talente mit Voraussetzung. <strong>Aus</strong> (empfohlen): bedingte Talente zählen nur, wenn der Build die Bedingung selbst liefern kann (z.B. Sadist-Blutung über Trauma-Weste oder Ongoing Directive) — Synergien werden im Ergebnis ausgewiesen. <strong>An</strong>: Bedingungen pauschal als erfüllt angenommen. Das Ergebnis zeigt getrennt, ob und mit welchem Bonus das Talent eingerechnet wurde. Magazin-abhängige Talente (Optimist, Angespannt, Raserei) werden als Ø über ein volles Magazin berechnet (RPM, Magazingröße &amp; Nachladezeit aus der Waffen-DB).</p>
+                    </div>
+            <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold uppercase text-div-accent">Exoten-Perks</label>
+                            <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
+                        </div>
+                        <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
+                            <input type="checkbox" id="exoticPerksActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderExoticPerkList();" class="rounded accent-orange-500 w-4 h-4">
+                            <span>Exotische Gear-Perks einrechnen <span class="text-gray-400 text-xs">(z.B. Catharsis, Memento, Coyote's Mask)</span></span>
+                        </label>
+                        <div id="exoticPerkListWrap" style="display:none" class="space-y-2"></div>
+                        <p class="text-xs text-gray-400">Rechnet die Perks numerisch erfassbarer Exoten ein (Catharsis, Memento, Catalyst, Sawyer's, Harrier Pride, Bloody Knuckles, Beacon, Investor, Blacklisters, Overdogs, Centurion Scabbard, Coyote's Mask). Stack-basierte Perks nutzen die Stack-Auslastung der Set-Stacks. Situative Perks gelten als aktiv. Utility-Perks (Heilung, Support) bleiben unberücksichtigt.</p>
+                    </div>
+            <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
+                        <label class="block text-xs font-bold uppercase text-div-accent">Gegnerprofil (Annahmen für DTA / DTH / DTToOC)</label>
+                        <p class="text-[11px] text-gray-400">Rüstungs- und Lebensenergie-Anteil gewichten, wie viel des Kampfes gegen die Rüstungs- bzw. Lebensenergie-Leiste stattfindet; der Ungedeckt-Anteil, wie viel Schaden DTToOC tatsächlich verstärkt. „Nur Lebensenergie“ = Rüstung 0 % / Lebensenergie 100 % (DTA bringt dann nichts).</p>
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Rüstungs-Anteil (%)</label>
+                            <input type="range"  aria-label="Gegnerprofil: Ruestungs-Anteil" id="enemyArmorShare" min="0" max="100" value="80" oninput="syncEnemySliders('armor')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ruestungs-Anteil (Eingabe)" id="enemyArmorShareInput" value="80" oninput="syncEnemySliders('armor')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Lebensenergie-Anteil (%)</label>
+                            <input type="range"  aria-label="Gegnerprofil: Lebensenergie-Anteil" id="enemyHealthShare" min="0" max="100" value="20" oninput="syncEnemySliders('health')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Lebensenergie-Anteil (Eingabe)" id="enemyHealthShareInput" value="20" oninput="syncEnemySliders('health')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Ungedeckt-Anteil (%)</label>
+                            <input type="range"  aria-label="Gegnerprofil: Ungedeckt-Anteil" id="enemyOocShare" min="0" max="100" value="70" oninput="syncEnemySliders('ooc')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Ungedeckt-Anteil (Eingabe)" id="enemyOocShareInput" value="70" oninput="syncEnemySliders('ooc')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <label class="text-xs text-gray-400 w-40 whitespace-nowrap">Kopfschuss-Anteil (%)</label>
+                            <input type="range"  aria-label="Gegnerprofil: Kopfschuss-Anteil" id="headshotShare" min="0" max="100" value="0" oninput="syncEnemySliders('headshot')" class="flex-1 accent-orange-500 cursor-pointer">
+                            <input type="text" inputmode="numeric"  aria-label="Gegnerprofil: Kopfschuss-Anteil (Eingabe)" id="headshotShareInput" value="0" oninput="syncEnemySliders('headshot')" class="w-16 p-1.5 text-center text-sm font-bold rounded">
+                        </div>
+                        <p class="text-[11px] text-gray-400">Wirkt auf den kombinierten Vergleich <strong>und</strong> die Empfehlungs-Scores im Inventar. Standard: 80 % Rüstung / 20 % Lebensenergie / 70 % ungedeckt / 0 % Kopfschüsse (HSD neutral).</p>
+                    </div>
+
                 </div>
             </div>
 
