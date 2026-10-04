@@ -305,8 +305,19 @@ function modDamageGain(mod, chc, chd, p) {
     return gain + util * 0.001;
 }
 
+// Manuell erfasste Mods einer Waffe (Auto-Mods ausgespart, siehe R5).
+function getManualMods(weapon) {
+    if (!weapon) return {};
+    if (weapon.isExotic || !weapon.autoMods) return weapon.mods || {};
+    return {};
+}
 // Beste Mod-Belegung für eine Waffe kalkulieren (nicht-Exotic, autoMods aktiv).
-function computeAutoMods(weapon) {
+// R5 (#132): gearChc = CHC-Basis aus dem tatsächlichen Build (Gear, Marken-/
+// Set-/Exot-Boni, SHD, Talent) OHNE die Waffen-Mods selbst. Fehlt der Wert
+// (klassische Aufrufe ohne Build-Kontext), gilt weiter die Krit-Chance-
+// Annahme aus den Einstellungen als Fallback. gearChd = CHD-Basis des Builds
+// (fuer die relative Bewertung CHC vs. CHD); Fallback 0 = altes Verhalten.
+function computeAutoMods(weapon, gearChc, gearChd) {
     const cats = ['optic', 'muzzle', 'underbarrel', 'magazine'];
     const mods = {};
     cats.forEach(c => { mods[c] = { type: '', val: 0, name: '', auto: true }; });
@@ -318,7 +329,10 @@ function computeAutoMods(weapon) {
     let chc = (weapon.core2Type === 'chc' ? weapon.core2Val : 0) + (weapon.minorType === 'chc' ? weapon.minorVal : 0);
     let chd = (weapon.core2Type === 'chd' ? weapon.core2Val : 0) + (weapon.minorType === 'chd' ? weapon.minorVal : 0);
     // Krit-Chance-Annahme aus den Gear-Einstellungen (Standard 60%)
-    const gearBaseChc = typeof gearCritChanceAssumption === 'function' ? gearCritChanceAssumption() * 100 : 60;
+    const gearBaseChc = (typeof gearChc === 'number' && gearChc >= 0)
+        ? gearChc
+        : (typeof gearCritChanceAssumption === 'function' ? gearCritChanceAssumption() * 100 : 60);
+    const gearChdVal = (typeof gearChd === 'number' && gearChd >= 0) ? gearChd : 0;
 
     // Reihenfolge: erst Slots mit Krit-Bezug (optic/muzzle), dann der Rest
     ['optic', 'muzzle', 'underbarrel', 'magazine'].forEach(cat => {
@@ -330,7 +344,10 @@ function computeAutoMods(weapon) {
         const p = Math.min(gearBaseChc + chc, 60) / 100;
         let best = null, bestGain = 0;
         catalog.forEach(m => {
-            const g = modDamageGain(m, chc, chd, p);
+            // R5: Krit-Basis (Gear/Build) mitgeben, damit der CHC-Beitrag
+            // am 60%-Cap korrekt gegen 0 geht (vorher: nur Waffen-CHC ->
+            // CHC-Mods wurden selbst am Cap bevorzugt).
+            const g = modDamageGain(m, gearBaseChc + chc, chd + gearChdVal, p);
             if (g > bestGain) { bestGain = g; best = m; }
         });
         if (best && best.bonus && best.bonus.val) {
@@ -339,7 +356,8 @@ function computeAutoMods(weapon) {
             if (best.bonus.type === 'chd') chd += Math.abs(best.bonus.val);
         }
     });
-    return mods;
+    // R5: Basis-CHC im Ergebnis ausweisen (Transparenz fuer Anzeige/Test)
+    return { mods: mods, info: { gearBaseChc: gearBaseChc, gearChd: gearChdVal, cappedBase: Math.min(gearBaseChc + chc, 60) } };
 }
 
 // Effektive Mods einer Waffe für die Berechnung/Darstellung:
@@ -349,7 +367,7 @@ function computeAutoMods(weapon) {
 function getEffectiveMods(weapon) {
     if (!weapon) return {};
     if (weapon.isExotic || !weapon.autoMods) return weapon.mods || {};
-    return computeAutoMods(weapon);
+    return computeAutoMods(weapon).mods;
 }
 
 function populateModSelects(weaponName, weaponType) {
