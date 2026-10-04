@@ -6035,18 +6035,7 @@ function prefilterItemScore(item, targetWeaponType) {
                     showToast('⚠️ Mein Spiel-Build konnte nicht berechnet werden: ' + mbErr.message, 'error');
                 }
 
-                // Perfektes Build (#124): synthetisches DB-Inventar durch dieselbe
-                // Optimierung schicken und parallel zum Inventar-Ergebnis anzeigen.
-                // Vor renderComparison() berechnen, damit der Schadensverlauf-Chart
-                // die BiS-Vergleichskurve bereits kennt.
-                try {
-                    bisBuildResult = calculateBestInSlotBuild(settings);
-                } catch (bisErr) {
-                    console.warn('Best-in-Slot-Berechnung fehlgeschlagen:', bisErr);
-                    bisBuildResult = null;
-                }
                 renderComparison();
-                renderBestInSlotCard();
                 updateTabUI();
                 showToast(`Vergleich berechnet: ${lastComparisonData.length} Top-Kombinationen aus ${allBuilds.length} Build-Kandidaten (heuristische Vorauswahl: beste Teile je Slot)!`, 'success');
             } finally {
@@ -6427,33 +6416,8 @@ function prefilterItemScore(item, targetWeaponType) {
                 if (v.points[v.points.length - 1].s !== v.max) v.points.push({ s: v.max, dmg: dmgAt(v.max, v.perWd, v.perChd, v.flat) });
             });
 
-            // Perfektes Build (#124): BiS-Kurve mit denselben Stack-Parametern
-            // wie der aktive Build, aber mit den BiS-Werten (gestrichelt, gold).
-            const bisRes = (typeof bisBuildResult !== 'undefined') ? bisBuildResult : null;
-            let bisPoints = null;
-            if (bisRes && bisRes.result && bisRes.result.stackInfo && bisRes.result.nonCritHit) {
-                const bsi = bisRes.result.stackInfo;
-                const bisNonCritNoStack = ((bsi.wd || 0) > 0 ? bisRes.result.nonCritHit / (1 + (bsi.wd || 0) / 100) : bisRes.result.nonCritHit)
-                    / (1 + (bsi.flatAmp || 0) / 100);
-                const bisChcFrac = Math.min(bisRes.result.cappedChc || 0, 60) / 100;
-                const bisChd0 = (bisRes.result.finalChd || 0) - (bsi.chd || 0);
-                const bisDmgAt = (stacks, perWd, perChd, flat) =>
-                    bisNonCritNoStack * (1 + (stacks * perWd) / 100) * (1 + ((flat || 0)) / 100) *
-                    ((1 - bisChcFrac) + (1 + (bisChd0 + stacks * perChd) / 100) * bisChcFrac);
-                const curVariant = variants.find(v => (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0))) || variants[0];
-                const stepB = Math.max(1, Math.ceil(curVariant.max / 100));
-                bisPoints = [];
-                for (let s = 0; s <= curVariant.max; s += stepB) {
-                    bisPoints.push({ s, dmg: bisDmgAt(s, curVariant.perWd, curVariant.perChd, curVariant.flat) });
-                }
-                if (bisPoints[bisPoints.length - 1].s !== curVariant.max) bisPoints.push({ s: curVariant.max, dmg: bisDmgAt(curVariant.max, curVariant.perWd, curVariant.perChd, curVariant.flat) });
-            }
             const maxTime = secPerStack ? secPerStack * Math.max(...variants.map(v => v.max)) : Math.max(...variants.map(v => v.max));
             let yMin = dmgAt(0, basePerWd, basePerChd), yMax = Math.max(...variants.map(v => dmgAt(v.max, v.perWd, v.perChd, v.flat)));
-            if (bisPoints && bisPoints.length) {
-                yMin = Math.min(yMin, bisPoints[0].dmg);
-                yMax = Math.max(yMax, bisPoints[bisPoints.length - 1].dmg);
-            }
             const W = 800, H = 300, padL = 70, padR = 16, padT = 16, padB = 40;
             const px = s => padL + ((secPerStack ? s * secPerStack : s) / maxTime) * (W - padL - padR);
             const py = d => H - padB - ((d - yMin) / ((yMax - yMin) || 1)) * (H - padT - padB);
@@ -6497,14 +6461,6 @@ function prefilterItemScore(item, targetWeaponType) {
                 }
             });
 
-            // BiS-Kurve zeichnen: gold, gestrichelt, mit Endpunkt-Wert
-            if (bisPoints && bisPoints.length) {
-                const d = bisPoints.map((p, i) => (i === 0 ? 'M' : 'L') + px(p.s).toFixed(1) + ',' + py(p.dmg).toFixed(1)).join(' ');
-                paths += `<path d="${d}" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 4" opacity="0.9"></path>`;
-                const last = bisPoints[bisPoints.length - 1];
-                paths += `<circle class="stack-chart-point" cx="${px(last.s).toFixed(1)}" cy="${py(last.dmg).toFixed(1)}" r="4" fill="#fbbf24"></circle>`;
-                paths += `<text class="stack-chart-value" x="${Math.min(px(last.s) + 6, W - padR - 60).toFixed(1)}" y="${(py(last.dmg) - 8).toFixed(1)}" fill="#fbbf24">${(last.dmg / 1000).toLocaleString('de-DE', { maximumFractionDigits: 1 })}k</text>`;
-            }
             const legend = variants.map(v => {
                 const isCurrent = (v.max === si.maxStacks) && (v.perWd === (si.perStackWd || 0)) && (v.perChd === (si.perStackChd || 0)) && (v.flat === (si.flatAmp || 0));
                 return `<span class="inline-flex items-center gap-1.5 ${isCurrent ? 'font-bold text-white' : 'text-gray-400'}">
@@ -6512,9 +6468,8 @@ function prefilterItemScore(item, targetWeaponType) {
                     ${escapeHtml(v.label)} <span class="text-[10px] text-gray-500">(max. ${v.max} × ${[v.perWd ? `+${formatGermanNumber(v.perWd)}% WD` : '', v.perChd ? `+${formatGermanNumber(v.perChd)}% CHD` : '', v.perRof ? `+${formatGermanNumber(v.perRof)}% RPM` : ''].filter(Boolean).join(' & ')}/Stack)</span>
                     ${isCurrent ? '<span class="text-[10px] text-div-accent">◄ dieser Build</span>' : ''}
                 </span>`;
-            }).join('<span class="text-gray-600 mx-2">·</span>')
-            + ((bisPoints && bisPoints.length) ? '<span class="text-gray-600 mx-2">·</span><span class="inline-flex items-center gap-1.5 font-bold text-amber-400"><span style="display:inline-block;width:18px;height:3px;background:#fbbf24;opacity:.9"></span>Perfektes Build (BiS) <span class="text-[10px] text-gray-500">— Maximum aus der DB zum Vergleich</span></span>' : '');
-
+            }).join('<span class="text-gray-600 mx-2">·</span>');
+            
             const tFull = secPerStack ? (si.maxStacks * secPerStack).toFixed(1) + 's' : si.maxStacks + (conf.killBased ? ' Kills' : ' Treffer');
             return `
                 <div class="stack-chart-wrap mt-6">
@@ -6637,186 +6592,6 @@ function prefilterItemScore(item, targetWeaponType) {
         // Optimierungs-Pipeline wie das echte Inventar. Ergebnis: das
         // theoretisch beste Build unter den aktuellen Einstellungen
         // (Ziel-Set, Gattung, Know-How, SHD, Gegnerprofil, Set-Zwänge).
-        let bisBuildResult = null;
-        const BIS_SLOT_ORDER = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
-        function bisAttrMax(type, proto) {
-            const cfg = GEAR_ATTR_TYPES[type];
-            let max = (cfg && cfg.max != null) ? cfg.max : null;
-            if (max != null && proto) max *= GEAR_PROTO_FACTOR;
-            return max;
-        }
-        function bisGearItemsForDb(targetGreenSet) {
-            const items = [];
-            let nextId = 900000;
-            const mk = (slot, setName, cls, coreType, attrs, proto) => {
-                const it = {
-                    id: nextId++, slot, setName, cls, proto: !!proto,
-                    namedKey: '', namedVal: 0,
-                    coreType: coreType || 'wd',
-                    attrs
-                };
-                if (coreType === 'wd') it.wd = proto ? 22.5 : 15;
-                else if (coreType === 'armour') it.coreVal = proto ? 255000 : 170000;
-                else if (coreType === 'skill') it.coreVal = proto ? 1.5 : 1;
-                return it;
-            };
-            // 1) Named- und Exotic-Teile aus der GEAR_DB (fixe Attribute auf DB-Max;
-            //    Nicht-Exoten zusaetzlich als Prototyp-Variante mit +50% Maxima)
-            Object.entries(GEAR_DB).forEach(([name, e]) => {
-                if (!e || !e.slot || BIS_SLOT_ORDER.indexOf(e.slot) < 0) return;
-                const proto = !!e.proto;
-                const mkAttrs = (isProto, freeType) => {
-                    const fixed = (e.fixed || []).map(([type, val]) => ({ type, val: val * (isProto ? GEAR_PROTO_FACTOR : 1) }));
-                    const free = e.free || 0;
-                    const attrs = [...fixed];
-                    for (let f = 0; f < free; f++) {
-                        const max = bisAttrMax(freeType || 'chc', isProto);
-                        if (max != null) attrs.push({ type: freeType || 'chc', val: max });
-                    }
-                    return attrs;
-                };
-                const freeCount = e.free || 0;
-                items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(proto), proto));
-                // Freie Roll-Slots alternativ als CHD statt CHC: Bei CHC ueber
-                // dem 60%-Cap ist Kritschaden optimal — der Optimierer waehlt.
-                if (freeCount > 0) {
-                    items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(proto, 'chd'), proto));
-                }
-                // Prototyp-Variante (x1,5): nur fuer Nicht-Exoten sinnvoll —
-                // Exoten haben fixe Werte ohne Prototyp-Bonus.
-                if (e.cls !== 'exotic' && !proto) {
-                    items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(true), true));
-                    if (freeCount > 0) {
-                        items.push(mk(e.slot, name, e.cls, e.core, mkAttrs(true, 'chd'), true));
-                    }
-                }
-            });
-            // 2) Green-Set-Teile des Ziel-Sets (alle 6 Slots; als Prototyp x1,5)
-            const greenInfo = GREEN_SET_INFO[targetGreenSet];
-            if (greenInfo) {
-                BIS_SLOT_ORDER.forEach(slot => {
-                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', false) }], false));
-                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chd', val: bisAttrMax('chd', false) }], false));
-                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chc', val: bisAttrMax('chc', true) }], true));
-                    items.push(mk(slot, greenInfo.name, 'green', 'wd', [{ type: 'chd', val: bisAttrMax('chd', true) }], true));
-                });
-            }
-            // 3) Marken-Fragmente je Slot (Brand-Sets mit WD-/CHC-/CHD-Fragmenten;
-            //    ebenfalls mit Prototyp-Variante)
-            Object.entries(BRAND_SET_INFO).forEach(([bkey, binfo]) => {
-                const frags = (binfo && Array.isArray(binfo.fragments)) ? binfo.fragments : [];
-                if (!frags.length) return;
-                BIS_SLOT_ORDER.forEach(slot => {
-                    [false, true].forEach(isProto => {
-                        const attrs = [
-                            { type: 'chc', val: bisAttrMax('chc', isProto) },
-                            { type: 'chd', val: bisAttrMax('chd', isProto) }
-                        ];
-                        items.push(mk(slot, binfo.name || bkey, 'brand', 'wd', attrs, isProto));
-                    });
-                });
-            });
-            return items;
-        }
-        // Prototyp-Variante (x1,5) einer Waffe: Kern 1, Kern 2 und Nebenattribut
-        // auf Prototyp-Maxima. Exoten behalten fixe Werte (kein Proto-Bonus).
-        function bisWeaponProtoVariant(weapon, settings) {
-            if (!weapon || weapon.isExotic || weapon.isPrototype) return null;
-            const core1 = core1Max(true);
-            const core2Type = weapon.core2Type || (WEAPON_CORE_ATTRIBUTES[weapon.type] || {}).core2;
-            const core2Val = core2Max(true, weapon.type, core2Type);
-            const minorType = weapon.minorType || 'chc';
-            const minorCfg = WEAPON_MINOR_ATTRIBUTES[minorType];
-            const minorVal = minorCfg ? minorCfg.max * 1.5 : null;
-            const proto = {
-                ...weapon,
-                id: 'bis-proto-' + weapon.id,
-                isPrototype: true,
-                core1,
-                core2Type,
-                core2Val: core2Val != null ? core2Val : weapon.core2Val,
-                minorType,
-                minorVal: minorVal != null ? minorVal : weapon.minorVal
-            };
-            return proto;
-        }
-        function calculateBestInSlotBuild(settings) {
-            const synth = bisGearItemsForDb(settings.targetGreenSet);
-            const builds = generateAllGearBuilds(synth, settings.targetGreenSet, settings.targetWeaponType, '', []);
-            if (!builds.length) return null;
-            const caches = new WeakMap();
-            const bestWeapon = calculateTopWeapons(settings)[0] || null;
-            if (!bestWeapon) return null;
-            // Waffen-Kandidaten: beste Inventar-Waffe + deren Prototyp-Variante
-            // (x1,5 Maxima) — die bessere gewinnt.
-            const weaponCandidates = [bestWeapon];
-            const protoWeapon = bisWeaponProtoVariant(bestWeapon, settings);
-            if (protoWeapon) weaponCandidates.push(protoWeapon);
-            let best = null;
-            weaponCandidates.forEach(wc => {
-                const scored = calculateTopBuildsForWeapon(wc, builds, settings, caches);
-                if (!scored.length) return;
-                scored.sort((a, b) => b.effectiveDPS - a.effectiveDPS);
-                if (!best || scored[0].effectiveDPS > best.result.effectiveDPS) {
-                    best = { result: scored[0], weapon: wc };
-                }
-            });
-            if (!best) return null;
-            return { result: best.result, weapon: best.weapon, synthCount: synth.length };
-        }
-        function renderBestInSlotCard() {
-            const box = document.getElementById('bisBuildCard');
-            if (!box) return;
-            if (!bisBuildResult || !bisBuildResult.result) { box.innerHTML = ''; return; }
-            const best = bisBuildResult.result;
-            const weapon = bisBuildResult.weapon;
-            const ownBest = (lastComparisonData && lastComparisonData[0]) || null;
-            const ownDps = ownBest ? ownBest.effectiveDPS : null;
-            const gap = (ownDps && best.effectiveDPS) ? ((best.effectiveDPS / ownDps - 1) * 100) : null;
-            const setCount = {};
-            best.build.forEach(i => { const k = brandKeyMatches((i.setName || '').toLowerCase(), document.getElementById('targetGreenSet').value) ? document.getElementById('targetGreenSet').value : (i.setName || ''); setCount[k] = (setCount[k] || 0) + 1; });
-            const setChips = Object.entries(setCount).map(([n, c]) => `${escapeHtml(GREEN_SET_INFO[n] ? GREEN_SET_INFO[n].name : n)} ×${c}`).join(' · ');
-            const slotRows = BIS_SLOT_ORDER.map(slot => {
-                const i = best.build.find(x => x.slot === slot);
-                if (!i) return `<tr><td class="py-1 pr-2 text-gray-400">${escapeHtml(slot)}</td><td class="py-1 text-gray-500">—</td></tr>`;
-                const dbE = GEAR_DB[i.setName];
-                const cls = dbE ? dbE.cls : '';
-                const god = isGearGodRoll(i);
-                return `<tr><td class="py-1 pr-2 text-gray-400 whitespace-nowrap">${escapeHtml(slot)}</td><td class="py-1">${cls === 'exotic' ? '🟠 ' : (cls === 'named' ? '🟡 ' : '')}${escapeHtml(i.setName)}${god ? ' <span class="text-amber-400">★</span>' : ''}<br><span class="text-[10px] text-gray-400">${escapeHtml(gearCoreDisplay(i))} · ${escapeHtml(gearItemAttrs(i).map(a => { const cfg = GEAR_ATTR_TYPES[a.type]; return (cfg ? cfg.label : a.type) + ' ' + formatGermanNumber(a.val); }).join(' · '))}</span></td></tr>`;
-            }).join('');
-            box.innerHTML = `
-                <div class="div-card p-6 rounded-xl border border-amber-500/30">
-                    <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2">
-                        <span class="text-amber-400">💎</span> Perfektes Build (Best-in-Slot)
-                        <span class="ml-auto text-xs font-normal text-gray-400">Maximum aus der Datenbank — God-Rolls, Set-Zwänge &amp; Gegnerprofil berücksichtigt</span>
-                    </h3>
-                    <p class="text-xs text-gray-400 mt-2">Theoretisches Optimum unter den aktuellen Einstellungen (${escapeHtml(weaponTypeLabel(bisTargetWeaponType()))} · ${escapeHtml(GREEN_SET_INFO[document.getElementById('targetGreenSet').value]?.name || '')}${document.getElementById('require4pc').checked ? ' · 4p erzwungen' : ''}).</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <table class="w-full text-xs text-gray-200"><tbody>${slotRows}</tbody></table>
-                        <div>
-                            <p class="text-sm"><strong class="text-gray-300">Waffe:</strong> ${escapeHtml(weapon.name)}${rarityBadge(weapon.isExotic, weaponIsNamed(weapon))}${weapon.isPrototype ? protoBadge() : ''}</p>
-                            <p class="text-xs text-gray-400 mt-1">Ø Schuss: ${formatGermanNumber(Math.round(best.avgDmg))} · Effektiver DPS: <strong class="text-emerald-400">${formatGermanNumber(Math.round(best.effectiveDPS))}</strong></p>
-                            <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-gray-300 mt-2">
-                                <p>WD: <strong>+${formatGermanNumber(Math.round(best.totalWd * 10) / 10)}%</strong></p>
-                                <p>CHC: <strong>${formatGermanNumber(Math.min(Math.round(best.finalChc * 10) / 10, 60))}%</strong>${best.finalChc > 60 ? ' <span class="text-amber-400" title="Die rollbare Kritchance wäre ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '% — über dem Cap. Alles über 60% CHC wirkt NICHT; der Überschuss wäre verschenkt.">(CHC über Cap: ' + formatGermanNumber(Math.round(best.finalChc * 10) / 10) + '% rollbar, wirksam nur 60%)</span>' : ''}</p>
-                                <p>CHD: <strong>+${formatGermanNumber(Math.round(best.finalChd * 10) / 10)}%</strong></p>
-                                <p>DTA: <strong>+${formatGermanNumber(Math.round((best.dtaBonus || 0) * 10) / 10)}%</strong></p>
-                                <p>DTToOC: <strong>+${formatGermanNumber(Math.round((best.dttoocBonus || 0) * 10) / 10)}%</strong></p>
-                                <p>DTH: <strong>+${formatGermanNumber(Math.round((best.dthBonus || 0) * 10) / 10)}%</strong></p>
-                            </div>
-                            <p class="text-xs text-gray-400 mt-2">🔧 Gear-Mod-Plätze: ${(best.mods && best.mods.chcCount) || 0}× Kritische Trefferchance (+6%) und ${(best.mods && best.mods.chdCount) || 0}× Kritischer Trefferschaden (+12%)</p>
-                            <p class="text-[10px] text-gray-500">Waffen-Mods: aus deiner besten Waffe (Visier/Mündung/Unterlauf/Magazin, s. Detailansicht)</p>
-                            ${ownDps ? (() => { const gapRounded = Math.round(gap * 10) / 10; const gapTxt = gap >= 0 ? `+${formatGermanNumber(gapRounded)}%` : `${formatGermanNumber(gapRounded)}%`; const gapPhrase = gap >= 0 ? `Differenz: <strong class="text-amber-400">${gapTxt}</strong>` : `dein Build liegt <strong class="text-amber-400">${formatGermanNumber(Math.abs(gapRounded))}%</strong> über dem BiS-Vorschlag — bei rollbarer CHC über dem 60%-Cap können deine Kritschaden-lastigen Rollen dem theoretischen Optimum voraus sein`; return `<p class="text-xs text-gray-400 mt-2">Dein bestes Inventar-Build: ${formatGermanNumber(Math.round(ownDps))} DPS — ${gapPhrase}</p>`; })() : ''}
-                            <p class="text-xs text-gray-400 mt-1">${setChips}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-        function bisTargetWeaponType() {
-            const el = document.getElementById('targetWeaponType');
-            return el ? el.value : 'AR';
-        }
         function renderComparison() {
             if (!lastComparisonData || lastComparisonData.length === 0) {
                 document.getElementById('comparisonResults').innerHTML = `
