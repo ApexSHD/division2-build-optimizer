@@ -1208,6 +1208,48 @@ const setInput = (id, value) => {
     t('Synergie: Schalter an = pauschale Annahme (unveraehrtes Verhalten)', dpsOn === true);
   }
 
+  // ===== R3 (#132): Cap-bewusste Mod-Konfiguration (Mindest-CHC am gecappten Wert) =====
+  console.log('\n--- R3: Cap-bewusste CHC/CHD-Mod-Aufteilung ---');
+  {
+    // Build liegt ohne Mod-CHC schon am/am naechsten Cap (61% > 60%):
+    // weitere CHC-Mods waeren verschenkt -> CHD-reichste Konfiguration muss gewinnen
+    const r3 = w.eval(`(() => {
+      const settings = { targetWeaponType: 'AR', specialization: 'none', shdMax: true, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, gearTalentsActive: true, exoticPerksActive: true, pinnedWeapon: [] };
+      const mk16 = { name: 'SOCOM Mk16 Prototyp', type: 'AR', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: { optic: { type: 'chc', val: 5 }, muzzle: { type: 'chc', val: 5 }, underbarrel: { type: 'chc', val: 7 }, magazine: { type: 'chd', val: 10 } }, talent: 'none', knowHow: 30 };
+      const build = [
+        { id: 1, slot: 'Maske', setName: "Coyote's Mask", coreType: 'wd', wd: 15, chc: 6, chd: 12, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 12 }] },
+        { id: 2, slot: 'Rucksack', setName: 'Striker', coreType: 'wd', wd: 22.5, chc: 0, chd: 18, attrs: [{ type: 'chd', val: 18 }] },
+        { id: 3, slot: 'Weste', setName: 'Ceska', coreType: 'wd', wd: 15, chc: 6, chd: 18, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 18 }] },
+        { id: 4, slot: 'Handschuhe', setName: 'Striker', coreType: 'wd', wd: 21.9, chc: 0, chd: 17.5, attrs: [{ type: 'chd', val: 17.5 }] },
+        { id: 5, slot: 'Holster', setName: 'Striker', coreType: 'wd', wd: 20.7, chc: 0, chd: 18, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 18 }] },
+        { id: 6, slot: 'Knieschoner', setName: 'Striker', coreType: 'wd', wd: 22.5, chc: 0, chd: 18, attrs: [{ type: 'chd', val: 18 }] }
+      ];
+      const res = calculateWeaponWithBuild(mk16, build, settings, null);
+      return { mods: res.mods, finalChc: res.finalChc, cappedChc: res.cappedChc, finalChd: res.finalChd, below: res.chcBelowTarget };
+    })()`);
+    t('R3: Build am Cap waehlt CHD-Mod statt CHC-Mod', r3.mods.chcCount === 0 && r3.mods.chdCount === 3);
+    t('R3: cappedChc bleibt 60', r3.cappedChc === 60);
+    t('R3: uncapped finalChc liegt ueber 60 (verschenkt ausgewiesen)', r3.finalChc > 60);
+    // Mindest-CHC 50 wird am gecappten CHC erfuellt -> kein belowTarget-Flag
+    t('R3: Mindest-CHC 50 als erfuellt markiert (Cap zaehlt)', r3.below === false);
+    // Kontrollfall: Build weit unter Cap -> CHC-Mods bleibenFirst Choice
+    const r3b = w.eval(`(() => {
+      const settings = { targetWeaponType: 'AR', specialization: 'none', shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, gearTalentsActive: true, exoticPerksActive: false, pinnedWeapon: [] };
+      const weak = { name: 'W', type: 'AR', baseDmg: 40000, core1: 15, core2Type: 'dth', core2Val: 10, minorType: 'dttooc', minorVal: 10, mods: {}, talent: 'none', knowHow: 0 };
+      const build = [
+        { id: 1, slot: 'Maske', setName: 'Airaldi', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] },
+        { id: 2, slot: 'Rucksack', setName: 'Striker', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] },
+        { id: 3, slot: 'Weste', setName: 'Ceska', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] },
+        { id: 4, slot: 'Handschuhe', setName: 'Striker', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] },
+        { id: 5, slot: 'Holster', setName: 'Striker', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] },
+        { id: 6, slot: 'Knieschoner', setName: 'Striker', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [] }
+      ];
+      const res = calculateWeaponWithBuild(weak, build, settings, null);
+      return { mods: res.mods, finalChc: res.finalChc };
+    })()`);
+    t('R3: Build unter Cap profitiert weiter von CHC-Mods', r3b.mods.chcCount >= 1);
+  }
+
   console.log('\n--- Globale Einstellungen: Defaults & Ausruestungs-Talente-Schalter ---');
   t('Bedingte Waffen-Talente: Standard an', (() => { const c = $('talentsActive'); return !!c && c.checked === true; })());
   t('Exoten-Perks: Standard an', (() => { const c = $('exoticPerksActive'); return !!c && c.checked === true; })());

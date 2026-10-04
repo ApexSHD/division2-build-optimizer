@@ -5602,7 +5602,12 @@
                 let avgBulletDmg = (nonCritHit * (1 - cappedChc / 100)) + (critHit * (cappedChc / 100));
                 let effectiveDPS = avgBulletDmg * rofMult * sustainMult;
 
-                const meetsTarget = finalChc >= targetChc;
+                // R3 (#132): Zielerfuellung am EFFECTIVENEN (gecappten) CHC
+                // pruefen, nicht am Rohwert. Ist der Build ohnehin am 60%-Cap,
+                // erfuellt JEDE Konfiguration das Minimum - der DPS-Vergleich
+                // waehlt dann automatisch die CHD-reichste (CHC ueber Cap
+                // waere verschenktes Potenzial).
+                const meetsTarget = cappedChc >= targetChc;
                 if (meetsTarget) anyMeetsTarget = true;
                 // Bevorzugt Konfigurationen, die das Mindest-CHC erreichen;
                 // sonst die beste overall (Fallback-Teilmenge).
