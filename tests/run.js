@@ -482,7 +482,7 @@ const setInput = (id, value) => {
   `);
   t('Exoten-Perk im Vorauswahl-Score: mit aktivierten Perks hoher als ohne', perkScore.on > perkScore.off + 1);
   t('Exoten-Perk im Vorauswahl-Score: Coyote schlaegt Striker-Maske bei aktiven Perks', perkScore.on > perkScore.striker);
-  const perkChk = $('exoticPerksActive'); if (perkChk) perkChk.checked = false;
+  const perkChk = $('exoticPerksActive'); if (perkChk) perkChk.checked = true; // Standard wiederherstellen (Default: an)
 
   // Fixiertes Gear: alle Ergebnis-Builds enthalten das gepinnte Teil
   const picaroId = w.eval(`(function(){
@@ -1202,6 +1202,30 @@ const setInput = (id, value) => {
     })()`);
     t('Synergie: Schalter an = pauschale Annahme (unveraehrtes Verhalten)', dpsOn === true);
   }
+
+  console.log('\n--- Globale Einstellungen: Defaults & Ausruestungs-Talente-Schalter ---');
+  t('Bedingte Waffen-Talente: Standard an', (() => { const c = $('talentsActive'); return !!c && c.checked === true; })());
+  t('Exoten-Perks: Standard an', (() => { const c = $('exoticPerksActive'); return !!c && c.checked === true; })());
+  t('SHD-Stufe 1.000: Standard an', (() => { const c = $('shdMax'); return !!c && c.checked === true; })());
+  t('Bedingte Ausruestungs-Talente: Schalter vorhanden, Standard an', (() => { const c = $('gearTalentsActive'); return !!c && c.checked === true; })());
+
+  // Bedingtes Gear-Talent (Wachsamkeit +25% WD) nur bei aktivem Ausruestungs-Schalter
+  const gearTalentDpsOff = w.eval(`(() => {
+    const settings = { targetWeaponType: 'AR', specialization: 'none', shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, gearTalentsActive: false, exoticPerksActive: false, pinnedWeapon: [] };
+    const build = [{ id: 1, slot: 'Weste', setName: 'Grup Iran Arms', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [], talent: 'vigilance' }];
+    const weapon = { name: 'T', type: 'AR', baseDmg: 10000, core1: 10, core2Type: 'none', core2Val: 0, minorType: 'none', minorVal: 0, mods: {}, talent: 'none', knowHow: 0 };
+    const cache = computeBuildCache(build, settings);
+    return cache.delta.wd;
+  })()`);
+  const gearTalentDpsOn = w.eval(`(() => {
+    const settings = { targetWeaponType: 'AR', specialization: 'none', shdMax: false, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: false, gearTalentsActive: true, exoticPerksActive: false, pinnedWeapon: [] };
+    const build = [{ id: 1, slot: 'Weste', setName: 'Grup Iran Arms', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [], talent: 'vigilance' }];
+    const cache = computeBuildCache(build, settings);
+    return cache.delta.wd;
+  })()`);
+  t('Ausruestungs-Talente: Wachsamheit (+25% WD) wirkt bei Schalter an', gearTalentDpsOn === 25);
+  t('Ausruestungs-Talente: Wachsamheit wirkt NICHT bei Schalter aus', gearTalentDpsOff !== 25);
+  t('Ausruestungs-Schalter unabhaengig von Waffen-Talente-Schalter', gearTalentDpsOn === 25);
 
   console.log('\n--- Zusammenfassung ---');
   summary();
