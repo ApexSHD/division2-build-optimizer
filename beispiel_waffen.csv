@@ -1,0 +1,3 @@
+﻿Name;Typ;Basis-Schaden;Kern1;Kern2Typ;Kern2Wert;NebenTyp;NebenWert;VisierTyp;VisierWert;MündungTyp;MündungWert;UnterlaufTyp;UnterlaufWert;MagazinTyp;MagazinWert;Talent;Exotisch;Prototyp;KnowHow
+Mk16;Sturmgewehr (AR);59.221;22,5;dth;31,5;dttooc;15;chc;5;chc;5;chc;7;chd;10;stromlinie;false;false;30
+Eagle Bearer;Sturmgewehr (AR);59.221;22,5;dth;31,5;dttooc;15;;;;;;chd;10;none;true;false;30
