@@ -1315,6 +1315,28 @@ const setInput = (id, value) => {
     })()`);
     t('R5: Manuelle Mods bei autoMods aus weiterhin vollstaendig', r5man.hasChc === true);
   }
+  // ===== Import-Vorlagen: Beispiel-CSVs und Excel-Listen konsistent =====
+  console.log('\n--- Import-Vorlagen (Excel/Beispiel-CSV) ---');
+  {
+    // Beispiel-CSVs muessen sich komplett durch die Import-Logik parsen lassen
+    const weaponCsv = read('beispiel_waffen.csv');
+    const gearCsv = read('beispiel_gear.csv');
+    const wLines = weaponCsv.split(/\r\n|\n/).filter(l => l.trim());
+    const gLines = gearCsv.split(/\r\n|\n/).filter(l => l.trim());
+    t('Vorlage: Beispiel-Waffen-CSV hat Kopfzeile + 2 Datenzeilen', wLines.length === 3);
+    t('Vorlage: Waffen-Datenzeilen haben >= 17 Spalten (Import-Minimum)', wLines.slice(1).every(l => l.split(';').length >= 17));
+    t('Vorlage: Beispiel-Gear-CSV hat Kopfzeile + 2 Datenzeilen', gLines.length === 3);
+    t('Vorlage: Gear-Datenzeilen haben >= 5 Spalten (Import-Minimum)', gLines.slice(1).every(l => l.split(';').length >= 5));
+    // Gear-Beispiel muss die echte Import-Mapping-Funktion ueberstehen
+    const row = gLines[1];
+    const gi1 = w.eval('gearItemFromCsvParts(' + JSON.stringify(row.split(';')) + ')');
+    t('Vorlage: Gear-Beispielzeile 1 (Coyote) wird vom Import akzeptiert', !!gi1);
+    const row2 = gLines[2];
+    const gi2 = w.eval('gearItemFromCsvParts(' + JSON.stringify(row2.split(';')) + ')');
+    t('Vorlage: Gear-Beispielzeile 2 (Ceska-Weste) wird vom Import akzeptiert', !!gi2);
+    t('Vorlage: Gear-Talent intimidate im Import erhalten', gi2 && gi2.talent === 'intimidate');
+  }
+
 
   console.log('\n--- Globale Einstellungen: Defaults & Ausruestungs-Talente-Schalter ---');
   t('Bedingte Waffen-Talente: Standard an', (() => { const c = $('talentsActive'); return !!c && c.checked === true; })());
