@@ -261,6 +261,11 @@ const setInput = (id, value) => {
     await w.eval('calculateCombinedComparison()');
     await new Promise(r => setTimeout(r, 800));
     resultsShown = w.eval("lastComparisonData && lastComparisonData.length > 0");
+    // Ohne fixierte Waffe: ALLE Waffen der Gattung im Vergleich (kein Top-3-Vorranking mehr)
+    const weaponCount = w.eval("weaponsInventory.filter(w => w.type === 'AR').length");
+    const distinctWeaponsInResult = w.eval("new Set(lastComparisonData.map(r => r.weapon.id)).size");
+    t('Sweep: jede AR-Waffe im Ergebnis vertreten (kein Vorranking)', resultsShown && distinctWeaponsInResult >= Math.min(weaponCount, 2));
+    t('Sweep: ohne Pin je Waffe genau 1 Zeile', w.eval("lastComparisonData.every(r => lastComparisonData.filter(x => x.weapon.id === r.weapon.id).length === 1)"));
     if (!resultsShown) {
       const toasts = ($('toastContainer')||{textContent:''}).textContent;
       console.log('  Optimierung schlug fehl. Toast-Meldungen:', JSON.stringify(toasts.slice(-300)));
