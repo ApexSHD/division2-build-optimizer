@@ -1249,6 +1249,72 @@ const setInput = (id, value) => {
     })()`);
     t('R3: Build unter Cap profitiert weiter von CHC-Mods', r3b.mods.chcCount >= 1);
   }
+  // ===== R5 (#132): Auto-Mods auf Basis des echten Build-CHC =====
+  console.log('\n--- R5: Auto-Mods nutzen Build-CHC statt Annahme ---');
+  {
+    // Waffe mit aktivierten Auto-Mods (Mk16: ILS/556/SLS/556 -> 4 Slots)
+    const mk16Auto = "{ name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: {}, autoMods: true, talent: 'none', knowHow: 30 }";
+    // (a) CHC-reicher Build: Coyote (+10) + Ceska (+6) + CHC-Attribute (6+6+6)
+    //     + SHD (+10) = 66% Basis > 60%-Cap. Alte Logik (Annahme 60% fix)
+    //     wuerde trotzdem CHC-Mods mit Gain > 0 bewerten; R5 muss CHD waehlen.
+    const r5a = w.eval(`(() => {
+      const settings = { targetWeaponType: 'AR', specialization: 'none', shdMax: true, shdCustomWd: 0, shdCustomChc: 0, shdCustomChd: 0, require4pc: false, targetGreenSet: 'striker', forceChest: false, forceBackpack: false, talentsActive: true, gearTalentsActive: true, exoticPerksActive: true, pinnedWeapon: [] };
+      const mk16 = { name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: {}, autoMods: true, talent: 'none', knowHow: 30 };
+      const build = [
+        { id: 1, slot: 'Maske', setName: "Coyote's Mask", coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [{ type: 'chc', val: 6 }, { type: 'chd', val: 12 }] },
+        { id: 2, slot: 'Rucksack', setName: 'Striker', coreType: 'wd', wd: 22.5, chc: 0, chd: 18, attrs: [{ type: 'chc', val: 6 }] },
+        { id: 3, slot: 'Weste', setName: 'Ceska', coreType: 'wd', wd: 15, chc: 0, chd: 0, attrs: [{ type: 'chc', val: 6 }] },
+        { id: 4, slot: 'Handschuhe', setName: 'Striker', coreType: 'wd', wd: 21.9, chc: 0, chd: 0, attrs: [{ type: 'chc', val: 6 }] },
+        { id: 5, slot: 'Holster', setName: 'Striker', coreType: 'wd', wd: 20.7, chc: 0, chd: 0, attrs: [{ type: 'chc', val: 6 }] },
+        { id: 6, slot: 'Knieschoner', setName: 'Striker', coreType: 'wd', wd: 22.5, chc: 0, chd: 0, attrs: [] }
+      ];
+      const res = calculateWeaponWithBuild(mk16, build, settings, null);
+      return { finalChc: res.finalChc, cappedChc: res.cappedChc, hasInfo: !!res.autoModsInfo, info: res.autoModsInfo };
+    })()`);
+    t('R5: Auto-Mod-Kontext im Ergebnis ausgewiesen', r5a.hasInfo === true);
+    // Basis ist die ECHTE Build-CHC (Coyote 10 + 5x6 CHC-Attr + SHD 10 +
+    // Ceska 8 = 58) - nicht die pauschale Krit-Chance-Annahme (60)
+    t('R5: Echte Build-CHC (58%) als Basis statt Annahme (60%)', r5a.info && r5a.info.gearBaseChc === 58);
+    // Automatischer CHC-Mod fuellt bis zum Cap auf, niemals darueber
+    t('R5: Auto-Mods fuellen CHC maximal bis Cap (60)', r5a.info && r5a.info.cappedBase === 60);
+
+    // Auto-Mod-Belegung im Build-Kontext: dieselbe Basis -> CHD statt CHC
+    const r5mods = w.eval(`(() => {
+      const mk16 = { name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: {}, autoMods: true, talent: 'none', knowHow: 30 };
+      // Basis 66% (ueber Cap) -> CHC-Mods haben keinen Nutzen mehr
+      const r = computeAutoMods(mk16, 66, 60);
+      let chc = 0, chd = 0;
+      Object.values(r.mods).forEach(m => { if (m && m.type === 'chc') chc++; if (m && m.type === 'chd') chd++; });
+      return { chc: chc, chd: chd };
+    })()`);
+    t('R5: Am Cap waehlt computeAutoMods CHD statt CHC', r5mods.chc === 0 && r5mods.chd >= 1);
+
+    // Kontrollfall: CHC-armes Build (Basis 25%) -> CHC-Mods sind optimal
+    const r5mods2 = w.eval(`(() => {
+      const mk16 = { name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: {}, autoMods: true, talent: 'none', knowHow: 30 };
+      const r = computeAutoMods(mk16, 25, 40);
+      let chc = 0, chd = 0;
+      Object.values(r.mods).forEach(m => { if (m && m.type === 'chc') chc++; if (m && m.type === 'chd') chd++; });
+      return { chc: chc, chd: chd };
+    })()`);
+    t('R5: CHC-armes Build waehlt CHC-Mods (echte Basis zaehlt)', r5mods2.chc >= 1);
+
+    // Fallback ohne Build-Kontext: Annahme aus den Einstellungen (Standard 60)
+    const r5fb = w.eval(`(() => {
+      const mk16 = { name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: {}, autoMods: true, talent: 'none', knowHow: 30 };
+      const r = computeAutoMods(mk16);
+      return { base: r.info.gearBaseChc };
+    })()`);
+    t('R5: Ohne Build-Kontext gilt weiter die Krit-Chance-Annahme (60)', r5fb.base === 60);
+
+    // Manuelle Mods unberuehrt: autoMods aus -> erfasste Mods zaehlen
+    const r5man = w.eval(`(() => {
+      const weapon = { name: 'Mk16', type: 'Sturmgewehr (AR)', baseDmg: 59221, core1: 22.5, core2Type: 'dth', core2Val: 31.5, minorType: 'dttooc', minorVal: 15, mods: { optic: { type: 'chc', val: 5 } }, autoMods: false, talent: 'none', knowHow: 30 };
+      const m = getManualMods(weapon);
+      return { hasChc: !!(m.optic && m.optic.type === 'chc') };
+    })()`);
+    t('R5: Manuelle Mods bei autoMods aus weiterhin vollstaendig', r5man.hasChc === true);
+  }
 
   console.log('\n--- Globale Einstellungen: Defaults & Ausruestungs-Talente-Schalter ---');
   t('Bedingte Waffen-Talente: Standard an', (() => { const c = $('talentsActive'); return !!c && c.checked === true; })());

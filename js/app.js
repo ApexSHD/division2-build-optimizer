@@ -5314,8 +5314,12 @@
             else if (weapon.minorType === 'rof') totalRof += weapon.minorVal;
             else if (weapon.minorType === 'hsd') totalHsd += weapon.minorVal;
 
-            // Mods (effektiv: manuell erfasst ODER automatisch optimiert)
-            Object.values(getEffectiveMods(weapon)).forEach(mod => {
+            // Mods: manuell erfasste Belegung. Waffen mit aktivierten Auto-Mods
+            // (R5, #132) werden erst NACH Abschnitt 7 eingelesen - die automatische
+            // Mod-Wahl bewertet ihren CHC/CHD-Beitrag auf Basis der vollstaendigen
+            // Build-Krit-Chance (Gear + Marken-/Set-/Exot-Boni + SHD + Talent),
+            // nicht mehr auf der pauschalen Krit-Chance-Annahme.
+            Object.values(getManualMods(weapon)).forEach(mod => {
                 if (mod.type === 'chc') totalChc += mod.val;
                 else if (mod.type === 'chd') totalChd += mod.val;
                 else if (mod.type === 'wd') totalWd += mod.val;
@@ -5533,7 +5537,27 @@
             totalDta += bc.delta.dta;
             totalDth += bc.delta.dth;
             const stackInfo = bc.stackInfo;
-
+            // R5 (#132): Automatische Waffen-Mods auf Basis des ECHTEN
+            // Build-CHC bewerten. totalChc enthaelt an dieser Stelle bereits
+            // Waffe (ohne Auto-Mods) + Gear-Attribute + Named + Exot-Waffe +
+            // Talent + SHD + Set-/Marken-/Exot-Gear-Boni. Die Auto-Mod-Suche
+            // startet von dieser Basis (ohne die Mods selbst -> keine Dopplung).
+            const autoModsResult = (!weapon.isExotic && weapon.autoMods)
+                ? computeAutoMods(weapon, totalChc, totalChd)
+                : null;
+            if (autoModsResult) {
+                Object.values(autoModsResult.mods).forEach(mod => {
+                    if (!mod || !mod.type) return;
+                    if (mod.type === 'chc') totalChc += mod.val;
+                    else if (mod.type === 'chd') totalChd += mod.val;
+                    else if (mod.type === 'wd') totalWd += mod.val;
+                    else if (mod.type === 'dttooc') totalDttooc += mod.val;
+                    else if (mod.type === 'dta') totalDta += mod.val;
+                    else if (mod.type === 'dth') totalDth += mod.val;
+                    else if (mod.type === 'rof') totalRof += mod.val;
+                    else if (mod.type === 'hsd') totalHsd += mod.val;
+                });
+            }
             // 8. Mod-Konfigurationen (CHC/CHD Aufteilung)
             const modConfigs = [
                 { chcCount: 0, chdCount: 3 },
@@ -5654,6 +5678,8 @@
                     effectiveDPS: effectiveDPS,
                     activeBrandBoni: activeBrandBoni,
                     targetSetCount: targetSetCount,
+                    autoModsInfo: autoModsResult ? autoModsResult.info : null,
+                    autoModsChosen: autoModsResult ? autoModsResult.mods : null,
                     talentInfo: talentInfo,
                     talentAmp: talentAmp,
                     talentsActiveSetting: !!talentsActive,
@@ -6706,16 +6732,19 @@ function prefilterItemScore(item, targetWeaponType) {
                                 <p><strong>Nebenattribut:</strong> +${weapon.minorVal}% ${weapon.minorType.toUpperCase()}</p>
                                 <p><strong>Mods:</strong></p>
                                 <ul class="list-disc list-inside pl-4 text-xs text-gray-400">
-                                    ${['optic','muzzle','underbarrel','magazine']
+                                    ${(function () {
+                                        const effAuto = (best.autoModsChosen && Object.keys(best.autoModsChosen).length) ? best.autoModsChosen : getEffectiveMods(weapon);
+                                        return ['optic','muzzle','underbarrel','magazine']
                                         .filter(k => {
-                                            const effM = getEffectiveMods(weapon)[k];
+                                            const effM = effAuto[k];
                                             return effM && effM.type;
                                         })
                                         .map(k => {
                                             const labels = { optic: 'Visier', muzzle: 'Mündung', underbarrel: 'Unterlauf', magazine: 'Magazin' };
-                                            const m = getEffectiveMods(weapon)[k];
+                                            const m = effAuto[k];
                                             return `<li>${labels[k]}: +${m.val}% ${m.type.toUpperCase()}${m.name ? ` (${m.name})` : ''}</li>`;
-                                        }).join('') || '<li>—</li>'}
+                                        }).join('') || '<li>—</li>';
+                                    })()}
                                 </ul>
                                 <p><strong>Talent:</strong> ${getTalentLabel(weapon.talent)}</p>
                                 ${talentStatusLine(weapon.talent, best.talentInfo)}
