@@ -4593,7 +4593,10 @@
             // Glaskanone (+25% Verstärker) zählt damit beim Scoring und in
             // der Vorauswahl statt stillschweigend verloren zu gehen.
             const gt = (item.talent && typeof GEAR_TALENTS !== 'undefined') ? GEAR_TALENTS[item.talent] : null;
-            const gtActive = gt && !gt.conditional;
+            // Bedingte Gear-Talente zaehlen im Vorauswahl-Score nur, wenn der
+            // eigene Ausruestungs-Talente-Schalter aktiv ist (Default: an).
+            const gtSwitchOn = !!document.getElementById('gearTalentsActive')?.checked;
+            const gtActive = gt && (!gt.conditional || gtSwitchOn);
             const gtWd = (gtActive && gt.type === 'wd') ? (gt.value || 0) : 0;
             const gtAmp = (gtActive && gt.type === 'amp') ? (gt.value || 0) : 0;
             // Issue #41-Follow-up: Exoten-Perk im Score berücksichtigen,
@@ -5257,7 +5260,9 @@
                     cache.boni.push(`${t.label}: nicht anwendbar auf ${targetWeaponType}`);
                     return;
                 }
-                const active = !t.conditional || !!settings.talentsActive;
+                // Eigener Schalter fuer bedingte Ausruestungs-Talente (Weste/Rucksack),
+                // unabhaengig von bedingten Waffen-Talenten.
+                const active = !t.conditional || !!(settings && settings.gearTalentsActive);
                 if (!active) {
                     cache.boni.push(`${t.label}: bedingt (${t.condition || 'Bedingung'}) – in Rechnung nur bei aktiven bedingten Talenten`);
                     return;
@@ -6013,6 +6018,7 @@ function prefilterItemScore(item, targetWeaponType) {
                 disabledExoticGear: [...disabledExoticGear],
                 disabledExoticWeapons: [...disabledExoticWeapons],
                 talentsActive: document.getElementById('talentsActive')?.checked || false,
+                gearTalentsActive: document.getElementById('gearTalentsActive')?.checked || false,
                 exoticPerksActive: document.getElementById('exoticPerksActive')?.checked || false
             };
 

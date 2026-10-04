@@ -925,10 +925,10 @@
                             <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
                         </div>
                         <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="talentsActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison();" class="rounded accent-orange-500 w-4 h-4">
+                            <input type="checkbox" id="talentsActive" checked onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderGearInventory();" class="rounded accent-orange-500 w-4 h-4">
                             <span>Talent-Bedingung erfüllt <span class="text-gray-400 text-xs">(z.B. Sadist: Ziel blutet, Killer: nach Crit-Kill)</span></span>
                         </label>
-                        <p class="text-xs text-gray-400">Beeinflusst nur Talente mit Voraussetzung. <strong>Aus</strong> (empfohlen): bedingte Talente zählen nur, wenn der Build die Bedingung selbst liefern kann (z.B. Sadist-Blutung über Trauma-Weste oder Ongoing Directive) — Synergien werden im Ergebnis ausgewiesen. <strong>An</strong>: Bedingungen pauschal als erfüllt angenommen. Das Ergebnis zeigt getrennt, ob und mit welchem Bonus das Talent eingerechnet wurde. Magazin-abhängige Talente (Optimist, Angespannt, Raserei) werden als Ø über ein volles Magazin berechnet (RPM, Magazingröße &amp; Nachladezeit aus der Waffen-DB).</p>
+                        <p class="text-xs text-gray-400">Beeinflusst nur Talente mit Voraussetzung. <strong>An</strong> (Standard): Bedingungen pauschal als erfüllt angenommen. <strong>Aus</strong>: bedingte Talente zählen nur, wenn der Build die Bedingung selbst liefern kann (z.B. Sadist-Blutung über Trauma-Weste oder Ongoing Directive) — Synergien werden im Ergebnis ausgewiesen. Das Ergebnis zeigt getrennt, ob und mit welchem Bonus das Talent eingerechnet wurde. Magazin-abhängige Talente (Optimist, Angespannt, Raserei) werden als Ø über ein volles Magazin berechnet (RPM, Magazingröße &amp; Nachladezeit aus der Waffen-DB).</p>
                     </div>
             <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
                         <div class="flex items-center justify-between">
@@ -936,13 +936,24 @@
                             <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
                         </div>
                         <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
-                            <input type="checkbox" id="exoticPerksActive" onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderExoticPerkList();" class="rounded accent-orange-500 w-4 h-4">
+                            <input type="checkbox" id="exoticPerksActive" checked onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderExoticPerkList();" class="rounded accent-orange-500 w-4 h-4">
                             <span>Exotische Gear-Perks einrechnen <span class="text-gray-400 text-xs">(z.B. Catharsis, Memento, Coyote's Mask)</span></span>
                         </label>
                         <div id="exoticPerkListWrap" style="display:none" class="space-y-2"></div>
                         <p class="text-xs text-gray-400">Rechnet die Perks numerisch erfassbarer Exoten ein (Catharsis, Memento, Catalyst, Sawyer's, Harrier Pride, Bloody Knuckles, Beacon, Investor, Blacklisters, Overdogs, Centurion Scabbard, Coyote's Mask). Stack-basierte Perks nutzen die Stack-Auslastung der Set-Stacks. Situative Perks gelten als aktiv. Utility-Perks (Heilung, Support) bleiben unberücksichtigt.</p>
                     </div>
             <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
+                        <div class="flex items-center justify-between">
+                                <label class="block text-xs font-bold uppercase text-div-accent">Bedingte Ausrüstungs-Talente (Weste / Rucksack)</label>
+                                <span class="text-xs bg-amber-500/20 text-amber-400 font-mono px-2 py-0.5 rounded border border-amber-500/30">aktiv / inaktiv</span>
+                            </div>
+                            <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer pt-1">
+                                <input type="checkbox" id="gearTalentsActive" checked onchange="if (lastComparisonData && lastComparisonData.length) calculateCombinedComparison(); renderGearInventory();" class="rounded accent-orange-500 w-4 h-4">
+                                <span>Talent-Bedingung erfüllt <span class="text-gray-400 text-xs">(z.B. Wachsamkeit: bis du Schaden nimmst, Gelassenheit: in Deckung)</span></span>
+                            </label>
+                            <p class="text-xs text-gray-400">Beeinflusst nur Westen-/Rucksack-Talente mit Voraussetzung. <strong>An</strong> (Standard): Bedingungen pauschal als erfüllt angenommen. <strong>Aus</strong>: bedingte Ausrüstungs-Talente zählen nicht in die Berechnung. Unbedingte Talente (z.B. Glaskanone) gelten unabhängig davon als aktiv. Getrennt vom Schalter für bedingte Waffen-Talente.</p>
+                        </div>
+                        <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2">
                         <label class="block text-xs font-bold uppercase text-div-accent">Gegnerprofil (Annahmen für DTA / DTH / DTToOC)</label>
                         <p class="text-[11px] text-gray-400">Rüstungs- und Lebensenergie-Anteil gewichten, wie viel des Kampfes gegen die Rüstungs- bzw. Lebensenergie-Leiste stattfindet; der Ungedeckt-Anteil, wie viel Schaden DTToOC tatsächlich verstärkt. „Nur Lebensenergie“ = Rüstung 0 % / Lebensenergie 100 % (DTA bringt dann nichts).</p>
                         <div class="flex items-center gap-3">
