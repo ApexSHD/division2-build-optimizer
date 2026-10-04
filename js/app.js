@@ -6057,27 +6057,35 @@ function prefilterItemScore(item, targetWeaponType) {
                     return;
                 }
 
-                // Top 3 Waffen berechnen
-                const topWeapons = calculateTopWeapons(settings);
-                if (topWeapons.length === 0) {
+// Waffen-Auswahl: Bei fixierter Waffe(n) nur diese (mit Top-3-Builds je
+                // Waffe, Set-Kombinationen inkl. Westen-/Rucksack-Talenten);
+                // ohne Fixierung ALLE Waffen der Gattung mit je ihrem besten
+                // Build. Das frühere Top-3-Vorranking (heuristische Schätzung)
+                // konnte die echte Nummer 1 uebersehen (Issue #130) und ist nicht
+                // mehr noetig: der Build-Cache ist waffenunabhaengig einmal pro
+                // Build berechnet, je Waffe bleibt nur das Waffen-Scoring.
+                const pinnedWeaponIds = new Set((settings.pinnedWeapon || []).map(String));
+                const candidateWeapons = pinnedWeaponIds.size
+                    ? weaponsInventory.filter(w => pinnedWeaponIds.has(String(w.id)))
+                    : weaponsInventory.filter(w => w.type === settings.targetWeaponType
+                        && !(w.isExotic && disabledExoticWeapons.has(String(w.id))));
+                if (candidateWeapons.length === 0) {
                     showToast(`Keine passende Waffe im Waffen-Inventar gefunden. Bitte füge eine passende Waffe hinzu, wähle eine andere Gattung oder hebe die Fixierung/Abwahl auf.`, 'error');
                     return;
                 }
 
-                // Für jede Top-Waffe die besten 3 Builds berechnen
+                // Fixierte Waffe: beste 3 Builds; freie Suche: bester Build je Waffe
+                const perWeaponBuildCount = pinnedWeaponIds.size ? 3 : 1;
                 const results = [];
-                for (let wi = 0; wi < topWeapons.length; wi++) {
-                    setCombinedBusy(true, `Waffe ${wi + 1}/${topWeapons.length}`);
-                    const topBuildsForWeapon = calculateTopBuildsForWeapon(topWeapons[wi], allBuilds, settings, buildCaches);
-                    topBuildsForWeapon.forEach((result, index) => {
-                        // BUGFIX: bisher wurden hier nur einzelne Felder kopiert
-                        // (finalChc, finalChd, totalWd, ...). Felder wie talentInfo,
-                        // activeBrandBoni, nonCritHit, armorMult, critHit, cappedChc
-                        // und breakdown gingen dabei verloren, obwohl die Detail-
-                        // ansicht sie benötigt. Spread kopiert ALLE Felder.
+                for (let wi = 0; wi < candidateWeapons.length; wi++) {
+                    setCombinedBusy(true, `Waffe ${wi + 1}/${candidateWeapons.length}`);
+                    const topBuildsForWeapon = calculateTopBuildsForWeapon(candidateWeapons[wi], allBuilds, settings, buildCaches);
+                    topBuildsForWeapon.slice(0, perWeaponBuildCount).forEach((result, index) => {
+                        // Spread kopiert ALLE Felder (talentInfo, breakdown, ...) -
+                        // die Detailansicht benötigt sie.
                         results.push({
                             ...result,
-                            weapon: topWeapons[wi],
+                            weapon: candidateWeapons[wi],
                             rank: index + 1
                         });
                     });
@@ -6111,136 +6119,10 @@ function prefilterItemScore(item, targetWeaponType) {
 
                 renderComparison();
                 updateTabUI();
-                showToast(`Vergleich berechnet: ${lastComparisonData.length} Top-Kombinationen aus ${allBuilds.length} Build-Kandidaten (heuristische Vorauswahl: beste Teile je Slot)!`, 'success');
+                showToast(`Vergleich berechnet: ${lastComparisonData.length} Top-Kombinationen aus ${allBuilds.length} Build-Kandidaten \u00b7 ${candidateWeapons.length} Waffe(n) im Vergleich!`, 'success');
             } finally {
                 setCombinedBusy(false);
             }
-        }
-
-        function calculateTopWeapons(settings) {
-            // Nur Waffen aus dem Inventar berücksichtigen, die zur in den
-            // Globalen Einstellungen gewählten Waffengattung passen (z.B.
-            // "LMG"). Ohne diesen Filter würden hier die Waffen mit dem
-            // höchsten geschätzten DPS-Wert aus dem GESAMTEN Inventar
-            // herangezogen werden – unabhängig von ihrer Gattung.
-            const pinnedIds = new Set((settings.pinnedWeapon || []).map(String));
-            const weaponsOfType = pinnedIds.size
-                ? weaponsInventory.filter(w => pinnedIds.has(String(w.id)))
-                : weaponsInventory.filter(w => w.type === settings.targetWeaponType
-                    && !(w.isExotic && disabledExoticWeapons.has(String(w.id))));
-            const ep = enemyProfile();
-            const knowHowMultOf = (w) => 1 + (clampKnowHow(w.knowHow != null ? w.knowHow : 30) / 100);
-            return weaponsOfType
-                .map(weapon => {
-                    // v36: Deutlich realistischere Schätzung – dieselben
-                    // Komponenten wie im Hauptvergleich (DTA/DTToOC/DTH
-                    // gegnerprofil-gewichtet, Talent inkl. Magazin-Ø,
-                    // echte RPM). Vorher war es eine reine WD/CHC/CHD-
-                    // Näherung mit pauschalem ×10, wodurch z.B. die echte
-                    // Nummer 1 (SOCOM Mk16 / Angespannt bei Striker+AR)
-                    // nicht unter den Top-3 landete.
-                    let totalWd = weapon.core1;
-                    let totalChc = 0, totalChd = 0, totalDttooc = 0, totalDta = 0, totalDth = 0, totalRof = 0, totalHsd = 0;
-                    [[weapon.core2Type, weapon.core2Val], [weapon.minorType, weapon.minorVal]].forEach(([type, val]) => {
-                        if (type === 'chc') totalChc += (val || 0);
-                        else if (type === 'chd') totalChd += (val || 0);
-                        else if (type === 'dttooc') totalDttooc += (val || 0);
-                        else if (type === 'dta') totalDta += (val || 0);
-                        else if (type === 'dth') totalDth += (val || 0);
-                        else if (type === 'rof') totalRof += (val || 0);
-                        else if (type === 'hsd') totalHsd += (val || 0);
-                    });
-                    Object.values(getEffectiveMods(weapon)).forEach(mod => {
-                        if (mod.type === 'wd') totalWd += mod.val;
-                        else if (mod.type === 'hsd') totalHsd += mod.val;
-                        else if (mod.type === 'chc') totalChc += mod.val;
-                        else if (mod.type === 'chd') totalChd += mod.val;
-                        else if (mod.type === 'dttooc') totalDttooc += mod.val;
-                        else if (mod.type === 'dta') totalDta += mod.val;
-                        else if (mod.type === 'dth') totalDth += mod.val;
-                        else if (mod.type === 'rof') totalRof += mod.val;
-                    });
-
-                    // Talent – gleiche Logik wie im Hauptvergleich (v36: auch
-                    // Magazin-Ø und type:null-Einträge aus der Talent-DB).
-                    let talentAmp = 0;
-                    if (weapon.talent && weapon.talent !== 'none') {
-                        const rt = resolveTalentDef(weapon.talent);
-                        const t = rt.t;
-                        if (t) {
-                            // Ohne Build-Kontext (Vorranking): bedingte Talente
-                            // nur bei pauschaler Annahme aktiv; die genaue
-                            // Synergie-Pruefung macht der Hauptvergleich.
-                            const active = !t.conditional || !!settings.talentsActive;
-                            if (active) {
-                                const val = talentValueFor(rt.key, weapon.isExotic);
-                                const magAvg = magazineAverageTalent(rt.key, weapon);
-                                if (magAvg) { totalWd += magAvg.wd; totalChd += magAvg.chd; totalRof += magAvg.rof; }
-                                else if (t.type === 'wd') totalWd += val;
-                                else if (t.type === 'chd') totalChd += val;
-                                else if (t.type === 'chcchd') {
-                                    totalChc += (t.valueChc !== undefined && t.valueChc !== null) ? t.valueChc : val;
-                                    totalChd += (t.valueChd !== undefined && t.valueChd !== null) ? t.valueChd : val;
-                                }
-                                else if (t.type === 'wdrof') { totalWd += val; totalRof += val; }
-                                else if (t.type === 'rof') totalRof += val;
-                                else if (t.type === 'amp') talentAmp += val;
-                            }
-                        }
-                    }
-
-                    // Issue #75: modellierte Exoten-Waffen-Talente (wie Hauptvergleich)
-                    const exoWDef3 = (typeof exoticWeaponTalentDef === 'function') ? exoticWeaponTalentDef(weapon) : null;
-                    const exoW3 = (typeof exoticWeaponTalentBonus === 'function') ? exoticWeaponTalentBonus(weapon) : null;
-                    if (exoWDef3 && exoW3 && !(weapon.talent && weapon.talent !== 'none' && resolveTalentDef(weapon.talent).t)) {
-                        totalWd += exoW3.wd; totalChc += exoW3.chc; totalChd += exoW3.chd;
-                        totalRof += exoW3.rof; totalDttooc += exoW3.dttooc; totalDta += exoW3.dta;
-                        talentAmp += exoW3.amp;
-                    }
-                    const rawHit = weapon.baseDmg * knowHowMultOf(weapon) * (1 + (totalWd / 100)) * (1 + (talentAmp / 100));
-                    // Kopfschuss-Modell (#108): identisch zum Hauptvergleich –
-                    // Basis-HSD der Waffe + HSD-Boni, gewichtet mit dem
-                    // Kopfschuss-Anteil des Gegnerprofils.
-                    const dbEntryHsd = (typeof getWeaponDbEntry === 'function') ? getWeaponDbEntry(weapon) : null;
-                    const dbHsd = (dbEntryHsd && dbEntryHsd.stats && dbEntryHsd.stats.HSD) ? dbEntryHsd.stats.HSD : 0;
-                    const epHsd = ep.headshot || 0;
-                    const nonCritBody = rawHit
-                        * (1 + (totalDta / 100) * ep.armor)
-                        * (1 + (totalDttooc / 100) * ep.ooc)
-                        * (1 + (totalDth / 100) * ep.health);
-                    const nonCritHit = nonCritBody * ((1 - epHsd) + epHsd * (1 + (totalHsd + dbHsd) / 100));
-                    const cappedChc = Math.min(Math.max(totalChc, 0), 60);
-                    const critHit = nonCritHit * (1 + (totalChd / 100));
-                    const avgDmg = (nonCritHit * (1 - cappedChc / 100)) + (critHit * (cappedChc / 100));
-
-                    // v36: echte Feuerrate (DB-RPM + Mod-RoF + Talent-RoF) –
-                    // Waffen unterschiedlicher RPM werden korrekt gereiht.
-                    // weaponEffectiveRpm rechnet Mod-RoF selbst mit ein, daher
-                    // hier nur den Talent-RoF-Anteil übergeben.
-                    const modRof = modAttrTotal(weapon, 'rof') || 0;
-                    const talentRof = Math.max(0, totalRof - modRof);
-                    const rpmInfo = weaponEffectiveRpm(weapon, talentRof);
-                    // Reload/Magazin (#108): Sustain-Faktor (Feuerzeit vs.
-                    // Feuerzeit + Nachladezeit) auch im Waffen-Vorranking,
-                    // damit z.B. kleinem Magazin + langem Reload nicht mehr
-                    // Burst-DPS das Ranking diktieren.
-                    let sustainMult = 1;
-                    if (rpmInfo && rpmInfo.rpm && typeof weaponSustainFactor === 'function') {
-                        const sf = weaponSustainFactor(weapon, rpmInfo.rpm, 0);
-                        if (sf) sustainMult = sf;
-                    }
-                    const effDPS = (rpmInfo && rpmInfo.rpm) ? avgDmg * (rpmInfo.rpm / 60) * sustainMult : avgDmg * 10;
-
-                    return {
-                        ...weapon,
-                        estimatedDPS: effDPS,
-                        totalChc: totalChc,
-                        totalChd: totalChd,
-                        totalWd: totalWd
-                    };
-                })
-                .sort((a, b) => b.estimatedDPS - a.estimatedDPS)
-                .slice(0, 5);
         }
 
         // ========== MANUELLER SPIEL-BUILD (OPTIONAL) ==========
