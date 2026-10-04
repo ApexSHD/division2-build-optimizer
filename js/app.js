@@ -985,6 +985,42 @@
         }
 
         // Formatiert den Basis-Schaden während der Eingabe mit Tausender-Punkten (z.B. 93.000)
+        function clampKnowHow(val) {
+            let v = parseInt(val, 10);
+            if (isNaN(v)) v = 30;
+            if (v < 0) v = 0;
+            if (v > 30) v = 30;
+            return v;
+        }
+        function onWeaponProtoChange() {
+            // Prototyp ist immer Know-How 30 (Expertise maxed) - Reduzierung nicht moeglich
+            const khEl = document.getElementById('weaponKnowHow');
+            if (!khEl) return;
+            const proto = document.getElementById('weaponIsPrototype')?.checked || false;
+            khEl.disabled = proto;
+            if (proto) khEl.value = 30;
+            const hint = document.getElementById('weaponKnowHowHint');
+            if (hint) hint.textContent = proto ? 'Prototyp: Know-How-Level fix 30' : '';
+        }
+        function onWeaponKnowHowChange() {
+            const khEl = document.getElementById('weaponKnowHow');
+            if (!khEl) return;
+            khEl.value = clampKnowHow(khEl.value);
+        }
+        function onGearProtoKnowHowLock() {
+            const khEl = document.getElementById('gearKnowHow');
+            if (!khEl) return;
+            const proto = isGearProto();
+            khEl.disabled = proto;
+            khEl.value = proto ? 30 : clampKnowHow(khEl.value);
+            const hint = document.getElementById('gearKnowHowHint');
+            if (hint) hint.textContent = proto ? 'Prototyp: Know-How-Level fix 30' : '';
+        }
+        function onGearKnowHowChange() {
+            const khEl = document.getElementById('gearKnowHow');
+            if (!khEl) return;
+            khEl.value = clampKnowHow(khEl.value);
+        }
         function formatBaseDmgInput(input) {
             const raw = input.value.replace(/[^\d]/g, '');
             if (!raw) { input.value = ''; return; }
@@ -1777,6 +1813,10 @@
             if (protoReset) { protoReset.disabled = false; protoReset.checked = true; }
             const protoHintReset = document.getElementById('protoDisabledHint');
             if (protoHintReset) protoHintReset.style.display = 'none';
+            const khReset = document.getElementById('weaponKnowHow');
+            if (khReset) { khReset.value = 30; khReset.disabled = false; }
+            const khHintReset = document.getElementById('weaponKnowHowHint');
+            if (khHintReset) khHintReset.textContent = '';
             // Auto-Mods-Schalter: Standard = Automatik aktiv (Exotic-Hack zurücksetzen)
             const autoChkReset = document.getElementById('autoModsToggle');
             if (autoChkReset) { autoChkReset.checked = true; autoChkReset.disabled = false; }
@@ -1884,6 +1924,10 @@
             }
             const protoHintEdit = document.getElementById('protoDisabledHint');
             if (protoHintEdit) protoHintEdit.style.display = weapon.isExotic ? '' : 'none';
+            const khEdit = document.getElementById('weaponKnowHow');
+            if (khEdit) { khEdit.value = clampKnowHow(weapon.knowHow != null ? weapon.knowHow : 30); khEdit.disabled = !!weapon.isPrototype; }
+            const khHintEdit = document.getElementById('weaponKnowHowHint');
+            if (khHintEdit) khHintEdit.textContent = weapon.isPrototype ? 'Prototyp: Know-How-Level fix 30' : '';
 
             // Mods zurückschreiben (Felder freigeben, Werte setzen)
             const slotMap = {
@@ -2017,8 +2061,10 @@
                 minorVal: parseLocalizedFloat(document.getElementById('weaponMinorVal').value),
                 talent: currentExoticTalent !== null ? (currentExoticTalent || 'Exotisches Talent') : (currentNamedTalent || document.getElementById('weaponTalentSelectSelect').value),
                 isExotic: (document.getElementById('weaponIsExotic')?.value || 'false') === 'true',
-                isPrototype: document.getElementById('weaponIsPrototype')?.checked || false
+                isPrototype: document.getElementById('weaponIsPrototype')?.checked || false,
+                knowHow: clampKnowHow(document.getElementById('weaponKnowHow')?.value)
             };
+            if (weapon.isPrototype) weapon.knowHow = 30;
             // EXOTEN: Prototyp-Flag abschalten – die drei Waffenattribute
             // sind fix und dürfen nie um +50% erhöht werden. Nur die Mods sind besonders.
             if (weapon.isExotic) weapon.isPrototype = false;
@@ -2093,6 +2139,10 @@
             if (protoReset) { protoReset.disabled = false; protoReset.checked = true; }
             const protoHintReset = document.getElementById('protoDisabledHint');
             if (protoHintReset) protoHintReset.style.display = 'none';
+            const khReset = document.getElementById('weaponKnowHow');
+            if (khReset) { khReset.value = 30; khReset.disabled = false; }
+            const khHintReset = document.getElementById('weaponKnowHowHint');
+            if (khHintReset) khHintReset.textContent = '';
             // Mod-Slots wieder freigeben (alle 4 sichtbar, Exoten-Sperre aufheben)
             if (typeof clearExoticFixedMods === 'function') clearExoticFixedMods();
             if (typeof updateModSlotUI === 'function') updateModSlotUI(null);
@@ -2930,14 +2980,14 @@
                 showToast('Keine Waffen zum Exportieren vorhanden.', 'error');
                 return;
             }
-            let csv = "Name;Typ;Basis-Schaden;Kern1;Kern2Typ;Kern2Wert;NebenTyp;NebenWert;VisierTyp;VisierWert;MündungTyp;MündungWert;UnterlaufTyp;UnterlaufWert;MagazinTyp;MagazinWert;Talent;Exotisch;Prototyp\n";
+            let csv = "Name;Typ;Basis-Schaden;Kern1;Kern2Typ;Kern2Wert;NebenTyp;NebenWert;VisierTyp;VisierWert;MündungTyp;MündungWert;UnterlaufTyp;UnterlaufWert;MagazinTyp;MagazinWert;Talent;Exotisch;Prototyp;KnowHow\n";
             weaponsInventory.forEach(w => {
                 // Zahlen im deutschen Format (Komma = Dezimal, Punkt = Tausender),
                 // sonst liest parseLocalizedFloat beim Import "22.5" als 225.
                 csv += `${w.name};${w.type};${formatGermanNumber(w.baseDmg)};${formatGermanNumber(w.core1)};${w.core2Type};${formatGermanNumber(w.core2Val)};${w.minorType};${formatGermanNumber(w.minorVal)};`;
                 csv += `${w.mods.optic.type};${formatGermanNumber(w.mods.optic.val)};${w.mods.muzzle.type};${formatGermanNumber(w.mods.muzzle.val)};`;
                 csv += `${w.mods.underbarrel.type};${formatGermanNumber(w.mods.underbarrel.val)};${w.mods.magazine.type};${formatGermanNumber(w.mods.magazine.val)};`;
-                csv += `${w.talent};${w.isExotic};${!!w.isPrototype}\n`;
+                csv += `${w.talent};${w.isExotic};${!!w.isPrototype};${clampKnowHow(w.knowHow != null ? w.knowHow : 30)}\n`;
             });
 
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
@@ -2992,7 +3042,11 @@
                             // Spalte 19 "Prototyp" – alte CSVs ohne die Spalte: false.
                             // EXOTEN: immer false – die drei Waffenattribute sind fix
                             // und dürfen nie um +50% erhöht werden (nur Mods sind besonders).
-                            isPrototype: (parts.length > 18 ? parts[18].trim() === 'true' : false) && (parts[17] !== undefined ? parts[17].trim() : '') !== 'true'
+                            isPrototype: (parts.length > 18 ? parts[18].trim() === 'true' : false) && (parts[17] !== undefined ? parts[17].trim() : '') !== 'true',
+                            // Know-How-Spalte (20, optional - rueckwaertskompatibel); Prototyp immer 30
+                            knowHow: (parts.length > 19 && isFinite(parseLocalizedFloat(parts[19])))
+                                ? ((parts[18].trim() === 'true' && (parts[17] !== undefined ? parts[17].trim() : '') !== 'true') ? 30 : clampKnowHow(parseLocalizedFloat(parts[19])))
+                                : 30
                         };
                         weaponsInventory.push(weapon);
                         importedCount++;
@@ -3180,6 +3234,10 @@
                 ? (item.wd || 0)
                 : (item.coreVal != null ? item.coreVal : gearCoreDefaultVal(coreTypeEdit, !!item.proto)));
             document.getElementById('gearIsPrototype').checked = !!item.proto;
+            const gKh = document.getElementById('gearKnowHow');
+            if (gKh) { gKh.value = clampKnowHow(item.knowHow != null ? item.knowHow : 30); gKh.disabled = !!item.proto; }
+            const gKhHint = document.getElementById('gearKnowHowHint');
+            if (gKhHint) gKhHint.textContent = item.proto ? 'Prototyp: Know-How-Level fix 30' : '';
             const dbEdit = GEAR_DB[item.setName];
             const fixedOrder = dbEdit ? (dbEdit.fixed || []).map(x => x[0]) : [];
             const editAttrs = gearItemAttrs(item).slice().sort((x, y) => {
@@ -3330,7 +3388,8 @@
                     namedVal: namedVal,
                     attrs: attrs,
                     proto: proto,
-                    talent: talent
+                    talent: talent,
+                    knowHow: proto ? 30 : clampKnowHow(document.getElementById('gearKnowHow')?.value)
                 };
                 if (idx >= 0) {
                     gearInventory[idx] = updatedItem;
@@ -3360,7 +3419,8 @@
                 namedVal: namedVal,
                 attrs: attrs,
                 proto: proto,
-                talent: talent
+                talent: talent,
+                knowHow: proto ? 30 : clampKnowHow(document.getElementById('gearKnowHow')?.value),
             };
 
             gearInventory.push(newItem);
@@ -3951,6 +4011,8 @@
                 if ((item.wd || 0) < (item.namedVal || 0)) item.wd = item.namedVal;
                 item.namedKey = ''; item.namedVal = 0;
             }
+            if (item.knowHow == null) item.knowHow = 30;
+            item.knowHow = item.proto ? 30 : clampKnowHow(item.knowHow);
             const conf = NAMED_ITEM_CONFIGS[item.setName];
             if (!conf && item.namedKey) { item.namedKey = ''; item.namedVal = 0; }
             else if (conf && item.namedKey && item.namedKey !== conf.attrKey) item.namedKey = conf.attrKey;
@@ -4001,6 +4063,11 @@
                     if (ctCsv === 'wd') { item.coreVal = item.wd; }
                     else { item.wd = 0; }
                 }
+            }
+            // Know-How-Spalte (16, optional - rueckwaertskompatibel); Prototyp immer 30
+            if (parts.length >= 16) {
+                const khCsv = parseLocalizedFloat(parts[15]);
+                if (isFinite(khCsv) && khCsv >= 0) item.knowHow = clampKnowHow(khCsv);
             }
             normalizeGearItem(item);
             // Alt-Format (weniger als 11 Spalten = ohne Attribut-/Prototyp-Spalten):
@@ -4820,9 +4887,9 @@
                 showToast('Keine Ausrüstung zum Exportieren vorhanden.', 'error');
                 return;
             }
-            let csv = "Slot;Set;CHC;CHD;WD;NamedKey;NamedVal;Attr1;Attr1Val;Attr2;Attr2Val;Prototyp;Talent;Core;CoreVal\n";
+            let csv = "Slot;Set;CHC;CHD;WD;NamedKey;NamedVal;Attr1;Attr1Val;Attr2;Attr2Val;Prototyp;Talent;Core;CoreVal;KnowHow\n";
             gearInventory.forEach(i => {
-                csv += `${i.slot};${i.setName};${formatGermanNumber(i.chc)};${formatGermanNumber(i.chd)};${formatGermanNumber(i.wd)};${i.namedKey || ''};${formatGermanNumber(i.namedVal || 0)};${(gearItemAttrs(i)[0] || {}).type || ''};${formatGermanNumber((gearItemAttrs(i)[0] || {}).val || 0)};${(gearItemAttrs(i)[1] || {}).type || ''};${formatGermanNumber((gearItemAttrs(i)[1] || {}).val || 0)};${i.proto ? 1 : 0};${i.talent || ''};${gearCoreTypeOf(i)};${formatGermanNumber(i.coreVal != null ? i.coreVal : (gearCoreTypeOf(i) === 'wd' ? i.wd : gearCoreDefaultVal(gearCoreTypeOf(i), !!i.proto)))}\n`;
+                csv += `${i.slot};${i.setName};${formatGermanNumber(i.chc)};${formatGermanNumber(i.chd)};${formatGermanNumber(i.wd)};${i.namedKey || ''};${formatGermanNumber(i.namedVal || 0)};${(gearItemAttrs(i)[0] || {}).type || ''};${formatGermanNumber((gearItemAttrs(i)[0] || {}).val || 0)};${(gearItemAttrs(i)[1] || {}).type || ''};${formatGermanNumber((gearItemAttrs(i)[1] || {}).val || 0)};${i.proto ? 1 : 0};${i.talent || ''};${gearCoreTypeOf(i)};${formatGermanNumber(i.coreVal != null ? i.coreVal : (gearCoreTypeOf(i) === 'wd' ? i.wd : gearCoreDefaultVal(gearCoreTypeOf(i), !!i.proto)))};${clampKnowHow(i.knowHow != null ? i.knowHow : 30)}\n`;
             });
 
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
@@ -5211,7 +5278,8 @@
         }
 
         function calculateWeaponWithBuild(weapon, build, settings, buildCache) {
-            const { targetWeaponType, specialization, knowHowLevel, shdMax, shdCustomWd, shdCustomChc, shdCustomChd, require4pc, targetGreenSet, forceChest, forceBackpack, talentsActive } = settings;
+            const { targetWeaponType, specialization, shdMax, shdCustomWd, shdCustomChc, shdCustomChd, require4pc, targetGreenSet, forceChest, forceBackpack, talentsActive } = settings;
+            const knowHowLevel = clampKnowHow(weapon.knowHow != null ? weapon.knowHow : 30);
 
             // 1. Waffen-Attribute
             let totalWd = weapon.core1;
@@ -5931,7 +5999,7 @@ function prefilterItemScore(item, targetWeaponType) {
             const settings = {
                 targetWeaponType: document.getElementById('targetWeaponType').value,
                 specialization: document.getElementById('specialization').value,
-                knowHowLevel: (() => { const kh = parseInt(document.getElementById('knowHowLevel').value, 10); return Number.isNaN(kh) ? 30 : kh; })(),
+                knowHowLevel: 30,
                 shdMax: document.getElementById('shdMax').checked,
                 shdCustomWd: document.getElementById('shdCustomWd')?.value || 0,
                 shdCustomChc: document.getElementById('shdCustomChc')?.value || 0,
@@ -6055,8 +6123,7 @@ function prefilterItemScore(item, targetWeaponType) {
                 : weaponsInventory.filter(w => w.type === settings.targetWeaponType
                     && !(w.isExotic && disabledExoticWeapons.has(String(w.id))));
             const ep = enemyProfile();
-            const knowHowLevel = settings.knowHowLevel || 30;
-            const knowHowMult = 1 + (knowHowLevel / 100);
+            const knowHowMultOf = (w) => 1 + (clampKnowHow(w.knowHow != null ? w.knowHow : 30) / 100);
             return weaponsOfType
                 .map(weapon => {
                     // v36: Deutlich realistischere Schätzung – dieselben
@@ -6124,7 +6191,7 @@ function prefilterItemScore(item, targetWeaponType) {
                         totalRof += exoW3.rof; totalDttooc += exoW3.dttooc; totalDta += exoW3.dta;
                         talentAmp += exoW3.amp;
                     }
-                    const rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * (1 + (talentAmp / 100));
+                    const rawHit = weapon.baseDmg * knowHowMultOf(weapon) * (1 + (totalWd / 100)) * (1 + (talentAmp / 100));
                     // Kopfschuss-Modell (#108): identisch zum Hauptvergleich –
                     // Basis-HSD der Waffe + HSD-Boni, gewichtet mit dem
                     // Kopfschuss-Anteil des Gegnerprofils.
@@ -6940,7 +7007,11 @@ function prefilterItemScore(item, targetWeaponType) {
             const gear = parseStorageJson('div2_gear', null);
             const weaponCounter = storageGet('div2_weaponIdCounter');
             const gearCounter = storageGet('div2_gearIdCounter');
-            if (Array.isArray(weapons)) weaponsInventory = weapons;
+            if (Array.isArray(weapons)) weaponsInventory = weapons.map(w => {
+                // v18: Know-How pro Waffe (frueher globaler Regler, Standard 30)
+                w.knowHow = w.isPrototype ? 30 : clampKnowHow(w.knowHow != null ? w.knowHow : 30);
+                return w;
+            });
             if (Array.isArray(gear)) gearInventory = gear.map(normalizeGearItem);
             if (weaponCounter && !isNaN(parseInt(weaponCounter, 10))) weaponIdCounter = parseInt(weaponCounter, 10);
             if (gearCounter && !isNaN(parseInt(gearCounter, 10))) gearIdCounter = parseInt(gearCounter, 10);
@@ -6994,34 +7065,6 @@ function prefilterItemScore(item, targetWeaponType) {
                 updateTabUI();
                 showToast('Alle Inventare geleert!', 'info');
             }
-        }
-
-        function updateKnowHowDisplay() {
-            const slider = document.getElementById('knowHowLevel');
-            const input = document.getElementById('knowHowInput');
-            const display = document.getElementById('knowHowBonusDisplay');
-            if (!slider || !input || !display) return;
-
-            let val = parseInt(slider.value, 10) || 0;
-            if (val < 0) val = 0;
-            if (val > 30) val = 30;
-
-            input.value = val;
-            display.textContent = `+${val}% Waffenschaden`;
-        }
-
-        function syncKnowHowInput(valStr) {
-            const slider = document.getElementById('knowHowLevel');
-            const display = document.getElementById('knowHowBonusDisplay');
-            if (!slider || !display) return;
-
-            let val = parseInt(valStr, 10);
-            if (isNaN(val)) val = 0;
-            if (val < 0) val = 0;
-            if (val > 30) val = 30;
-
-            slider.value = val;
-            display.textContent = `+${val}% Waffenschaden`;
         }
 
         function toggleShdInputs() {
@@ -7127,7 +7170,6 @@ function prefilterItemScore(item, targetWeaponType) {
         function initApp() {
             loadFromLocalStorage();
             updateForceExoticOptions();
-            updateKnowHowDisplay();
             onTargetGreenSetChange();
             renderWeaponsInventory();
             renderGearInventory();
