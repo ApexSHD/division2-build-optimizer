@@ -539,11 +539,27 @@ const setInput = (id, value) => {
   t('parseLocalizedFloat: deutsches Format 22,5', w.eval('parseLocalizedFloat("22,5")') === 22.5);
   t('parseLocalizedFloat: Tausender 50.482', w.eval('parseLocalizedFloat("50.482")') === 50482);
 
-  // Know-How 0 bleibt 0
-  setInput('knowHowLevel', '0');
-  const kh0 = w.eval(`(() => { const kh = parseInt(document.getElementById('knowHowLevel').value, 10); return Number.isNaN(kh) ? 30 : kh; })()`);
-  t('Know-How 0 bleibt 0 (kein Fallback auf 30)', kh0 === 0);
-  setInput('knowHowLevel', '30');
+  // Know-How ist jetzt pro Waffe erfasst (Standard 30, Prototyp fix 30)
+  t('Know-How: Feld pro Waffe vorhanden (Standard 30)', !!$('weaponKnowHow') && $('weaponKnowHow').value === '30');
+  t('Know-How: Feld pro Gear-Teil vorhanden (Standard 30)', !!$('gearKnowHow') && $('gearKnowHow').value === '30');
+  t('Know-How: globaler Slider entfernt', !$('knowHowLevel'));
+  t('Know-How: clamp 0..30', w.eval('clampKnowHow(-5)') === 0 && w.eval('clampKnowHow(99)') === 30 && w.eval('clampKnowHow("12")') === 12);
+  w.eval(`(() => {
+    const kh = document.getElementById('weaponKnowHow');
+    kh.value = '0';
+    onWeaponKnowHowChange();
+  })()`);
+  t('Know-How 0 bleibt 0 (kein Fallback auf 30)', $('weaponKnowHow').value === '0');
+  t('Know-How: Prototyp sperrt Feld auf 30', (() => {
+    w.eval(`(() => {
+      const chk = document.getElementById('weaponIsPrototype');
+      chk.checked = true;
+      onWeaponProtoChange();
+    })()`);
+    const locked = w.eval(`document.getElementById('weaponKnowHow').disabled === true && document.getElementById('weaponKnowHow').value === '30'`);
+    w.eval(`(() => { document.getElementById('weaponIsPrototype').checked = false; onWeaponProtoChange(); })()`);
+    return locked;
+  })());
 
   // Mod-RoF einfach gezählt
   const dbl = w.eval(`(() => {
@@ -742,8 +758,8 @@ const setInput = (id, value) => {
   console.log('\n--- Tab: Globale Einstellungen (Regression #66) ---');
   t('Tab "Globale Einstellungen": Button vorhanden', !!$('tabGlobal'));
   t('Tab "Globale Einstellungen": Content-Container vorhanden', !!$('contentGlobal'));
-  t('Know-How/SHD/Mindest-CHC liegen im Global-Tab', !!$('contentGlobal') && $('contentGlobal').contains($('knowHowLevel')) && $('contentGlobal').contains($('shdMax')) && $('contentGlobal').contains($('targetChc')));
-  t('Optimierungs-Tab enthaelt Know-How NICHT mehr', !$('contentSettings').contains($('knowHowLevel')));
+  t('SHD/Mindest-CHC liegen im Global-Tab', !!$('contentGlobal') && $('contentGlobal').contains($('shdMax')) && $('contentGlobal').contains($('targetChc')));
+  t('Know-How liegt nicht mehr im Global-Tab (jetzt pro Waffe/Gear)', !$('contentGlobal').contains($('weaponKnowHow')));
   // switchTab kann den Tab aktivieren
   w.eval("switchTab('global')");
   t('switchTab("global") aktiviert den Tab', $('contentGlobal').classList.contains('active'));
