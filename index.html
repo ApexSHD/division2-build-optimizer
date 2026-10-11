@@ -835,6 +835,13 @@
                             </div>
                             <p class="text-[11px] text-gray-400">Annahme, mit wie vielen Stacks (in % des Maximums) gerechnet wird. 100 % = volle Stacks im Gefecht. Ohne Striker-Weste gilt das Grund-Maximum (100 Stacks × 0,65 %), mit Weste (Press the Advantage) 200 Stacks, mit Rucksack (Risk Management) 1,00 %/Stack.</p>
                         </div>
+                        <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
+                            <label class="flex items-center gap-2 text-xs font-bold uppercase text-div-accent">
+                                <input type="checkbox" id="showCritDamageSplit" checked onchange="if (lastComparisonData && lastComparisonData.length) renderComparison();" class="rounded accent-orange-500 w-4 h-4">
+                                ⚔️ Max. Schaden pro Treffer (Non-Krit / Krit) in der Tabelle anzeigen
+                            </label>
+                            <p class="text-[11px] text-gray-400">Ergänzt in „Top Kombinationen (Waffe + Ausrüstung)“ zwei Spalten mit dem maximalen Schaden pro Treffer ohne bzw. mit kritischen Treffern. Enthalten sind alle aktiven Boni des Builds, z. B. 4p-Set-Stacks (Striker's Gamble) inkl. der Talente von Set-Weste und Set-Rucksack (Press the Advantage, Risk Management), Know-How, Spezialisierung und Gegnerprofil.</p>
+                        </div>
 
                         <div class="p-3 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2 mb-2">
                             <label class="flex items-center gap-2 text-xs font-bold uppercase text-div-accent">

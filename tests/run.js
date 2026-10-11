@@ -283,6 +283,33 @@ const setInput = (id, value) => {
   t('Ergebnisseite: Ergebnis-Tabelle/Karten werden gerendert', !!hasTable);
   t('Ergebnisseite: Spinner ist weg (kein "Optimierung läuft" hängen geblieben)', !(resultsBox && resultsBox.textContent.includes('Optimierung läuft')));
 
+  // ===== 4a. MAX.-SCHADEN NON-KRIT / KRIT (Top-Kombinationen-Tabelle) =====
+  const splitChk = $('showCritDamageSplit');
+  t('Max.-Schaden-Spalten: Option vorhanden, Standard an', !!splitChk && splitChk.checked === true);
+  if (resultsShown) {
+    const topTable = resultsBox ? resultsBox.querySelector('table') : null;
+    t('Max.-Schaden-Spalten: Header Non-Krit & Krit gerendert', !!(topTable && /Non-Krit/.test(topTable.textContent) && /\(Krit\)/.test(topTable.textContent)));
+    const nc = w.eval('lastComparisonData[0].nonCritHit');
+    const cr = w.eval('lastComparisonData[0].critHit');
+    const av = w.eval('lastComparisonData[0].avgDmg');
+    t('Max.-Schaden-Spalten: Krit > Non-Krit in Ergebnis-Daten', typeof nc === 'number' && typeof cr === 'number' && cr > nc);
+    t('Max.-Schaden-Spalten: Ø liegt zwischen Non-Krit und Krit', typeof av === 'number' && av >= nc && av <= cr);
+    // Striker-4p: Set-Stacks (inkl. Weste/Rucksack-Talent) müssen in den Schadenswerten stecken
+    const stackWd = w.eval('(lastComparisonData[0].stackInfo && lastComparisonData[0].stackInfo.wd) || 0');
+    t('Max.-Schaden-Spalten: Set-Stack-Bonus (Striker) in Berechnung enthalten', stackWd > 0);
+    const ncNoStack = w.eval('lastComparisonData[0].nonCritHit / (1 + ((lastComparisonData[0].stackInfo && lastComparisonData[0].stackInfo.wd) || 0) / 100)');
+    t('Max.-Schaden-Spalten: Non-Krit wächst mit Set-Stack-WD', Math.abs(nc - ncNoStack * (1 + stackWd / 100)) < 1);
+    // Option aus: Spalten verschwinden
+    splitChk.checked = false;
+    splitChk.dispatchEvent(new w.Event('change'));
+    const topTableOff = resultsBox ? resultsBox.querySelector('table') : null;
+    t('Max.-Schaden-Spalten: ohne Option keine Non-Krit/Krit-Spalten', !!(topTableOff && !/Non-Krit/.test(topTableOff.textContent)));
+    splitChk.checked = true;
+    splitChk.dispatchEvent(new w.Event('change'));
+  } else {
+    t('Max.-Schaden-Spalten: Header Non-Krit & Krit gerendert', false);
+  }
+
   // ===== 4b. EXOTEN-ZWANG (Issue #41) =====
   console.log('\n--- Exoten-Zwang ---');
 
