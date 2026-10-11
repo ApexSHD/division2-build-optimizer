@@ -6579,6 +6579,8 @@ function prefilterItemScore(item, targetWeaponType) {
         // theoretisch beste Build unter den aktuellen Einstellungen
         // (Ziel-Set, Gattung, Know-How, SHD, Gegnerprofil, Set-Zwänge).
         function renderComparison() {
+            // Option „Max. Schaden pro Treffer (Non-Krit / Krit) anzeigen“, Standard: aktiv
+            const showDamageSplitCols = !!(typeof document !== 'undefined' && document.getElementById('showCritDamageSplit')?.checked);
             if (!lastComparisonData || lastComparisonData.length === 0) {
                 document.getElementById('comparisonResults').innerHTML = `
                     <div class="text-center py-10 text-gray-400">
@@ -6668,6 +6670,9 @@ function prefilterItemScore(item, targetWeaponType) {
                                         <th class="p-3 text-center">CHD</th>
                                         <th class="p-3 text-center">WD</th>
                                         <th class="p-3 text-center" title="Automatische Empfehlung für die CHC/CHD-Bestückung der Gear-Mod-Plätze">Gear-Mods</th>
+                                        ${showDamageSplitCols ? `
+                                        <th class="p-3 text-center" title="Maximaler Schaden pro Treffer ohne kritischen Treffer (inkl. Set-Stacks, Westen-/Rucksack-Talent, Know-How, Spezialisierung &amp; Gegnerprofil)">Max. Schaden (Non-Krit)</th>
+                                        <th class="p-3 text-center" title="Maximaler Schaden pro Treffer mit kritischem Treffer (inkl. Set-Stacks, Westen-/Rucksack-Talent, Know-How, Spezialisierung &amp; Gegnerprofil)">Max. Schaden (Krit)</th>` : ''}
                                         <th class="p-3 text-center">Ø Schaden/Treffer</th>
                                         <th class="p-3 text-center">DPS (geschätzt)</th>
                                         <th class="p-3 text-center">Set-Teile</th>
@@ -6691,6 +6696,9 @@ function prefilterItemScore(item, targetWeaponType) {
                         <td class="p-3 text-center text-xs" title="${escapeHtml(result.modRecReason || '')}">
                             <span class="bg-zinc-800 text-gray-200 px-2 py-1 rounded font-semibold whitespace-nowrap">${result.modRecText || '—'}</span>
                         </td>
+                        ${showDamageSplitCols ? `
+                        <td class="p-3 text-center font-mono text-gray-300">${Math.round(result.nonCritHit).toLocaleString('de-DE')}</td>
+                        <td class="p-3 text-center font-mono text-orange-400">${Math.round(result.critHit).toLocaleString('de-DE')}</td>` : ''}
                         <td class="p-3 text-center font-mono text-emerald-400">${Math.round(result.avgDmg).toLocaleString('de-DE')}</td>
                         <td class="p-3 text-center font-mono text-sky-400">${Math.round(result.effectiveDPS).toLocaleString('de-DE')}</td>
                         <td class="p-3 text-center">
@@ -6850,12 +6858,15 @@ function prefilterItemScore(item, targetWeaponType) {
                 return;
             }
 
-            let csv = "Platz;Waffe;Waffen-Typ;Basis-Schaden;Build;CHC;CHD;WD;Ø Schaden/Treffer;DPS;Set-Teile\n";
+            const showDamageSplitCols = !!(typeof document !== 'undefined' && document.getElementById('showCritDamageSplit')?.checked);
+            let csv = "Platz;Waffe;Waffen-Typ;Basis-Schaden;Build;CHC;CHD;WD;Max. Schaden (Non-Krit);Max. Schaden (Krit);Ø Schaden/Treffer;DPS;Set-Teile\n";
             lastComparisonData.forEach((result, index) => {
                 const buildSummary = result.build.map(i => `${i.setName} (${i.slot})`).join(' | ');
                 csv += `${index + 1};${result.weapon.name};${weaponTypeLabel(result.weapon.type)};${result.weapon.baseDmg};` +
                        `"${buildSummary}";${formatGermanNumber(result.cappedChc || result.finalChc)}%;${formatGermanNumber(result.finalChd)}%;` +
-                       `+${formatGermanNumber(result.totalWd)}%;${Math.round(result.avgDmg).toLocaleString('de-DE')};` +
+                       `+${formatGermanNumber(result.totalWd)}%;` +
+                       (showDamageSplitCols ? `${Math.round(result.nonCritHit).toLocaleString('de-DE')};${Math.round(result.critHit).toLocaleString('de-DE')};` : '') +
+                       `${Math.round(result.avgDmg).toLocaleString('de-DE')};` +
                        `${Math.round(result.effectiveDPS).toLocaleString('de-DE')};${result.targetSetCount}pc\n`;
             });
 
