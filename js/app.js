@@ -842,7 +842,7 @@
                 condition: "Waffentreffer erhöhen den Gesamtwaffenschaden; max. 100 Stacks. Verlust: 1 Stack/s (0–50 Stacks), 2 Stacks/s (51–100)",
                 sourceNote: "Grundtalent ohne Rucksack-/Weste-Talent",
                 chestTalent: { label: "Press the Advantage (Weste)", maxStacks: 200, note: "Verlust 3 Stacks/s (101–200)" },
-                backpackTalent: { label: "Risk Management (Rucksack)", perStackWd: 0.90 }
+                backpackTalent: { label: "Risk Management (Rucksack)", perStackWd: 1.05 }
             },
             heartbreaker: {
                 name: "Heartstopper",
@@ -5008,7 +5008,7 @@
                 buildSkillTiers: build.reduce((s, i) => s + gearSkillTiersOf(i), 0),
                 buildArmorCores: build.reduce((s, i) => s + (gearCoreTypeOf(i) === 'armour' || gearIsTriCoreItem(i) ? 1 : 0), 0),
                 named: { wd: 0, chc: 0, chd: 0, dta: 0, dttooc: 0, dth: 0 },
-                delta: { wd: 0, chc: 0, chd: 0, rof: 0, dta: 0, dttooc: 0, dth: 0, amp: 0, wh: 0 },
+                delta: { wd: 0, chc: 0, chd: 0, rof: 0, dta: 0, dttooc: 0, dth: 0, amp: 0, wh: 0, stackWd: 0 },
                 boni: [],
                 targetSetCount: 0,
                 stackInfo: null
@@ -5091,7 +5091,11 @@
                 const stackWh = stacks * perStackWh;
                 const stackWdTotal = stacks * perStackWd;
                 if (stackWdTotal > 0 || stackChd > 0 || stackRof > 0 || flatAmp > 0 || stackWh > 0) {
-                    if (stackWdTotal > 0) d.wd += stackWdTotal;
+                    // Striker-Messung (Schießstand, Prototyp MK16, 2026):
+                    // Set-Stack-WD ist eine EIGENE multiplikative Kategorie
+                    // (200 Stacks = Faktor 3,10), nicht additiv im WD-Bucket
+                    // (dort käme nur Faktor ~1,77 heraus).
+                    if (stackWdTotal > 0) d.stackWd += stackWdTotal;
                     if (stackChd > 0) d.chd += stackChd;
                     if (stackRof > 0) d.rof += stackRof;
                     if (stackWh > 0) d.wh += stackWh;
@@ -5444,6 +5448,10 @@
             // eigene multiplikative Gruppe — in-game Verstärker stapeln
             // multiplikativ zwischen den Gruppen, nicht additiv im WD-Bucket.
             const setAmpMult = 1 + ((bc.delta.amp || 0) / 100);
+            // Set-Stack-WD (Striker's Gamble, Heartstopper): eigene
+            // multiplikative Kategorie, bestätigt durch Schießstand-Messung
+            // (200 Striker-Stacks = Faktor 3,10 statt ~1,77 additiv).
+            const stackWdMult = 1 + ((bc.delta.stackWd || 0) / 100);
             // Waffenhandhabung aus Set-Boni (z.B. Tipping Scales +0,5%/Stack):
             // wirkt in-game v.a. als Nachladetempo → fließt über den
             // Sustain-Faktor (Feuerzeit vs. Feuerzeit+Nachladezeit) in den
@@ -5576,7 +5584,7 @@
             // Herkunfts-Snapshot 4: Set- & Marken-Boni (Differenz seit Snapshot 3);
             // der 4p-Stack-Schaden wird separat als eigene Quelle ausgewiesen.
             const srcSetBrand = {
-                wd: totalWd - srcAfterBase.wd - (stackInfo ? stackInfo.wd : 0),
+                wd: totalWd - srcAfterBase.wd,
                 chc: totalChc - srcAfterBase.chc,
                 chd: totalChd - srcAfterBase.chd
             };
@@ -5619,7 +5627,7 @@
 
                 let knowHowMult = 1 + (knowHowLevel / 100);
                 let rawHit = weapon.baseDmg * knowHowMult * (1 + (totalWd / 100)) * specDmgAmp;
-                let nonCritBody = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult * setAmpMult;
+                let nonCritBody = rawHit * dtaMult * dttoocMult * dthMult * talentAmpMult * gearAmpMult * setAmpMult * stackWdMult;
                 let nonCritHit = nonCritBody * ((1 - epHsd) + epHsd * (1 + (totalHsd + dbHsd) / 100));
                 let critHit = nonCritHit * (1 + (finalChd / 100));
 
@@ -5637,7 +5645,7 @@
                 // sonst die beste overall (Fallback-Teilmenge).
                 const better = chosenMod === null || (meetsTarget && !chosenMod.meetsTarget) || (meetsTarget === chosenMod.meetsTarget && effectiveDPS > chosenDps);
                 if (better) {
-                    chosenMod = { mod, meetsTarget, finalChc, finalChd, cappedChc, dtaMult, dttoocMult, dthMult, rofMult, nonCritHit, critHit, avgBulletDmg, effectiveDPS, sustainMult, setAmpMult };
+                    chosenMod = { mod, meetsTarget, finalChc, finalChd, cappedChc, dtaMult, dttoocMult, dthMult, rofMult, nonCritHit, critHit, avgBulletDmg, effectiveDPS, sustainMult, setAmpMult, stackWdMult };
                     chosenDps = effectiveDPS;
                 }
             }
@@ -5685,6 +5693,7 @@
                     talentsActiveSetting: !!talentsActive,
                     stackInfo: stackInfo,
                     setAmpMult: chosenMod.setAmpMult,
+                    stackWdMult: chosenMod.stackWdMult,
                     sustainMult: chosenMod.sustainMult,
                     buildWh: buildWh,
                     breakdown: {
@@ -6530,6 +6539,14 @@ function prefilterItemScore(item, targetWeaponType) {
                     if (srcKey === 'stack' && best.stackInfo) {
                         const si = best.stackInfo;
                         detail = `🔥 ${si.name} (${si.stacks}/${si.maxStacks} Stacks × ${[si.perStackWd ? `${formatGermanNumber(si.perStackWd)}% WD` : '', si.perStackChd ? `${formatGermanNumber(si.perStackChd)}% CHD` : '', si.perStackRof ? `${formatGermanNumber(si.perStackRof)}% RPM` : ''].filter(Boolean).join(' & ')}${si.hasChest ? ', Weste aktiv' : ''}${si.hasBackpack ? ', Rucksack aktiv' : ''})`;
+                    }
+                    if (srcKey === 'stack' && key === 'wd' && val > 0) {
+                        // Stack-WD ist eine eigene multiplikative Kategorie
+                        // (Schießstand-Messung) und bleibt aus der additiven
+                        // WD-Summe heraus.
+                        sum -= val;
+                        rows += `<li class="flex justify-between gap-2"><span class="text-gray-400">${detail}</span><span class="font-mono text-gray-200">+${fmt(val)}% <span class="text-[10px] text-amber-400">(separat ×${(1 + val / 100).toFixed(2).replace('.', ',')} multiplikativ)</span></span></li>`;
+                        return;
                     }
                     rows += `<li class="flex justify-between gap-2"><span class="text-gray-400">${detail}</span><span class="font-mono text-gray-200">+${fmt(val)}%</span></li>`;
                 });
