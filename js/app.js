@@ -770,8 +770,8 @@
     'perfekter_killer': { label: 'Perfekter Killer (Kritischer Trefferschaden)', type: 'chd', valueNormal: 90, valueNamed: 90, conditional: true, condition: 'nach Kill per Krit-Treffer (10s aktiv)', note: 'Das Töten eines Gegners mit einem kritischen Treffer gewährt +70% (90%) kritischen Trefferschaden für 10s.' },
     'perfekte_bewahrung': { label: 'Perfekte Bewahrung (Nutzen)', type: null, valueNormal: 0, valueNamed: 0, note: 'Das Töten eines Gegners repariert 10% (15%) Rüstung über 5s. Kopfschuss-Tötungen verbessern die Reparatur um zusätzliche 10% (15%).' },
     'perfekter_optimist': { label: 'Perfekter Optimist (Waffen-Schaden)', type: 'wd', valueNormal: 45, valueNamed: 45, conditional: true, condition: 'leeres Magazin (+4,5% je 10% fehlende Munition)', note: 'Schadensausgabe der Waffe wird um +3,5% (4,5%) für jede 10% Munition, die im Magazin fehlt, erhöht.' },
-    'perfekt_angespannt': { label: 'Perfekt angespannt (Kritischer Trefferschaden)', type: 'chd', valueNormal: 80, valueNamed: 80, conditional: true, condition: 'während des Feuerns (max. 8 Stacks)', note: 'Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 (8) Mal.' },
-    'perfekt_nahkampf': { label: 'Perfekt Nahkampf (Waffen-Schaden)', type: 'wd', valueNormal: 38, valueNamed: 38, conditional: true, condition: 'nach Kill im Nahbereich 7m (10s aktiv)', note: 'Das Töten eines Ziels im Nahbereich (7m) gewährt +30% (38%) Waffen-Schaden für 10s.' },
+    'perfekt_angespannt': { label: 'Perfekt strapaziert (Kritischer Trefferschaden)', type: 'chd', valueNormal: 80, valueNamed: 80, conditional: true, condition: 'während des Feuerns (max. 8 Stacks)', note: 'Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 (8) Mal.' },
+    'perfekt_nahkampf': { label: 'Perfekt nah und persönlich (Waffen-Schaden)', type: 'wd', valueNormal: 38, valueNamed: 38, conditional: true, condition: 'nach Kill im Nahbereich 7m (10s aktiv)', note: 'Das Töten eines Ziels im Nahbereich (7m) gewährt +30% (38%) Waffen-Schaden für 10s.' },
     'perfekte_schnelle_hande': { label: 'Perfekte schnelle Hände (Nutzen)', type: null, valueNormal: 0, valueNamed: 0, note: 'Kritische Treffer fügen einen Stack von +3% (5%) Nachlade-Geschwindigkeit hinzu. Maximal 40 Stacks.' },
     'perfekter_sadist': { label: 'Perfekter Sadist (Verstärker)', type: 'amp', valueNormal: 35, valueNamed: 35, conditional: true, condition: 'nur gegen blutende Ziele', note: 'Verstärkt den Waffen-Schaden um +30% (35%) gegen blutende Gegner. Nach 4 (3) Tötungen wird Blutung auf den nächsten Gegner angewendet, den du triffst.' },
     'perfekt_blind': { label: 'Perfekt blind (Verstärker)', type: 'amp', valueNormal: 35, valueNamed: 35, conditional: true, condition: 'nur gegen geblendete Ziele', note: 'Verstärkt den Waffen-Schaden um +30% (35%) gegen geblendete Gegner. Nach 4 (3) Tötungen wird Blindheit auf den nächsten Gegner angewendet, den du triffst.' },
@@ -796,12 +796,12 @@
     'killer': { label: 'Killer (Kritischer Trefferschaden)', type: 'chd', valueNormal: 70, valueNamed: 70, conditional: true, condition: 'nach Kill per Krit-Treffer (10s aktiv)', note: 'Das Töten eines Gegners mit einem kritischen Treffer gewährt +70% kritischen Trefferschaden für 10s.' },
     'bewahrung': { label: 'Bewahrung (Nutzen)', type: null, valueNormal: 0, valueNamed: 0, note: 'Das Töten eines Gegners repariert 10% Rüstung über 5s. Kopfschuss-Tötungen verbessern die Reparatur um zusätzliche 10%.' },
     'optimist': { label: 'Optimist (Waffen-Schaden)', type: 'wd', valueNormal: 35, valueNamed: 35, conditional: true, condition: 'leeres Magazin (+3,5% je 10% fehlende Munition)', note: 'Schadensausgabe der Waffe wird um +3,5% für jede 10% Munition, die im Magazin fehlt, erhöht.' },
-    'angespannt': { label: 'Angespannt (Kritischer Trefferschaden)', type: 'chd', valueNormal: 50, valueNamed: 50, conditional: true, condition: 'während des Feuerns (max. 5 Stacks)', note: 'Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 Mal.' },
+    'angespannt': { label: 'Strapaziert (Kritischer Trefferschaden)', type: 'chd', valueNormal: 50, valueNamed: 50, conditional: true, condition: 'während des Feuerns (max. 5 Stacks)', note: 'Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 Mal.' },
     'raserei': { label: 'Raserei (Waffen-Schaden & Feuerrate)', type: 'wdrof', valueNormal: 3, valueNamed: 3, conditional: true, condition: 'nach leerem Nachladen: je 8 Kugeln Magazin +3% WD & +3% RoF (9s aktiv)', note: 'Je 8 Kugeln Magazinkapazität: +3% Feuerrate und +3% Waffen-Schaden für 9s nach leerem Nachladen. Magazin-abhängig: wird als Ø über den Nachladezyklus berechnet.' },
     'abgemessen': { label: 'Abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'Magazin-Ø: obere Hälfte +25% RoF / −25% WD, untere Hälfte −18% RoF / +30% WD', note: 'Die obere Hälfte des Magazins hat +25% Feuerrate und −25% Waffen-Schaden, die untere −18% Feuerrate und +30% Gesamt-Waffen-Schaden. Magazin-abhängig: wird als Ø über das volle Magazin berechnet (Issue #34).' },
     'perfekt_abgemessen': { label: 'Perfekt abgemessen (Waffen-Schaden)', type: 'wd', valueNormal: 40, valueNamed: 40, conditional: true, condition: 'Magazin-Ø: obere Hälfte +30% RoF / −30% WD, untere Hälfte −18% RoF / +40% WD', note: 'Perfect Measured: obere Magazinhälfte +30% RoF / −30% WD, untere −18% RoF / +40% Gesamt-WD. Magazin-abhängig: wird als Ø über das volle Magazin berechnet (Issue #34).' },
     'adaptive_instincts': { label: 'Adaptive Instincts (Kritische Trefferchance / Schaden)', type: 'chcchd', valueNormal: 20, valueNamed: 20, valueChc: 20, valueChd: 50, conditional: true, condition: 'nach 30 Kopfschüssen (45s aktiv)', note: '30 Kopfschüsse gewähren +20% CHC und +50% CHD für 45s. (Alternative Boni: 65 Körpertreffer → +90% WD, 20 Beintreffer → +150% Nachladetempo. Hier modelliert: Kopfschuss-Bonus.)' },
-    'nahkampf': { label: 'Nahkampf (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'nach Kill im Nahbereich 7m (10s aktiv)', note: 'Das Töten eines Ziels im Nahbereich (7m) gewährt +30% Waffen-Schaden für 10s.' },
+    'nahkampf': { label: 'Nah und persönlich (Waffen-Schaden)', type: 'wd', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'nach Kill im Nahbereich 7m (10s aktiv)', note: 'Das Töten eines Ziels im Nahbereich (7m) gewährt +30% Waffen-Schaden für 10s.' },
     'schnelle_hande': { label: 'Schnelle Hände (Nutzen)', type: null, valueNormal: 0, valueNamed: 0, note: 'Kritische Treffer fügen einen Stack von +3% Nachlade-Geschwindigkeit hinzu. Maximal 40 Stacks.' },
     'sadist': { label: 'Sadist (Verstärker)', type: 'amp', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'nur gegen blutende Ziele', note: 'Verstärkt den Waffen-Schaden um +30% gegen blutende Gegner. Nach 4 Tötungen wird Blutung auf den nächsten Gegner angewendet, den du triffst.' },
     'blind': { label: 'Blind (Verstärker)', type: 'amp', valueNormal: 30, valueNamed: 30, conditional: true, condition: 'nur gegen geblendete Ziele', note: 'Verstärkt den Waffen-Schaden um +30% gegen geblendete Gegner. Nach 4 Tötungen wird Blindheit auf den nächsten Gegner angewendet, den du triffst.' },
@@ -2438,7 +2438,7 @@
         }
 
         // ===== Magazin-abhängige Talente: Ø-Bonus über ein volles Magazin ====
-        // Optimist, Angespannt (Strained) und Raserei (Frenzy) hängen vom
+        // Optimist, Strapaziert (Strained) und Raserei (Frenzy) hängen vom
         // Munitions-/Feuer-Zyklus ab. Statt des Best-Case-Maximalwerts wird
         // der zu erwartende Durchschnitt über ein volles Magazin berechnet
         // (RPM, Magazingröße, Nachladezeit aus der Waffen-DB, Mod-Boni für
@@ -2463,7 +2463,7 @@
         // ({ wd, chd, rof, note }) oder null fuer alle anderen Talente.
         // Issue #34: Einheitliche "Modifikatoren pro Schuss i von n"-Logik
         // statt Spezialfaelle. Alle vier Talente (Abgemessen, Optimist,
-        // Angespannt, Raserei) iterieren Schuss fuer Schuss ueber das
+        // Strapaziert, Raserei) iterieren Schuss fuer Schuss ueber das
         // Magazin und mitteln die Modifikatoren.
         function magazineModifiersPerShot(tKey, weapon) {
             const k = String(tKey || '').toLowerCase();
@@ -2515,7 +2515,7 @@
                 return { ...res, note: `Magazin-Ø (${n ? n + ' Schuss' : 'ohne DB-Daten'}): +${fmt(res.wd)}% WD statt Best-Case +${fmt(per10 * 10)}%` };
             }
 
-            // Angespannt (Strained): +10% CHD je 0,5s Feuern, max. 5 (8)
+            // Strapaziert (Strained): +10% CHD je 0,5s Feuern, max. 5 (8)
             // Stacks. Stack-Stand beim i-ten Schuss aus Schussintervall.
             const isStrained = (k === 'angespannt' || k === 'perfekt_angespannt' || k === 'strained');
             if (isStrained) {
@@ -5368,7 +5368,7 @@
                     const val = talentValueFor(tKey, weapon.isExotic);
                     let talentMagNote = '';
                     if (active) {
-                        // Magazin-abhängige Talente (Optimist, Angespannt,
+                        // Magazin-abhängige Talente (Optimist, Strapaziert,
                         // Raserei): Ø-Bonus über ein volles Magazin statt
                         // Best-Case-Maximalwert (siehe magazineAverageTalent).
                         // v36: VOR dem type-Check prüfen, damit auch DB-Einträge

@@ -85,6 +85,6 @@
     "expression": "magazineAverageTalent('angespannt', { name: 'Eagle Bearer', type: 'AR', autoMods: false }).chd",
     "expected": 31.67,
     "tolerance": 0.01,
-    "note": "Angespannt Ø unverändert: +10% CHD je 0,5s, max 5 Stacks, 60 Schuss @ 850 RPM"
+    "note": "Strapaziert Ø unverändert: +10% CHD je 0,5s, max 5 Stacks, 60 Schuss @ 850 RPM"
   }
 }
