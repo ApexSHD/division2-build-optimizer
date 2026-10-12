@@ -1122,7 +1122,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Close & Personal",
-                    "label": "Perfekt Nahkampf",
+                    "label": "Perfekt nah und persönlich",
                     "key": "perfekt_nahkampf",
                     "category": "wd",
                     "kategorie": "Waffen-Schaden (additiv)",
@@ -2667,7 +2667,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Unhinged",
-                    "label": "Perfekt unerschütterlich",
+                    "label": "Perfekt aus den Angeln",
                     "key": "perfekt_unerschutterlich",
                     "category": "wd",
                     "kategorie": "Waffen-Schaden (additiv)",
@@ -3053,7 +3053,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Strained",
-                    "label": "Perfekt angespannt",
+                    "label": "Perfekt strapaziert",
                     "key": "perfekt_angespannt",
                     "category": "chd",
                     "kategorie": "Krit-Trefferschaden (additiv)",
@@ -4316,7 +4316,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Strained",
-                    "label": "Perfekt angespannt",
+                    "label": "Perfekt strapaziert",
                     "key": "perfekt_angespannt",
                     "category": "chd",
                     "kategorie": "Krit-Trefferschaden (additiv)",

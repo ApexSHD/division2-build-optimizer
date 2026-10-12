@@ -1031,6 +1031,13 @@ const setInput = (id, value) => {
     t('Talent-Alias: strained -> angespannt inkl. Magazin-O',
       w.eval(`(function(){ const rt = resolveTalentDef('strained'); return rt && rt.key === 'angespannt' && !!WEAPON_TALENTS[rt.key]; })()`));
     t('Talent-Alias: closepersonal -> nahkampf', w.eval(`(function(){ const rt = resolveTalentDef('closepersonal'); return rt && rt.key === 'nahkampf'; })()`));
+    // Offizielle deutsche Talent-Namen (Spiel-Lokalisierung) + neue Alias-Keys
+    t('Talent-Namen: Strapaziert (offiziell) statt Angespannt', w.eval(`WEAPON_TALENTS['angespannt'].label`).startsWith('Strapaziert'));
+    t('Talent-Namen: Nah und persönlich (offiziell) statt Nahkampf', w.eval(`WEAPON_TALENTS['nahkampf'].label`).startsWith('Nah und persönlich'));
+    t('Talent-Alias: strapaziert -> angespannt (neuer offizieller Name)', w.eval(`(function(){ const rt = resolveTalentDef('strapaziert'); return rt && rt.key === 'angespannt'; })()`));
+    t('Talent-Alias: perfekt_strapaziert -> perfekt_angespannt', w.eval(`(function(){ const rt = resolveTalentDef('perfekt_strapaziert'); return rt && rt.key === 'perfekt_angespannt'; })()`));
+    t('Talent-Namen: Aus den Angeln (offiziell) statt Entfesselt', w.eval(`WEAPON_TALENTS['unhinged'].label`).startsWith('Aus den Angeln'));
+    t('Talent-Namen: Klopfen (offiziell) statt Schlag (Pummel)', w.eval(`WEAPON_TALENTS['pummel'] && WEAPON_TALENTS['pummel'].label`).startsWith('Klopfen'));
   }
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');

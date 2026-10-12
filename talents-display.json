@@ -21,12 +21,12 @@
       "group": "Waffen-Schaden"
     },
     {
-      "name": "Perfekt angespannt",
+      "name": "Perfekt strapaziert",
       "description": "Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 (8) Mal.",
       "group": "Kritischer Trefferschaden"
     },
     {
-      "name": "Perfekt Nahkampf",
+      "name": "Perfekt nah und persönlich",
       "description": "Das Töten eines Ziels im Nahbereich (7m) gewährt +30% (38%) Waffen-Schaden für 10s.",
       "group": "Waffen-Schaden"
     },
@@ -151,12 +151,12 @@
       "group": "Waffen-Schaden"
     },
     {
-      "name": "Angespannt",
+      "name": "Strapaziert",
       "description": "Erhalte +10% kritischen Trefferschaden für jede 0,5s, die du schießt. Stackt bis zu 5 Mal.",
       "group": "Kritischer Trefferschaden"
     },
     {
-      "name": "Nahkampf",
+      "name": "Nah und persönlich",
       "description": "Das Töten eines Ziels im Nahbereich (7m) gewährt +30% Waffen-Schaden für 10s.",
       "group": "Waffen-Schaden"
     },
@@ -453,7 +453,7 @@
   ],
   "Schrotflinten": [
     {
-      "name": "Perfekter Schlag",
+      "name": "Perfektes Klopfen",
       "description": "3 (2) aufeinanderfolgende Tötungen füllen das Magazin nach und gewähren +40% Waffen-Schaden für 10s.",
       "group": "Waffen-Schaden"
     },

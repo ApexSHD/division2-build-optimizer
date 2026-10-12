@@ -530,7 +530,7 @@ function syncModLockState(cat) {
 
 const NAMED_TALENT_CARRIERS = {
     'Perfekter Optimist':      'Shield Splinterer & Diceros Special',
-    'Perfekt angespannt':       'Dark Winter & Cold Relations',
+    'Perfekt strapaziert':      'Dark Winter & Cold Relations',
     'Perfekt synchronisiert':  'Test Subject & Harmony',
     'Perfekter Killer':        'The Apartment & Caretaker',
     'Perfekte Flachlage':      'Kingbreaker & Dare',
@@ -1702,6 +1702,8 @@ function resolveTalentDef(nameOrKey) {
     // deutschen Definitionen in WEAPON_TALENTS mappen.
     const TALENT_KEY_ALIAS = {
         strained: 'angespannt', perfekt_strained: 'perfekt_angespannt',
+        strapaziert: 'angespannt', perfekt_strapaziert: 'perfekt_angespannt',
+        nah_und_personlich: 'nahkampf', perfekt_nah_und_personlich: 'perfekt_nahkampf',
         frenzy: 'raserei', perfekt_frenzy: 'perfekt_raserei',
         measured: 'abgemessen', perfekt_measured: 'perfekt_abgemessen',
         closepersonal: 'nahkampf', close_and_personal: 'nahkampf',
