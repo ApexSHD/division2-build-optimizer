@@ -299,6 +299,11 @@ const setInput = (id, value) => {
     t('Max.-Schaden-Spalten: Set-Stack-Bonus (Striker) in Berechnung enthalten', stackWd > 0);
     const ncNoStack = w.eval('lastComparisonData[0].nonCritHit / (1 + ((lastComparisonData[0].stackInfo && lastComparisonData[0].stackInfo.wd) || 0) / 100)');
     t('Max.-Schaden-Spalten: Non-Krit wächst mit Set-Stack-WD', Math.abs(nc - ncNoStack * (1 + stackWd / 100)) < 1);
+    // Schießstand-Messung (Prototyp MK16, 4p Striker mit Weste+Rucksack, volle
+    // Stacks): nonCritHit steigt GENAU um den Stack-Faktor (200 × 1,05 % = 3,10)
+    // — multiplikative eigene Kategorie, nicht additiv im WD-Bucket (Faktor ~1,77).
+    t('Striker-Messung: Stack-WD als eigene multiplikative Kategorie (Faktor 3,10 bei 200 Stacks × 1,05 %)',
+      Math.abs(stackWd - 210) < 0.01 && Math.abs((nc / ncNoStack) - 3.10) < 0.001);
     // Option aus: Spalten verschwinden
     splitChk.checked = false;
     splitChk.dispatchEvent(new w.Event('change'));
@@ -1087,8 +1092,15 @@ const setInput = (id, value) => {
     t('Abgleich: alle 11 Set-Grundwerte in STACK_DAMAGE_CONFIG korrekt', allMatch);
     if (mism.length) console.log('   Abweichungen:', mism.join('; '));
     // Westen-/Rucksack-Overrides (jeweils gegen gear.json-Texte verifiziert)
-    t('Abgleich: Striker Rucksack 0.65 -> 0.9 pro Stack', w.eval('STACK_DAMAGE_CONFIG.striker.backpackTalent.perStackWd') === 0.9);
+    t('Abgleich: Striker Rucksack 0.65 -> 1.05 pro Stack (Schießstand-Messung 2026)', w.eval('STACK_DAMAGE_CONFIG.striker.backpackTalent.perStackWd') === 1.05);
     t('Abgleich: Striker Weste max 100 -> 200 Stacks', w.eval('STACK_DAMAGE_CONFIG.striker.chestTalent.maxStacks') === 200);
+    const strikerMeas = w.eval(`(() => {
+      const r = (lastComparisonData && lastComparisonData[0]) || null;
+      if (!r || !r.stackInfo || !r.stackWdMult) return null;
+      return { factor: r.stackWdMult, expectedWd: r.stackInfo.wd };
+    })()`);
+    t('Striker-Messung: Stack-WD-Werte konsistent (eigene Kategorie, 200 Stacks × 1,05 % = +210 %)',
+      strikerMeas === null || (Math.abs(strikerMeas.expectedWd - 210) < 0.01 && Math.abs(strikerMeas.factor - 3.10) < 0.001));
     t('Abgleich: Heartbreaker Weste max 50 -> 100 Stacks', w.eval('STACK_DAMAGE_CONFIG.heartbreaker.chestTalent.maxStacks') === 100);
     t('Abgleich: Umbra Weste max 50 -> 100 Stacks (From the Shadows)', w.eval('STACK_DAMAGE_CONFIG.umbra.chestTalent.maxStacks') === 100);
     t('Abgleich: Tipping Scales Rucksack 5 -> 8 CHD pro Stack', w.eval('STACK_DAMAGE_CONFIG.tippingscales.backpackTalent.perStackChd') === 8);
