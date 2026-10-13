@@ -542,7 +542,7 @@ const NAMED_TALENT_CARRIERS = {
     'Perfekter Schütze':       'The Archivist & Ekim\'s Long Stick',
     'Perfektes Erstblut':      'Pinprick',
     'Perfekt von hinten':      'Whisper & Brutus',
-    'Perfekte schnelle Hände': 'Good Times',
+    'Perfekte flinke Hände':   'Good Times',
     'Perfekte Bewahrung':      'Emeline\'s Guard & P320 XCompact',
     'Perfekt stabil':          'Tabula Rasa'
 };
@@ -1704,6 +1704,7 @@ function resolveTalentDef(nameOrKey) {
         strained: 'angespannt', perfekt_strained: 'perfekt_angespannt',
         strapaziert: 'angespannt', perfekt_strapaziert: 'perfekt_angespannt',
         nah_und_personlich: 'nahkampf', perfekt_nah_und_personlich: 'perfekt_nahkampf',
+        flinke_hande: 'schnelle_hande', perfekt_flinke_hande: 'perfekte_schnelle_hande',
         frenzy: 'raserei', perfekt_frenzy: 'perfekt_raserei',
         measured: 'abgemessen', perfekt_measured: 'perfekt_abgemessen',
         closepersonal: 'nahkampf', close_and_personal: 'nahkampf',

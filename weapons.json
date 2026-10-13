@@ -2347,7 +2347,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Steady Handed",
-                    "label": "Perfekte schnelle Hände",
+                    "label": "Perfekte flinke Hände",
                     "key": "perfekte_schnelle_hande",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",
@@ -3108,7 +3108,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Fast Hands",
-                    "label": "Perfekte schnelle Hände",
+                    "label": "Perfekte flinke Hände",
                     "key": "perfekte_schnelle_hande",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",

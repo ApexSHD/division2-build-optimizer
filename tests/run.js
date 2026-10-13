@@ -1038,6 +1038,8 @@ const setInput = (id, value) => {
     t('Talent-Alias: perfekt_strapaziert -> perfekt_angespannt', w.eval(`(function(){ const rt = resolveTalentDef('perfekt_strapaziert'); return rt && rt.key === 'perfekt_angespannt'; })()`));
     t('Talent-Namen: Aus den Angeln (offiziell) statt Entfesselt', w.eval(`WEAPON_TALENTS['unhinged'].label`).startsWith('Aus den Angeln'));
     t('Talent-Namen: Klopfen (offiziell) statt Schlag (Pummel)', w.eval(`WEAPON_TALENTS['pummel'] && WEAPON_TALENTS['pummel'].label`).startsWith('Klopfen'));
+    t('Talent-Namen: Flinke Hände (offiziell) statt Schnelle Hände', w.eval(`WEAPON_TALENTS['schnelle_hande'].label`).startsWith('Flinke Hände'));
+    t('Talent-Alias: flinke_hande -> schnelle_hande (neuer offizieller Name)', w.eval(`(function(){ const rt = resolveTalentDef('flinke_hande'); return rt && rt.key === 'schnelle_hande'; })()`));
   }
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');

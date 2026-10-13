@@ -31,7 +31,7 @@
       "group": "Waffen-Schaden"
     },
     {
-      "name": "Perfekte schnelle Hände",
+      "name": "Perfekte flinke Hände",
       "description": "Kritische Treffer fügen einen Stack von +3% (5%) Nachlade-Geschwindigkeit hinzu. Maximal 40 Stacks.",
       "group": "Nutzen"
     },
@@ -161,7 +161,7 @@
       "group": "Waffen-Schaden"
     },
     {
-      "name": "Schnelle Hände",
+      "name": "Flinke Hände",
       "description": "Kritische Treffer fügen einen Stack von +3% Nachlade-Geschwindigkeit hinzu. Maximal 40 Stacks.",
       "group": "Nutzen"
     },
