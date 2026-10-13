@@ -188,7 +188,7 @@
         {
             "key": "naked",
             "name": "Naked",
-            "label": "Unbewaffnet",
+            "label": "Nackt",
             "weapon_types": [
                 "MMR"
             ],
@@ -284,7 +284,7 @@
         {
             "key": "pummel",
             "name": "Pummel",
-            "label": "Klopfen",
+            "label": "Draufhauen",
             "weapon_types": [
                 "Shotgun"
             ],

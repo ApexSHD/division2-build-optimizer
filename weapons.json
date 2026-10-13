@@ -2347,7 +2347,7 @@
             "named": {
                 "talent": {
                     "name": "Perfectly Steady Handed",
-                    "label": "Perfekte schnelle Hände",
+                    "label": "Perfekte flinke Hände",
                     "key": "perfekte_schnelle_hande",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",
@@ -3108,7 +3108,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Fast Hands",
-                    "label": "Perfekte schnelle Hände",
+                    "label": "Perfekte flinke Hände",
                     "key": "perfekte_schnelle_hande",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",
@@ -4758,7 +4758,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Unwavering",
-                    "label": "Perfekt unbewaffnet",
+                    "label": "Perfekt unbeirrbar",
                     "key": "perfekt_unbewaffnet",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",
@@ -6272,7 +6272,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Pummel",
-                    "label": "Perfektes Klopfen",
+                    "label": "Perfektes Draufhauen",
                     "key": "perfektes_klopfen",
                     "category": "wd",
                     "kategorie": "Waffen-Schaden (additiv)",
@@ -6714,7 +6714,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Pummel",
-                    "label": "Perfektes Klopfen",
+                    "label": "Perfektes Draufhauen",
                     "key": "perfektes_klopfen",
                     "category": "wd",
                     "kategorie": "Waffen-Schaden (additiv)",
@@ -9562,7 +9562,7 @@
             "named": {
                 "talent": {
                     "name": "Perfect Unwavering",
-                    "label": "Perfekt unbewaffnet",
+                    "label": "Perfekt unbeirrbar",
                     "key": "perfekt_unbewaffnet",
                     "category": "utility",
                     "kategorie": "Utility – kein Schadenswert",

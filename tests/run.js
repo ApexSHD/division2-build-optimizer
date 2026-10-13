@@ -1037,7 +1037,11 @@ const setInput = (id, value) => {
     t('Talent-Alias: strapaziert -> angespannt (neuer offizieller Name)', w.eval(`(function(){ const rt = resolveTalentDef('strapaziert'); return rt && rt.key === 'angespannt'; })()`));
     t('Talent-Alias: perfekt_strapaziert -> perfekt_angespannt', w.eval(`(function(){ const rt = resolveTalentDef('perfekt_strapaziert'); return rt && rt.key === 'perfekt_angespannt'; })()`));
     t('Talent-Namen: Aus den Angeln (offiziell) statt Entfesselt', w.eval(`WEAPON_TALENTS['unhinged'].label`).startsWith('Aus den Angeln'));
-    t('Talent-Namen: Klopfen (offiziell) statt Schlag (Pummel)', w.eval(`WEAPON_TALENTS['pummel'] && WEAPON_TALENTS['pummel'].label`).startsWith('Klopfen'));
+    t('Talent-Namen: Draufhauen (offiziell, Ubisoft-Forum) statt Schlag (Pummel)', w.eval(`WEAPON_TALENTS['pummel'] && WEAPON_TALENTS['pummel'].label`).startsWith('Draufhauen'));
+    t('Talent-Namen: Flinke Hände (offiziell) statt Schnelle Hände', w.eval(`WEAPON_TALENTS['schnelle_hande'].label`).startsWith('Flinke Hände'));
+    t('Talent-Alias: flinke_hande -> schnelle_hande (neuer offizieller Name)', w.eval(`(function(){ const rt = resolveTalentDef('flinke_hande'); return rt && rt.key === 'schnelle_hande'; })()`));
+    t('Talent-Namen: Nackt (offiziell, Mein-MMO) statt Unbewaffnet (Naked)', w.eval(`WEAPON_TALENTS['naked'] && WEAPON_TALENTS['naked'].label`).startsWith('Nackt'));
+    t('Talent-Namen: Unwavering nicht mit Naked verwechselt (Perfekt unbeirrbar)', w.eval(`(function(){ const nd = getNamedTalentDef('perfekt_unbewaffnet'); return nd && nd.label === 'Perfekt unbeirrbar'; })()`));
   }
   // ===== 12. LEGACY-WAFFEN-DB-MIGRATION (Issue #28) =====
   console.log('\n--- Legacy-Waffen-DB-Migration (Issue #28) ---');
