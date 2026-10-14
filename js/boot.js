@@ -2,11 +2,20 @@
 // Ersetzt die ehemals inline eingebetteten Daten-Kopien (js/data.js, js/gear-data.js).
 // app.js und app2.js werden erst nach dem Laden der Daten eingebunden,
 // da deren Parse-Time-Code (mergeTalentDbIntoCatalog, Exotic-Patch) die Daten benoetigt.
+//
+// CACHE-BUSTING (Fix fuer 'halb gecachte' Deployments auf GitHub Pages):
+// GitHub Pages cached HTML kurz, JS/JSON aber laenger. Nach einem Deploy kann
+// sonst NEUES HTML mit ALTEM JS gemischt werden (Symptom: neue UI-Abschnitte
+// erscheinen, ihre Logik fehlt - z.B. leerer Set-Vergleich-Tab). Daher bekommen
+// alle JSON- und Script-URLs ein Versions-Suffix ?v=<APP_VERSION>. Die Version
+// wird in index.html als Inline-Konstante gesetzt und muss bei jedem Release
+// erhoeht werden.
 let weaponsData, TALENTS_DB, talentsData, MOD_CATALOG;
 let NAMED_ITEM_CONFIGS, GEAR_DB, GREEN_SET_INFO, BRAND_SET_INFO;
+const APP_VERSION = window.APP_VERSION || 'dev';
 
 async function loadJson(url) {
-    const res = await fetch(url);
+    const res = await fetch(url + '?v=' + encodeURIComponent(APP_VERSION));
     if (!res.ok) throw new Error(url + ': HTTP ' + res.status);
     return res.json();
 }
@@ -50,7 +59,7 @@ async function loadJson(url) {
     for (const src of ['js/app.js', 'js/app2.js', 'js/admin.js']) {
         await new Promise((resolve, reject) => {
             const s = document.createElement('script');
-            s.src = src;
+            s.src = src + '?v=' + encodeURIComponent(APP_VERSION);
             s.onload = resolve;
             s.onerror = () => reject(new Error(src + ' konnte nicht geladen werden'));
             document.body.appendChild(s);
