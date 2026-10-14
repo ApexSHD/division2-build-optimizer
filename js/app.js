@@ -1409,6 +1409,13 @@
 
             if (tabName === 'settings' && typeof populateManualBuildSelects === 'function') populateManualBuildSelects();
 
+            // Set-Vergleich (Issue #146): Selects + Ergebnis beim Tab-Wechsel
+            // aktualisieren – das Inventar kann sich inzwischen geändert haben.
+            if (tabName === 'setcompare') {
+                if (typeof populateSetCompareSelects === 'function') populateSetCompareSelects();
+                if (typeof renderSetComparison === 'function') renderSetComparison();
+            }
+
             // Vergleich neu laden, falls Tab gewechselt wird
             if (tabName === 'compare' && lastComparisonData) {
                 renderComparison();
@@ -6903,6 +6910,291 @@ function prefilterItemScore(item, targetWeaponType) {
             // Platzhalter für Stack-Chart-Integration
         }
 
+        // ========== SET-VERGLEICH (Issue #146) ==========
+        // Bis zu 3 Loadouts (je 6 Gear-Teile + 1 Waffe) aus dem Inventar
+        // erfassen und gegenüberstellen. Doppelte Verwendung von Teilen ist
+        // erlaubt (ein Teil kann in mehreren Sets stecken). Globale
+        // Einstellungen gelten; pro Set: Waffe + Spezialisierung (Gunner
+        // vorbelegt). Stufe 1: relevante Summenwerte; bei 4p-Gearset
+        // zusätzlich Max.-Schaden pro Treffer (Non-Krit/Krit) inkl.
+        // Westen-/Rucksack-/Gear-/Waffentalenten.
+        let setCompareConfigs = [
+            { enabled: false, name: 'Set 1', weaponId: '', specialization: 'gunner', slots: {} },
+            { enabled: false, name: 'Set 2', weaponId: '', specialization: 'gunner', slots: {} },
+            { enabled: false, name: 'Set 3', weaponId: '', specialization: 'gunner', slots: {} }
+        ];
+        function loadSetCompareConfigs() {
+            const raw = parseStorageJson('div2_setcompare', null);
+            if (Array.isArray(raw)) {
+                // Auf 3 Einträge normalisieren; fehlende Felder ergänzen
+                for (let i = 0; i < 3; i++) {
+                    const c = raw[i] || {};
+                    setCompareConfigs[i] = {
+                        enabled: !!c.enabled,
+                        name: c.name || ('Set ' + (i + 1)),
+                        weaponId: String(c.weaponId || ''),
+                        specialization: c.specialization || 'gunner',
+                        slots: (c.slots && typeof c.slots === 'object') ? c.slots : {}
+                    };
+                }
+            }
+        }
+        const SET_COMPARE_SLOTS = ['Maske', 'Weste', 'Rucksack', 'Handschuhe', 'Holster', 'Knieschoner'];
+        function populateSetCompareSelects() {
+            const wrap = document.getElementById('setCompareConfig');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+            setCompareConfigs.forEach((cfg, idx) => {
+                const card = document.createElement('div');
+                card.className = 'p-4 bg-zinc-900/90 rounded-lg border border-gray-800 space-y-2';
+                // Set-Name + Aktiv-Schalter
+                const head = document.createElement('div');
+                head.className = 'flex items-center justify-between gap-2';
+                head.innerHTML = `<input type="checkbox" id="setCmpEnabled_${idx}" ${cfg.enabled ? 'checked' : ''} onchange="updateSetCompareConfig(${idx})" class="rounded accent-orange-500 w-4 h-4" aria-label="Set ${idx + 1} aktiv">` +
+                    `<input type="text" id="setCmpName_${idx}" value="${escapeHtml(cfg.name)}" oninput="updateSetCompareConfig(${idx}, true)" class="flex-1 bg-transparent text-sm font-bold text-white border-b border-gray-700 focus:border-div-accent outline-none" aria-label="Name Set ${idx + 1}">`;
+                card.appendChild(head);
+                // Waffe + Spezialisierung
+                const wz = document.createElement('div');
+                wz.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2';
+                wz.innerHTML = `<div><label class="block text-[11px] text-gray-400 mb-1">Waffe</label>` +
+                    `<select id="setCmpWeapon_${idx}" onchange="updateSetCompareConfig(${idx})" class="w-full p-2 rounded-lg text-sm" aria-label="Set ${idx + 1}: Waffe"></select></div>` +
+                    `<div><label class="block text-[11px] text-gray-400 mb-1">Spezialisierung</label>` +
+                    `<select id="setCmpSpec_${idx}" onchange="updateSetCompareConfig(${idx})" class="w-full p-2 rounded-lg text-sm" aria-label="Set ${idx + 1}: Spezialisierung">` +
+                    `<option value="gunner" ${cfg.specialization === 'gunner' ? 'selected' : ''}>Richtschütze (Gunner)</option>` +
+                    `<option value="firewall" ${cfg.specialization === 'firewall' ? 'selected' : ''}>Feuerteufel (Firewall)</option>` +
+                    `<option value="demolitionist" ${cfg.specialization === 'demolitionist' ? 'selected' : ''}>Zerstörungsexperte</option>` +
+                    `<option value="sharpshooter" ${cfg.specialization === 'sharpshooter' ? 'selected' : ''}>Präzisionsschütze</option>` +
+                    `<option value="survivalist" ${cfg.specialization === 'survivalist' ? 'selected' : ''}>Überlebensexperte</option>` +
+                    `<option value="technician" ${cfg.specialization === 'technician' ? 'selected' : ''}>Techniker</option>` +
+                    `<option value="none" ${cfg.specialization === 'none' ? 'selected' : ''}>Keine / Standard</option></select></div>`;
+                card.appendChild(wz);
+                // 6 Slots
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 gap-2';
+                SET_COMPARE_SLOTS.forEach(slot => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<label class="block text-[11px] text-gray-400 mb-1">${slot}</label>` +
+                        `<select id="setCmpGear_${idx}_${slot}" onchange="updateSetCompareConfig(${idx})" class="w-full p-2 rounded-lg text-sm" aria-label="Set ${idx + 1}: ${slot}"></select>`;
+                    grid.appendChild(div);
+                });
+                card.appendChild(grid);
+                wrap.appendChild(card);
+                // Options befüllen
+                const wSel = document.getElementById(`setCmpWeapon_${idx}`);
+                wSel.innerHTML = '<option value="">— keine —</option>' +
+                    weaponsInventory.map(w => `<option value="${w.id}" ${String(cfg.weaponId) === String(w.id) ? 'selected' : ''}>${escapeHtml(w.name)} (${weaponTypeLabel(w.type)})</option>`).join('');
+                SET_COMPARE_SLOTS.forEach(slot => {
+                    const sel = document.getElementById(`setCmpGear_${idx}_${slot}`);
+                    const items = gearInventory.filter(i => i.slot === slot);
+                    sel.innerHTML = '<option value="">— leer —</option>' +
+                        items.map(i => `<option value="${i.id}" ${String(cfg.slots[slot] || '') === String(i.id) ? 'selected' : ''}>${escapeHtml(i.setName)}${gearRarityBadges(i) ? ' ' : ''}</option>`).join('');
+                });
+            });
+        }
+        function updateSetCompareConfig(idx, skipSave) {
+            const cfg = setCompareConfigs[idx];
+            if (!cfg) return;
+            cfg.enabled = !!(document.getElementById(`setCmpEnabled_${idx}`)?.checked);
+            const nameEl = document.getElementById(`setCmpName_${idx}`);
+            if (nameEl && nameEl.value) cfg.name = nameEl.value;
+            const wSel = document.getElementById(`setCmpWeapon_${idx}`);
+            if (wSel) cfg.weaponId = wSel.value;
+            const specSel = document.getElementById(`setCmpSpec_${idx}`);
+            if (specSel) cfg.specialization = specSel.value;
+            SET_COMPARE_SLOTS.forEach(slot => {
+                const sel = document.getElementById(`setCmpGear_${idx}_${slot}`);
+                if (sel) cfg.slots[slot] = sel.value;
+            });
+            if (!skipSave) saveToLocalStorage();
+            renderSetComparison();
+        }
+        // Liefert die globalen Einstellungen, die auch die kombinierte
+        // Optimierung nutzt – der Set-Vergleich übernimmt sie 1:1.
+        function setCompareBaseSettings() {
+            return {
+                targetWeaponType: document.getElementById('targetWeaponType')?.value || 'AR',
+                specialization: 'gunner',
+                knowHowLevel: 30,
+                shdMax: document.getElementById('shdMax')?.checked ?? true,
+                shdCustomWd: document.getElementById('shdCustomWd')?.value || 0,
+                shdCustomChc: document.getElementById('shdCustomChc')?.value || 0,
+                shdCustomChd: document.getElementById('shdCustomChd')?.value || 0,
+                require4pc: false,
+                targetGreenSet: document.getElementById('targetGreenSet')?.value || 'striker',
+                forceChest: false,
+                forceBackpack: false,
+                pinnedGear: [],
+                pinnedWeapon: [],
+                disabledExoticGear: [...disabledExoticGear],
+                disabledExoticWeapons: [...disabledExoticWeapons],
+                talentsActive: document.getElementById('talentsActive')?.checked || false,
+                gearTalentsActive: document.getElementById('gearTalentsActive')?.checked || false,
+                exoticPerksActive: document.getElementById('exoticPerksActive')?.checked || false
+            };
+        }
+        // Erkennt das (einzige) grüne Gearset mit >= 4 Teilen im Build –
+        // Basis für die 4p-Talent-Werte im Set-Vergleich.
+        function setCompareDetectGreenSet(build) {
+            if (typeof GREEN_SET_MATCH === 'undefined' || typeof GREEN_SET_INFO === 'undefined') return null;
+            for (const key of Object.keys(GREEN_SET_INFO)) {
+                const count = getBrandCount(build, key);
+                if (count >= 4) return key;
+            }
+            return null;
+        }
+        function setCompareSumAttr(build, type) {
+            return build.reduce((sum, i) => sum + (gearItemAttrs(i)
+                .filter(a => a.type === type && a.val > 0)
+                .reduce((x, a) => x + a.val, 0)), 0);
+        }
+        function renderSetComparison() {
+            const box = document.getElementById('setCompareResults');
+            if (!box) return;
+            const activeConfigs = setCompareConfigs
+                .map((cfg, idx) => ({ cfg, idx }))
+                .filter(({ cfg }) => cfg.enabled)
+                .filter(({ cfg }) => cfg.weaponId || Object.values(cfg.slots || {}).some(v => v));
+            if (activeConfigs.length === 0) {
+                box.innerHTML = `<div class="div-card p-6 rounded-xl text-center text-gray-400">Aktiviere oben mindestens ein Set (Haken setzen und Waffe/Teile wählen), um den Vergleich zu starten.</div>`;
+                return;
+            }
+            const base = setCompareBaseSettings();
+            const rows = [];
+            activeConfigs.forEach(({ cfg, idx }) => {
+                const weapon = weaponsInventory.find(w => String(w.id) === String(cfg.weaponId));
+                const build = [];
+                SET_COMPARE_SLOTS.forEach(slot => {
+                    const id = cfg.slots && cfg.slots[slot];
+                    if (!id) return;
+                    const item = gearInventory.find(i => String(i.id) === String(id) && i.slot === slot);
+                    if (item) build.push(item);
+                });
+                if (!weapon || build.length === 0) return;
+                // Settings: globale Basis + individuelle Überschreibungen
+                const settings = { ...base,
+                    specialization: cfg.specialization || 'gunner',
+                    targetWeaponType: weapon.type };
+                // Gearset mit >= 4 Teilen erkennen -> 4p-Talente berechnen
+                const greenKey = setCompareDetectGreenSet(build);
+                if (greenKey) settings.targetGreenSet = greenKey;
+                const cache = computeBuildCache(build, settings);
+                const result = calculateWeaponWithBuild(weapon, build, settings, cache);
+                rows.push({ cfg, weapon, build, cache, result, greenKey });
+            });
+            if (rows.length === 0) {
+                box.innerHTML = `<div class="div-card p-6 rounded-xl text-center text-gray-400">Die aktivierten Sets enthalten keine gültige Waffe/Teile-Kombination.</div>`;
+                return;
+            }
+            const fmt = v => formatGermanNumber(Math.round(v));
+            const attrRow = (label, values, suffix) => {
+                const best = Math.max(...values);
+                return `<tr class="hover:bg-zinc-800/50"><td class="p-3 text-sm text-gray-300 font-semibold">${label}</td>` +
+                    values.map(v => `<td class="p-3 text-center font-mono ${v >= best && v > 0 ? 'text-emerald-400' : 'text-white'}">${v}${suffix || ''}</td>`).join('') + `</tr>`;
+            };
+            const cols = rows.length;
+            let html = `<div class="div-card p-6 rounded-xl space-y-4">
+                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 flex items-center gap-2"><span class="text-div-accent">📊</span> Stufe 1: Relevante Werte je Set</h3>
+                <div class="overflow-x-auto rounded-lg border border-gray-800">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-zinc-900 text-xs uppercase text-gray-400 border-b border-gray-800"><tr>
+                        <th class="p-3">Wert</th>` +
+                        rows.map(r => `<th class="p-3 text-center">${escapeHtml(r.cfg.name || 'Set')}<br><span class="text-[10px] font-normal normal-case text-gray-500">${escapeHtml(r.weapon ? r.weapon.name : '—')}</span></th>`).join('') +
+                    `</tr></thead><tbody class="divide-y divide-gray-800">`;
+            rows.forEach(r => {
+                // Grundlegende Werte aus dem Berechnungsergebnis
+            });
+            // Krit-Chance / Krit-Schaden / WD / waffenspez. Schaden
+            const chcVals = rows.map(r => r.result ? Math.round((r.result.finalChc || 0) * 10) / 10 : 0);
+            const chdVals = rows.map(r => r.result ? Math.round((r.result.finalChd || 0) * 10) / 10 : 0);
+            const wdVals = rows.map(r => r.result ? Math.round((r.result.totalWd || 0) * 10) / 10 : 0);
+            html += attrRow('Kritische Trefferchance (CHC)', chcVals, '%');
+            html += attrRow('Kritischer Trefferschaden (CHD)', chdVals, '%');
+            html += attrRow('Waffenschaden (WD, additiv)', wdVals, '%');
+            // Waffenspezifischer Schaden (Marken-Boni für den Waffentyp des
+            // jeweiligen Sets, z.B. Fenris 1p +AR, Petrov 1p +LMG). Da jedes
+            // Set eine andere Waffe tragen kann, steht der Typ je Spalte.
+            const specDmgVals = rows.map(r => {
+                if (!r.weapon) return 0;
+                let bonus = 0;
+                r.build.forEach(item => { bonus += brandWeaponDamageBonusPct(item, r.weapon.type); });
+                return Math.round(bonus * 10) / 10;
+            });
+            html += attrRow('Waffenspezifischer Schaden (Marken-Boni, je Set-Waffe)', specDmgVals, '%');
+            // Statuseffekte (Attribut statusEffects aus Marken-Boni + Gear-Attribut)
+            const seVals = rows.map(r => {
+                let se = setCompareSumAttr(r.build, 'statusEffects');
+                if (typeof BRAND_SET_INFO !== 'undefined' && r.build.length) {
+                    Object.keys(BRAND_SET_INFO).forEach(brandKey => {
+                        const count = r.build.filter(i => brandKeyMatches((i.setName || '').toLowerCase(), brandKey)).length;
+                        const bonuses = BRAND_SET_INFO[brandKey].bonuses_pve || {};
+                        ['1', '2', '3'].forEach(tier => {
+                            if (count >= Number(tier) && bonuses[tier] && bonuses[tier].statusEffects) se += bonuses[tier].statusEffects;
+                        });
+                    });
+                }
+                return Math.round(se * 10) / 10;
+            });
+            html += attrRow('Statuseffekte', seVals, '%');
+            // DTA / DTH / DTToOC aus dem Ergebnis
+            const dtaVals = rows.map(r => r.result ? Math.round((r.result.dtaBonus || 0) * 10) / 10 : 0);
+            const dthVals = rows.map(r => r.result ? Math.round((r.result.dthBonus || 0) * 10) / 10 : 0);
+            const oocVals = rows.map(r => r.result ? Math.round((r.result.dttoocBonus || 0) * 10) / 10 : 0);
+            html += attrRow('Rüstungsschaden (DTA)', dtaVals, '%');
+            html += attrRow('Lebensenergie-Schaden (DTH)', dthVals, '%');
+            html += attrRow('Schaden gg. ungedeckte Ziele (DTToOC)', oocVals, '%');
+            // HSD: Waffen-Kern 2 (falls HSD) + Gear-Attribut + SS-Bonus (+15%)
+            const hsdVals = rows.map(r => {
+                let hsd = setCompareSumAttr(r.build, 'hsd');
+                if (r.weapon && r.weapon.core2Type === 'hsd') hsd += (r.weapon.core2Val || 0);
+                if (r.cfg.specialization === 'sharpshooter') hsd += 15;
+                return Math.round(hsd * 10) / 10;
+            });
+            html += attrRow('Kopfschussschaden (HSD)', hsdVals, '%');
+            const rofVals = rows.map(r => r.result ? Math.round((r.result.rofBonus || 0) * 10) / 10 : 0);
+            html += attrRow('Feuerrate (RoF)', rofVals, '%');
+            html += `</tbody></table></div>`;
+            // Cap-Hinweis CHC (Rohwert + effektiv bei >60%)
+            const capNotes = rows.map(r => {
+                if (!r.result) return '';
+                const raw = r.result.finalChc || 0;
+                const eff = r.result.cappedChc != null ? r.result.cappedChc : Math.min(raw, 60);
+                if (raw > 60) return `<div class="p-2 rounded border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs">${escapeHtml(r.cfg.name)}: CHC ${formatGermanNumber(raw)}% Rohwert → effektiv ${formatGermanNumber(eff)}% (60%-Cap)</div>`;
+                return '';
+            }).filter(Boolean).join('');
+            if (capNotes) html += `<div class="space-y-1">${capNotes}</div>`;
+            // ===== Stufe 1b: Max.-Schaden pro Treffer bei 4p-Gearset =====
+            const withGreen = rows.filter(r => r.greenKey);
+            if (withGreen.length > 0) {
+                html += `<div class="pt-2"><h4 class="text-sm font-bold text-gray-300 mb-2 flex items-center gap-2">⚔️ 4p-Gearset aktiv: Größter Schaden pro Treffer (inkl. Talente)</h4>`;
+                html += `<div class="overflow-x-auto rounded-lg border border-gray-800"><table class="w-full text-left border-collapse text-sm"><thead class="bg-zinc-900 text-xs uppercase text-gray-400 border-b border-gray-800"><tr><th class="p-3">Set</th><th class="p-3">Gearset</th><th class="p-3 text-center">Max. Schaden (Non-Krit)</th><th class="p-3 text-center">Max. Schaden (Krit)</th></tr></thead><tbody class="divide-y divide-gray-800">`;
+                withGreen.forEach(r => {
+                    const nc = r.result ? Math.round(r.result.nonCritHit || 0) : 0;
+                    const cr = r.result ? Math.round(r.result.critHit || 0) : 0;
+                    const bestNc = Math.max(...withGreen.map(x => x.result ? x.result.nonCritHit || 0 : 0));
+                    const bestCr = Math.max(...withGreen.map(x => x.result ? x.result.critHit || 0 : 0));
+                    html += `<tr class="hover:bg-zinc-800/50"><td class="p-3 font-semibold text-white">${escapeHtml(r.cfg.name)}</td>` +
+                        `<td class="p-3 text-xs text-gray-300">${escapeHtml(GREEN_SET_INFO[r.greenKey] ? GREEN_SET_INFO[r.greenKey].name : r.greenKey)} (${getBrandCount(r.build, r.greenKey)} Teile)</td>` +
+                        `<td class="p-3 text-center font-mono ${nc >= bestNc ? 'text-emerald-400 font-bold' : 'text-white'}">${nc.toLocaleString('de-DE')}</td>` +
+                        `<td class="p-3 text-center font-mono ${cr >= bestCr ? 'text-orange-400 font-bold' : 'text-white'}">${cr.toLocaleString('de-DE')}</td></tr>`;
+                });
+                html += `</tbody></table></div>`;
+                // Aktive Talent-Boni je Set (Weste/Rucksack/Gear/Waffe)
+                html += `<div class="grid grid-cols-1 md:grid-cols-${Math.min(3, withGreen.length)} gap-3 mt-3">`;
+                withGreen.forEach(r => {
+                    const boni = (r.cache && r.cache.boni) ? r.cache.boni : [];
+                    const talentLine = r.result && r.result.talentInfo ? `${escapeHtml(r.result.talentInfo.label || '')}` : '';
+                    html += `<div class="p-3 bg-zinc-900/80 rounded-lg border border-gray-800">
+                        <p class="text-xs font-bold uppercase text-gray-400 mb-1">${escapeHtml(r.cfg.name)}</p>
+                        ${talentLine ? `<p class="text-[11px] text-div-accent mb-1">⭐ Waffe: ${talentLine}</p>` : ''}
+                        <ul class="text-[11px] text-gray-400 space-y-0.5 list-disc list-inside pl-1">${boni.map(b => `<li>${escapeHtml(b)}</li>`).join('') || '<li>— keine Set-Boni —</li>'}</ul>
+                    </div>`;
+                });
+                html += `</div></div>`;
+            }
+            html += `</div>`;
+            box.innerHTML = html;
+        }
+
         // ========== LOCALSTORAGE ==========
         // Issue #35: Inventar-Persistenz mit Schema-Version und Migration.
         // STORAGE_SCHEMA_VERSION 17 = aktueller Stand; aeltere Bestaende
@@ -6927,6 +7219,9 @@ function prefilterItemScore(item, targetWeaponType) {
         function saveToLocalStorage() {
             storageSet('div2_weapons', JSON.stringify(weaponsInventory));
             storageSet('div2_gear', JSON.stringify(gearInventory));
+            if (typeof setCompareConfigs !== 'undefined' && Array.isArray(setCompareConfigs)) {
+                storageSet('div2_setcompare', JSON.stringify(setCompareConfigs));
+            }
             storageSet('div2_weaponIdCounter', weaponIdCounter);
             storageSet('div2_gearIdCounter', gearIdCounter);
             storageSet('div2_schema_version', String(STORAGE_SCHEMA_VERSION));
@@ -7119,10 +7414,13 @@ function prefilterItemScore(item, targetWeaponType) {
 // ========== INITIALISIERUNG ==========
         function initApp() {
             loadFromLocalStorage();
+            loadSetCompareConfigs();
             updateForceExoticOptions();
             onTargetGreenSetChange();
             renderWeaponsInventory();
             renderGearInventory();
+            populateSetCompareSelects();
+            renderSetComparison();
             updateTabUI();
             showToast('Division 2 Optimizer v16.0 geladen! 🎉', 'success');
         }

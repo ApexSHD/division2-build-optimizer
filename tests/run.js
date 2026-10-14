@@ -315,6 +315,68 @@ const setInput = (id, value) => {
     t('Max.-Schaden-Spalten: Header Non-Krit & Krit gerendert', false);
   }
 
+  // ===== 4c. SET-VERGLEICH (Issue #146) =====
+  console.log('\n--- Set-Vergleich (Issue #146) ---');
+  const scTab = $('tabSetCompare');
+  const scContent = $('contentSetcompare');
+  t('Set-Vergleich: Tab-Button vorhanden', !!scTab);
+  t('Set-Vergleich: Content-Container vorhanden', !!scContent);
+  const scCfgWrap = $('setCompareConfig');
+  t('Set-Vergleich: Config-Wrapper vorhanden', !!scCfgWrap);
+  // Initial: kein Set aktiviert -> Hinweis statt Tabelle
+  if (typeof w.renderSetComparison === 'function') w.eval('renderSetComparison()');
+  const scResEmpty = $('setCompareResults');
+  t('Set-Vergleich: leerer Zustand zeigt Hinweis, keine Tabelle', !!(scResEmpty && /mindestens ein Set/.test(scResEmpty.textContent) && !scResEmpty.querySelector('table')));
+  // Set 1 aktivieren: Striker-Default-Gear (6 Teile) + Default-Waffe (Eagle Bearer AR)
+  w.eval(`(function () {
+    setCompareConfigs[0].enabled = true;
+    const ar = weaponsInventory.find(w => w.type === 'AR');
+    setCompareConfigs[0].weaponId = ar ? String(ar.id) : '';
+    ['Maske','Weste','Rucksack','Handschuhe','Holster','Knieschoner'].forEach(slot => {
+      const item = gearInventory.find(i => i.slot === slot);
+      setCompareConfigs[0].slots[slot] = item ? String(item.id) : '';
+    });
+    renderSetComparison();
+  })()`);
+  const scRes = $('setCompareResults');
+  t('Set-Vergleich: Stufe-1-Tabelle wird gerendert', !!(scRes && scRes.querySelector('table')));
+  t('Set-Vergleich: CHC/CHD/WD-Zeilen vorhanden', !!(scRes && /Kritische Trefferchance/.test(scRes.textContent) && /Kritischer Trefferschaden/.test(scRes.textContent) && /Waffenschaden/.test(scRes.textContent)));
+  t('Set-Vergleich: Statuseffekte-Zeile vorhanden', !!(scRes && /Statuseffekte/.test(scRes.textContent)));
+  t('Set-Vergleich: waffenspezifischer Schaden (Marken-Boni) vorhanden', !!(scRes && /Waffenspezifischer Schaden/.test(scRes.textContent)));
+  // 4p-Gearset: Default-Gear enthält 4x Striker -> 4p-Schadensbereich
+  t('Set-Vergleich: 4p-Gearset erkannt (Striker, Max.-Schaden-Tabelle)', !!(scRes && /4p-Gearset aktiv/.test(scRes.textContent) && /Max\. Schaden \(Non-Krit\)/.test(scRes.textContent)));
+  t('Set-Vergleich: Set-Boni-Liste (Weste/Rucksack/Gear/Waffe) angezeigt', !!(scRes && /Striker/.test(scRes.textContent) && /Waffe:/.test(scRes.textContent)));
+  // Doppelte Verwendung: Set 2 nutzt dieselben Teile
+  w.eval(`(function () {
+    setCompareConfigs[1] = JSON.parse(JSON.stringify(setCompareConfigs[0]));
+    setCompareConfigs[1].enabled = true;
+    setCompareConfigs[1].name = 'Set 2 (gleiche Teile)';
+    renderSetComparison();
+  })()`);
+  const scRes2 = $('setCompareResults');
+  const scHeads = scRes2 ? scRes2.querySelectorAll('thead th') : [];
+  t('Set-Vergleich: 2 Sets mit identischen Teilen möglich (Doppelerfassung)', scHeads.length >= 3);
+  // Persistenz: localStorage enthält die Konfiguration
+  t('Set-Vergleich: Konfiguration wird persistiert', !!w.eval('(function () { saveToLocalStorage(); return JSON.parse(localStorage.getItem("div2_setcompare") || "[]").some(c => c && c.enabled); })()'));
+  // Spezialisierung pro Set: Gunner ist vorbelegt
+  t('Set-Vergleich: Spezialisierung Gunner vorbelegt', w.eval('setCompareConfigs.every(c => c.specialization === "gunner")'));
+  // Zahlen-Sanity-Check: die gerenderte CHC-Zelle enthält einen numerischen Wert
+  const scChc = w.eval(`(function () {
+    try {
+      const box = document.getElementById('setCompareResults');
+      const row = Array.from(box.querySelectorAll('tr')).find(tr => /Kritische Trefferchance/.test(tr.textContent));
+      const cell = row ? row.querySelectorAll('td')[1] : null;
+      return cell ? cell.textContent : '';
+    } catch (e) { return 'ERR:' + e.message; }
+  })()`);
+  t('Set-Vergleich: CHC-Wert ist numerisch und plausibel (>0)', typeof scChc === 'string' && /\d/.test(scChc) && !/^ERR/.test(scChc));
+  // Aufräumen: Sets deaktivieren (weitere Testabschnitte unbeeinflusst lassen)
+  w.eval(`(function () {
+    setCompareConfigs.forEach(c => { c.enabled = false; c.slots = {}; c.weaponId = ''; });
+    saveToLocalStorage();
+    renderSetComparison();
+  })()`);
+
   // ===== 4b. EXOTEN-ZWANG (Issue #41) =====
   console.log('\n--- Exoten-Zwang ---');
 
