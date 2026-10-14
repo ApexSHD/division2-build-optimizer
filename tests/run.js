@@ -358,6 +358,12 @@ const setInput = (id, value) => {
   })()`);
   const scRes = $('setCompareResults');
   t('Set-Vergleich: Stufe-1-Tabelle wird gerendert', !!(scRes && scRes.querySelector('table')));
+  // Attribute + Talent je Set sichtbar (Loadout-Details + Dropdown-Kurzwerte)
+  t('Set-Vergleich: Loadout-Details-Sektion mit Attributen gerendert', !!(scRes && /Loadout-Details/.test(scRes.textContent) && /Kern:/.test(scRes.textContent)));
+  t('Set-Vergleich: Waffen-Attributwerte (WD/Kern 2/Attribut 3) in Loadout-Details', !!(scRes && /Basis:/.test(scRes.textContent) && /% WD/.test(scRes.textContent)));
+  const scCfgAfter = $('setCompareConfig');
+  const scGearOptions = scCfgAfter ? Array.from(scCfgAfter.querySelectorAll('select[id^="setCmpGear_"] option')) : [];
+  t('Set-Vergleich: Gear-Dropdowns zeigen Attribut-Kurzwerte (CHC/CHD)', scGearOptions.length > 0 && scGearOptions.some(o => /CHC|CHD/.test(o.textContent)));
   t('Set-Vergleich: CHC/CHD/WD-Zeilen vorhanden', !!(scRes && /Kritische Trefferchance/.test(scRes.textContent) && /Kritischer Trefferschaden/.test(scRes.textContent) && /Waffenschaden/.test(scRes.textContent)));
   t('Set-Vergleich: Statuseffekte-Zeile vorhanden', !!(scRes && /Statuseffekte/.test(scRes.textContent)));
   t('Set-Vergleich: waffenspezifischer Schaden (Marken-Boni) vorhanden', !!(scRes && /Waffenspezifischer Schaden/.test(scRes.textContent)));

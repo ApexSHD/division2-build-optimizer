@@ -6979,15 +6979,36 @@ function prefilterItemScore(item, targetWeaponType) {
                 });
                 card.appendChild(grid);
                 wrap.appendChild(card);
-                // Options befüllen
+                // Options befüllen – Waffe und Teile mit Kurz-Werten
+                // (Attribute, Named-Bonus), damit man beim Erfassen sieht,
+                // welches Teil man wählt (wie beim „Mein Spiel-Build“).
+                const weaponValueText = w => {
+                    const parts = [];
+                    if (w.core1) parts.push(`${formatGermanNumber(w.core1)}% WD`);
+                    if (w.core2Val) parts.push(`${formatGermanNumber(w.core2Val)}% ${String(w.core2Type || '').toUpperCase()}`);
+                    if (w.minorVal) parts.push(`${formatGermanNumber(w.minorVal)}% ${String(w.minorType || '').toUpperCase()}`);
+                    return parts.join(' · ');
+                };
                 const wSel = document.getElementById(`setCmpWeapon_${idx}`);
                 wSel.innerHTML = '<option value="">— keine —</option>' +
-                    weaponsInventory.map(w => `<option value="${w.id}" ${String(cfg.weaponId) === String(w.id) ? 'selected' : ''}>${escapeHtml(w.name)} (${weaponTypeLabel(w.type)})</option>`).join('');
+                    weaponsInventory.map(w => `<option value="${w.id}" ${String(cfg.weaponId) === String(w.id) ? 'selected' : ''}>${escapeHtml(w.name)}${w.isExotic ? ' 🟠' : (weaponIsNamed(w) ? ' 🟡' : '')}${weaponValueText(w) ? ' (' + escapeHtml(weaponValueText(w)) + ')' : ''}</option>`).join('');
+                const gearValueText = i => {
+                    const parts = [];
+                    const cd = gearCoreDisplay(i);
+                    if (cd && cd !== '—') parts.push(cd);
+                    if (i.chc) parts.push(`${formatGermanNumber(i.chc)}% CHC`);
+                    if (i.chd) parts.push(`${formatGermanNumber(i.chd)}% CHD`);
+                    if (i.namedKey && i.namedVal > 0) parts.push(`+${formatGermanNumber(i.namedVal)}% ${String(i.namedKey).toUpperCase()}`);
+                    const other = gearOtherAttrsText(i);
+                    if (other) parts.push(other);
+                    if (i.talent && typeof GEAR_TALENTS !== 'undefined' && GEAR_TALENTS[i.talent]) parts.push(`⭐ ${GEAR_TALENTS[i.talent].label}`);
+                    return parts.join(' · ');
+                };
                 SET_COMPARE_SLOTS.forEach(slot => {
                     const sel = document.getElementById(`setCmpGear_${idx}_${slot}`);
                     const items = gearInventory.filter(i => i.slot === slot);
                     sel.innerHTML = '<option value="">— leer —</option>' +
-                        items.map(i => `<option value="${i.id}" ${String(cfg.slots[slot] || '') === String(i.id) ? 'selected' : ''}>${escapeHtml(i.setName)}${gearRarityBadges(i) ? ' ' : ''}</option>`).join('');
+                        items.map(i => `<option value="${i.id}" ${String(cfg.slots[slot] || '') === String(i.id) ? 'selected' : ''}>${escapeHtml(i.setName)}${(typeof GEAR_DB !== 'undefined' && GEAR_DB[i.setName] && GEAR_DB[i.setName].cls === 'exotic') ? ' 🟠' : ((typeof GEAR_DB !== 'undefined' && GEAR_DB[i.setName] && GEAR_DB[i.setName].cls === 'named') ? ' 🟡' : '')}${gearValueText(i) ? ' (' + escapeHtml(gearValueText(i)) + ')' : ''}</option>`).join('');
                 });
             });
         }
@@ -7162,6 +7183,31 @@ function prefilterItemScore(item, targetWeaponType) {
                 return '';
             }).filter(Boolean).join('');
             if (capNotes) html += `<div class="space-y-1">${capNotes}</div>`;
+            // ===== Loadout-Details je Set: Teile mit Attributen + Talent =====
+            html += `<div class="pt-2"><h4 class="text-sm font-bold text-gray-300 mb-2 flex items-center gap-2">🎒 Loadout-Details: Ausrüstung &amp; Talente</h4>
+                <div class="grid grid-cols-1 md:grid-cols-${Math.min(3, rows.length)} gap-3">`;
+            rows.forEach(r => {
+                const itemLine = i => {
+                    const gt = (i.talent && typeof GEAR_TALENTS !== 'undefined') ? GEAR_TALENTS[i.talent] : null;
+                    return `<div class="p-2 bg-zinc-800/60 rounded border border-gray-700">
+                        <p class="font-medium text-white text-xs">${escapeHtml(i.slot)} — ${escapeHtml(i.setName)}${gearRarityBadges(i)}${i.proto ? protoBadge() : ''}</p>
+                        <p class="text-[11px] text-gray-400">Kern: ${gearCoreDisplay(i)}${(i.chc || i.chd) ? ' · CHC ' + formatGermanNumber(i.chc || 0) + '% / CHD ' + formatGermanNumber(i.chd || 0) + '%' : ''}${gearOtherAttrsText(i) ? ' · ' + escapeHtml(gearOtherAttrsText(i)) : ''}${(i.namedKey && i.namedVal > 0) ? ' · 🦊 +' + formatGermanNumber(i.namedVal) + '% ' + String(i.namedKey).toUpperCase() : ''}</p>
+                        ${gt ? `<p class="text-[11px] text-sky-300">⭐ ${escapeHtml(gt.label)}${gt.value ? ' (+' + formatGermanNumber(gt.value) + '% ' + (gt.type === 'amp' ? 'Verstärker' : (gt.type === 'wd' ? 'WD' : gt.type)) + ')' : ''}</p>` : ''}
+                    </div>`;
+                };
+                const w = r.weapon;
+                const wLine = `<div class="p-2 bg-zinc-800/60 rounded border border-div-accent/40">
+                    <p class="font-medium text-white text-xs">🔫 ${escapeHtml(w.name)}${rarityBadge(w.isExotic, weaponIsNamed(w))}</p>
+                    <p class="text-[11px] text-gray-400">Basis: ${formatGermanNumber(w.baseDmg)} · +${formatGermanNumber(w.core1 || 0)}% WD${w.core2Val ? ' · +' + formatGermanNumber(w.core2Val) + '% ' + String(w.core2Type || '').toUpperCase() : ''}${w.minorVal ? ' · +' + formatGermanNumber(w.minorVal) + '% ' + String(w.minorType || '').toUpperCase() : ''}</p>
+                    ${r.result && r.result.talentInfo ? `<p class="text-[11px] text-div-accent">⭐ ${escapeHtml(r.result.talentInfo.label || getTalentLabel(w.talent))}${r.result.talentAmp ? ' (+' + formatGermanNumber(r.result.talentAmp) + '%' : ''}${r.result.talentAmp ? ')' : ''}</p>` : `<p class="text-[11px] text-gray-500">⭐ ${escapeHtml(getTalentLabel(w.talent) || '—')}</p>`}
+                </div>`;
+                html += `<div class="p-3 bg-zinc-900/80 rounded-lg border border-gray-800 space-y-2">
+                    <p class="text-xs font-bold uppercase text-gray-400">${escapeHtml(r.cfg.name || 'Set')}</p>
+                    ${wLine}
+                    ${r.build.map(itemLine).join('')}
+                </div>`;
+            });
+            html += `</div></div>`;
             // ===== Stufe 1b: Max.-Schaden pro Treffer bei 4p-Gearset =====
             const withGreen = rows.filter(r => r.greenKey);
             if (withGreen.length > 0) {
