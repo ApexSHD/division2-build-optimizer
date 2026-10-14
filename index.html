@@ -63,6 +63,9 @@
             <button id="tabCompare" class="tab-btn shrink-0 snap-start px-4 py-2 text-sm font-bold" onclick="switchTab('compare')">
                 ⚖️ Vergleich (<span id="comparisonCount">0</span>)
             </button>
+            <button id="tabSetCompare" class="tab-btn shrink-0 snap-start px-4 py-2 text-sm font-bold" onclick="switchTab('setcompare')">
+                🥊 Set-Vergleich
+            </button>
             <button id="tabAdmin" class="tab-btn shrink-0 snap-start px-4 py-2 text-sm font-bold" onclick="switchTab('admin')">
                 🗂️ Verwaltung
             </button>
@@ -1127,6 +1130,20 @@
                     </div>
                 </div>
             </div>
+        <div id="contentSetcompare" class="tab-content space-y-6">
+            <div class="div-card p-6 rounded-xl space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-3 border-b border-gray-800 pb-3">
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <span class="text-div-accent">🥊</span> Set-Vergleich: bis zu 3 Loadouts gegenüberstellen
+                    </h2>
+                    <div class="flex gap-2">
+                        <button onclick="renderSetComparison()" class="btn-primary px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5">↻ Neu berechnen</button>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400">Stelle bis zu 3 Sets aus deinem Inventar zusammen (6 Ausrüstungsteile + 1 Waffe je Set). Doppelte Verwendung einzelner Teile ist erlaubt. Die globalen Einstellungen (SHD-Uhr, Know-How, bedingte Talente, Gegnerprofil, Stack-Auslastung) gelten für alle Sets; pro Set wählst du Waffe und Spezialisierung.</p>
+                <div id="setCompareConfig" class="grid grid-cols-1 lg:grid-cols-3 gap-4"></div>
+            </div>
+            <div id="setCompareResults"></div>
         </div>
 </main>
     <div id="adminModal" class="hidden fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
