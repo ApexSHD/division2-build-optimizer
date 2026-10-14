@@ -321,6 +321,24 @@ const setInput = (id, value) => {
   const scContent = $('contentSetcompare');
   t('Set-Vergleich: Tab-Button vorhanden', !!scTab);
   t('Set-Vergleich: Content-Container vorhanden', !!scContent);
+  // HTML-Struktur: contentSetcompare darf NICHT innerhalb von contentCompare
+  // liegen (fehlendes </div> machte den Tab unsichtbar - Issue-Ursache).
+  const fsHtml = require('fs').readFileSync(require('path').join(__dirname, '..', 'index.html'), 'utf-8');
+  const openCount = (fsHtml.match(/<div\b/g) || []).length;
+  const closeCount = (fsHtml.match(/<\/div>/g) || []).length;
+  t('HTML-Struktur: <div>-Tags balanciert (öffnet/schließt gleich)', openCount === closeCount);
+  const ccPos = fsHtml.indexOf('id="contentCompare"');
+  const csPos = fsHtml.indexOf('id="contentSetcompare"');
+  const mainEnd = fsHtml.indexOf('</main>');
+  t('HTML-Struktur: contentSetcompare ist Geschwister von contentCompare (nicht verschachtelt)',
+    ccPos > -1 && csPos > ccPos && csPos < mainEnd);
+  //DOM-Verifikation: beide Container sind direkte Kinder von <main>
+  t('DOM: contentCompare und contentSetcompare sind direkte main-Kinder',
+    w.eval(`(function () {
+      const cc = document.getElementById('contentCompare');
+      const cs = document.getElementById('contentSetcompare');
+      return cc && cs && cc.parentElement === cs.parentElement && cc.parentElement.tagName === 'MAIN';
+    })()`));
   const scCfgWrap = $('setCompareConfig');
   t('Set-Vergleich: Config-Wrapper vorhanden', !!scCfgWrap);
   // Initial: kein Set aktiviert -> Hinweis statt Tabelle
