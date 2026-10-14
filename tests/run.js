@@ -317,7 +317,7 @@ const setInput = (id, value) => {
 
   // ===== 4c. SET-VERGLEICH (Issue #146) =====
   console.log('\n--- Set-Vergleich (Issue #146) ---');
-  const scTab = $('tabSetCompare');
+  const scTab = $('tabSetcompare');
   const scContent = $('contentSetcompare');
   t('Set-Vergleich: Tab-Button vorhanden', !!scTab);
   t('Set-Vergleich: Content-Container vorhanden', !!scContent);
