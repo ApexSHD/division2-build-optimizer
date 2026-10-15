@@ -1,7 +1,7 @@
 {
     "version": "mods_v1",
     "source": "Davids Mod-Tabelle (Optics Rail / Magazine / Underbarrel / Muzzle inkl. Exotic-Fixed-Mods)",
-    "note": "Struktur kompatibel zu MOD_CATALOG im Striker-Build-Optimierer. slotTypes = Slot-Typen laut Waffen-Tabelle (Iron / Micro / Short / Long / Neutral bei Optik; Kaliber bei Magazin/Mündung; Side / Long / Short / Gadget bei Unterlauf). Exotic-Mods sind zusätzlich unter exotic_mods pro Waffe hinterlegt.",
+    "note": "Struktur kompatibel zu MOD_CATALOG im Striker-Build-Optimierer. slotTypes = Slot-Typen laut Waffen-Tabelle (Iron / Micro / Short / Long / Neutral bei Optik; Kaliber bei Magazin/Mündung; Side / Long / Short / Gadget bei Unterlauf). Exotic-Mods sind zusätzlich unter exotic_mods pro Waffe hinterlegt. | Y8S3.2: Exotic-Mods aktualisiert (Ruthless/Merciless/Ravenous/Diamondback/Nemesis/Mantis/Dread Edict).",
     "attr_legend": {
         "reloadSpeed": "Nachladetempo %",
         "stability": "Stabilität %",
@@ -1467,8 +1467,8 @@
             "optic": {
                 "name": "Merciless Optics",
                 "bonus": {
-                    "type": "accuracy",
-                    "val": 10
+                    "type": "chc",
+                    "val": 15
                 }
             },
             "magazine": {
@@ -1497,8 +1497,8 @@
             "optic": {
                 "name": "Merciless Optics",
                 "bonus": {
-                    "type": "accuracy",
-                    "val": 10
+                    "type": "chc",
+                    "val": 15
                 }
             },
             "magazine": {
@@ -1527,8 +1527,8 @@
             "optic": {
                 "name": "Diamondback Dot Sight",
                 "bonus": {
-                    "type": "accuracy",
-                    "val": 10
+                    "type": "chd",
+                    "val": 15
                 }
             },
             "magazine": {
@@ -1558,7 +1558,7 @@
                 "name": "Predatory Optics",
                 "bonus": {
                     "type": "chc",
-                    "val": 5
+                    "val": 15
                 }
             },
             "magazine": {
@@ -1595,7 +1595,7 @@
                 "name": "Nemesis Bolt",
                 "bonus": {
                     "type": "reloadSpeed",
-                    "val": 10
+                    "val": 20
                 }
             },
             "underbarrel": {
@@ -1608,7 +1608,7 @@
             "muzzle": {
                 "name": "Nemesis Barrel",
                 "bonus": {
-                    "type": "chd",
+                    "type": "handling",
                     "val": 5
                 }
             }
@@ -1618,27 +1618,27 @@
                 "name": "Anti-Glint Coated Sight",
                 "bonus": {
                     "type": "hsd",
-                    "val": 40
+                    "val": 45
                 }
             },
             "magazine": {
                 "name": "Well-Oiled Machine",
                 "bonus": {
                     "type": "reloadSpeed",
-                    "val": 10
+                    "val": 20
                 }
             },
             "underbarrel": {
                 "name": "Ghillie Frame",
                 "bonus": {
-                    "type": "stability",
-                    "val": 10
+                    "type": "handling",
+                    "val": 5
                 }
             },
             "muzzle": {
                 "name": "Wrapped Suppressor",
                 "bonus": {
-                    "type": "chc",
+                    "type": "handling",
                     "val": 5
                 }
             }
@@ -1680,28 +1680,28 @@
                 "name": "Judgement's Glare",
                 "bonus": {
                     "type": "hsd",
-                    "val": 40
+                    "val": 45
                 }
             },
             "magazine": {
                 "name": "Tuned-tension Spring",
                 "bonus": {
-                    "type": "handling",
-                    "val": 15
+                    "type": "capacity",
+                    "val": 5
                 }
             },
             "underbarrel": {
                 "name": "Fearless Frame",
                 "bonus": {
-                    "type": "stability",
-                    "val": 10
+                    "type": "handling",
+                    "val": 15
                 }
             },
             "muzzle": {
                 "name": "Punctuating Barrel",
                 "bonus": {
                     "type": "chc",
-                    "val": 10
+                    "val": 15
                 }
             }
         },

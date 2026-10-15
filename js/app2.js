@@ -1188,7 +1188,7 @@ const EXOTIC_WEAPONS = {
     "Ruthless": {
         talent: { name: "Binary Trigger", description: "Binary Trigger\nThis weapon fires on trigger pull and release.\n\nIf both bullets hit the same enemy, gain a stack.\n\nAt 7 stacks, shooting an enemy deals 500% amplified damage and creates a 7m explosion dealing 500% weapon damage, consuming the stacks." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 15, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 15, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
@@ -1197,7 +1197,7 @@ const EXOTIC_WEAPONS = {
     "Merciless": {
         talent: { name: "Binary Trigger", description: "Binary Trigger\nThis weapon fires on trigger pull and release.\n\nIf both bullets hit the same enemy, gain a stack.\n\nAt 7 stacks, shooting an enemy deals 500% amplified damage and creates a 7m explosion dealing 500% weapon damage, consuming the stacks." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 15, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 15, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
@@ -1206,14 +1206,14 @@ const EXOTIC_WEAPONS = {
     "Diamondback": {
         talent: { name: "Agonizing Bite", description: "Agonizing Bite\nDiamondback randomly marks an enemy within 20m. If no enemies are within 20m, it marks the enemy closest to you.\n\nHitting that enemy consumes the mark, guaranteeing a critical hit with damage amplified by 20%. \n\nAfter hitting a mark, all shots fired are guaranteed critical hits for 5 seconds. \n\nA new random enemy is marked afterwards and whenever you reload." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 10, unit: "%" },
+            { slot: "optic", attr: "chd", value: 15, unit: "%" },
             { slot: "muzzle", attr: "chd", value: 15, unit: "%" },
             { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
         ]
     },
     "Doctor Home": {
-        talent: { name: "Doctor Home", description: "Doctor Home\nShooting an enemy with this weapon will apply a mark for 5 seconds.\nIf a marked target is killed it will give a 10% armor repair kit which applies to the whole party.\nThe kit will not give bonus armor." },
+        talent: { name: "Doctor Home", description: "Doctor Home\nShooting an enemy with this weapon will apply a mark for 5 seconds.\nIf a marked target is killed it will give a 50% armor repair kit which applies to the whole party.\nThe kit will not give bonus armor.\n\nYou will now be able to switch between scope-in and ADS." },
         fixedMods: [
             { slot: "optic", attr: "accuracy", value: 10, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 10, unit: "%" },
@@ -1224,27 +1224,27 @@ const EXOTIC_WEAPONS = {
     "Bittersweet": {
         talent: { name: "Transfusion", description: "Transfusion\nHitting headshots builds stacks up to a max of 8. When shooting an Ally or Skill, repair them for 50% of the shot damage for each stack.\n\nHealed Allies receive 200% of your Repair Skills bonus as Bonus Armor for each stack for 10 seconds.\n\nAll hits become guaranteed headshots for 8 seconds after healing an Ally or Skill while at maximum stacks." },
         fixedMods: [
-            { slot: "optic", attr: "hsd", value: 5, unit: "%" },
-            { slot: "underbarrel", attr: "hsd", value: 5, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
+            { slot: "underbarrel", attr: "hsd", value: 10, unit: "%" },
             { slot: "magazine", attr: "capacity", value: 10, unit: "rounds" }
         ]
     },
     "The Ravenous": {
         talent: { name: "Geri and Freki", description: "Geri and Freki\nOn trigger pull, fire both barrels at once.\n\nWhen fired from the right shoulder, hits add offensive primers, and defensive primers when fired drom the left shoulder.\n\nHits from one shoulder will detonate all of the opposite shoulder's primers when present.\n\nWhen detonated, each offensive primer deals 100% weapon damage, while each defensive primer grants +4% bonus armor and +10% amplified damage to armor plates for 5s.\n\nPrimer effectiveness is doubled at 10 stacks." },
         fixedMods: [
-            { slot: "optic", attr: "chc", value: 5, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 10, unit: "%" },
             { slot: "underbarrel", attr: "chd", value: 5, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
         ]
     },
     "Vindicator": {
-        talent: { name: "Ortiz Assault Interface", description: "Ortiz Assault Interface\nWhile scoped, the weapon will highlight a random body section of each enemy.\nThe weapon amplifies damage by +60% Weapon Damage to highlighted body sections." },
+        talent: { name: "Ortiz Assault Interface", description: "Ortiz Assault Interface\nWhile scoped, the weapon will highlight a random body section of each enemy.\nThe weapon amplifies damage by +60% Weapon Damage to highlighted body sections.\n\nY8S3.2: You will now be able to switch between scope-in and ADS - highlighted body sections can only be seen through the scope, but the Amplified Damage will be applied regardless of aiming mode." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 15, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "muzzle", attr: "range", value: 10, unit: "%" },
             { slot: "underbarrel", attr: "stability", value: 15, unit: "%" },
-            { slot: "magazine", attr: "capacity", value: 5, unit: "rounds" }
+            { slot: "magazine", attr: "capacity", value: 20, unit: "rounds" }
         ]
     },
     "Sacrum Imperium": {
@@ -1259,26 +1259,26 @@ const EXOTIC_WEAPONS = {
     "Dread Edict": {
         talent: { name: "Full Stop", description: "Full Stop\nShooting enemies builds stacks to a cap of 20. Headshots grant 2 stacks. Each stack grants 2% Weapon Damage and 5% Headshot Damage. On reload, clear all stacks and gain 5% of your max armor as temp armor for 10 seconds for each stack removed. \n\nHeadshot kills with Dread Edict restore all bullets in the magazine. This does not count as a reload." },
         fixedMods: [
-            { slot: "optic", attr: "hsd", value: 40, unit: "%" },
-            { slot: "muzzle", attr: "chc", value: 10, unit: "%" },
-            { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
-            { slot: "magazine", attr: "handling", value: 15, unit: "%" }
+            { slot: "optic", attr: "hsd", value: 45, unit: "%" },
+            { slot: "muzzle", attr: "chc", value: 15, unit: "%" },
+            { slot: "underbarrel", attr: "handling", value: 15, unit: "%" },
+            { slot: "magazine", attr: "capacity", value: 5, unit: "rounds" }
         ]
     },
     "Nemesis": {
         talent: { name: "Electromagnetic Accelerator", description: "Electromagnetic Accelerator\nShots fired deal 0-100% weapon damage based on how long the trigger is held before releasing." },
         fixedMods: [
             { slot: "optic", attr: "hsd", value: 45, unit: "%" },
-            { slot: "muzzle", attr: "chd", value: 5, unit: "%" },
+            { slot: "muzzle", attr: "handling", value: 5, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 5, unit: "%" },
-            { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
+            { slot: "magazine", attr: "reloadSpeed", value: 20, unit: "%" }
         ]
     },
     "Shroud": {
         talent: { name: "High Priority Target", description: "High Priority Target\nAmplifies Weapon Damage by 125% to the highest ranking enemies currently in combat, as per the Tier hierarchy.\n\nTier 1: Hunter, Rogue, Leader, Tank, Shield, Heavy Weapons, RPG, Medic, Controller, Warhound, Marauder.\nTier 2: Support, Engineer, Bodyguard, Immobilizer, Bomber, Mini Tank, Drone Operator.\nTier 3: Any other enemy or skill proxy.\n\nEditor's note: 2.25x amplifier includes Headhunter bonus, for more details read Headhunter Synergy Guide." },
         fixedMods: [
             { slot: "optic", attr: "hsd", value: 25, unit: "%" },
-            { slot: "muzzle", attr: "hsd", value: 20, unit: "%" },
+            { slot: "muzzle", attr: "handling", value: 10, unit: "%" },
             { slot: "underbarrel", attr: "chc", value: 5, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 25, unit: "%" }
         ]
@@ -1286,10 +1286,10 @@ const EXOTIC_WEAPONS = {
     "Mantis": {
         talent: { name: "In Plain Sight", description: "In Plain Sight\nYour scoped view displays additional information about enemies not targetting you. \n\nHeadshot and weakpoint damage against enemies not targetting you is amplified by 50%.\n\nHeadshot kills reset the cooldown of your Decoy Skill. This bonus will wait until the Decoy goes on cooldown if currently active.\n\nEditor's note: 1.5x amplifier excludes Headhunter bonus, for more details read Headhunter Synergy Guide." },
         fixedMods: [
-            { slot: "optic", attr: "hsd", value: 40, unit: "%" },
-            { slot: "muzzle", attr: "chc", value: 5, unit: "%" },
-            { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
-            { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" }
+            { slot: "optic", attr: "hsd", value: 45, unit: "%" },
+            { slot: "muzzle", attr: "handling", value: 5, unit: "%" },
+            { slot: "underbarrel", attr: "handling", value: 5, unit: "%" },
+            { slot: "magazine", attr: "reloadSpeed", value: 20, unit: "%" }
         ]
     },
     "Liberty": {
@@ -1574,7 +1574,7 @@ Object.assign(EXOTIC_WEAPONS, {
     "Merciless": {
         talent: { name: "Binary Trigger", description: "Binary Trigger\nFirst shot on target detonates a bomb, second shot detonates all bombs for amplified damage." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 10, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 15, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 10, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 20, unit: "%" }
@@ -1583,7 +1583,7 @@ Object.assign(EXOTIC_WEAPONS, {
     "Ruthless": {
         talent: { name: "Binary Trigger", description: "Binary Trigger\nFirst shot on target detonates a bomb, second shot detonates all bombs for amplified damage." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 10, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 15, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 10, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 20, unit: "%" }
@@ -1592,7 +1592,7 @@ Object.assign(EXOTIC_WEAPONS, {
     "Diamondback": {
         talent: { name: "Agonizing Bite", description: "Agonizing Bite\nRandomly marks an enemy; shooting the marked enemy guarantees a critical hit with +20% total damage." },
         fixedMods: [
-            { slot: "optic", attr: "accuracy", value: 10, unit: "%" },
+            { slot: "optic", attr: "chd", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" },
             { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
             { slot: "muzzle", attr: "chd", value: 15, unit: "%" }
@@ -1601,7 +1601,7 @@ Object.assign(EXOTIC_WEAPONS, {
     "The Ravenous": {
         talent: { name: "Geri and Freki", description: "Geri and Freki\nFirst shot applies a mark, second shot detonates marks for amplified damage." },
         fixedMods: [
-            { slot: "optic", attr: "chc", value: 5, unit: "%" },
+            { slot: "optic", attr: "chc", value: 15, unit: "%" },
             { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" },
             { slot: "underbarrel", attr: "chd", value: 5, unit: "%" },
             { slot: "muzzle", attr: "stability", value: 10, unit: "%" }
@@ -1611,27 +1611,27 @@ Object.assign(EXOTIC_WEAPONS, {
         talent: { name: "Electromagnetic Accelerator", description: "Electromagnetic Accelerator\nShots build up charge; next shot deals amplified damage based on charge time. Headshot kills grant bonus damage for 15s." },
         fixedMods: [
             { slot: "optic", attr: "hsd", value: 45, unit: "%" },
-            { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" },
+            { slot: "magazine", attr: "reloadSpeed", value: 20, unit: "%" },
             { slot: "underbarrel", attr: "handling", value: 5, unit: "%" },
-            { slot: "muzzle", attr: "chd", value: 5, unit: "%" }
+            { slot: "muzzle", attr: "handling", value: 5, unit: "%" }
         ]
     },
     "Mantis": {
         talent: { name: "In Plain Sight", description: "In Plain Sight\nHeadshot kills mark nearby enemies and grant +10% damage to marked enemies." },
         fixedMods: [
-            { slot: "optic", attr: "hsd", value: 40, unit: "%" },
-            { slot: "magazine", attr: "reloadSpeed", value: 10, unit: "%" },
-            { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
-            { slot: "muzzle", attr: "chc", value: 5, unit: "%" }
+            { slot: "optic", attr: "hsd", value: 45, unit: "%" },
+            { slot: "magazine", attr: "reloadSpeed", value: 20, unit: "%" },
+            { slot: "underbarrel", attr: "handling", value: 5, unit: "%" },
+            { slot: "muzzle", attr: "handling", value: 5, unit: "%" }
         ]
     },
     "Dread Edict": {
         talent: { name: "Full Stop", description: "Full Stop\nHeadshots grant 10% weapon damage for 10s (max 5 stacks). First shot to an enemy's armor deals amplified damage." },
         fixedMods: [
-            { slot: "optic", attr: "hsd", value: 40, unit: "%" },
-            { slot: "magazine", attr: "handling", value: 15, unit: "%" },
-            { slot: "underbarrel", attr: "stability", value: 10, unit: "%" },
-            { slot: "muzzle", attr: "chc", value: 10, unit: "%" }
+            { slot: "optic", attr: "hsd", value: 45, unit: "%" },
+            { slot: "magazine", attr: "capacity", value: 5, unit: "rounds" },
+            { slot: "underbarrel", attr: "handling", value: 15, unit: "%" },
+            { slot: "muzzle", attr: "chc", value: 15, unit: "%" }
         ]
     },
     "Sweet Dreams": {
