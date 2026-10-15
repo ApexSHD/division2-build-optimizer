@@ -1046,7 +1046,7 @@
       ],
       "free": 0,
       "mods": 0,
-      "perk": "Iron Grip: −50% Rückstoß beim Hüft-/Blindfeuer"
+      "perk": "Iron Grip: +50% Waffenhandhabung (Y8S3.2: Talent-Rework, alter Bonus −50% Rückstoß beim Hüft-/Blindfeuer)"
     },
     "Forge": {
       "slot": "Holster",
@@ -1373,11 +1373,11 @@
       "brand": "",
       "cls": "exotic",
       "proto": false,
-      "core": "armour",
+      "core": "wd",
       "fixed": [],
       "free": 2,
       "mods": 0,
-      "perk": "Escape Plan: Bewegungs-Boni nach Sprung/Stillstand/Status"
+      "perk": "Escape Plan: +20% Bewegungsgeschwindigkeit (Y8S3.2: Kern jetzt Rot, alter Bonus Bewegungs-Boni nach Sprung/Stillstand/Status)"
     },
     "Blacklisters": {
       "slot": "Knieschoner",
@@ -1397,7 +1397,7 @@
       ],
       "free": 0,
       "mods": 0,
-      "perk": "Ostracize: Markierter Gegner erhält 20% Verstärker von dir; du erhältst 600% von ihm"
+      "perk": "Ostracize: Markierter Gegner erhält 30% Verstärker von dir (Y8S3.2: 20% → 30%); du erhältst 600% von ihm"
     },
     "Nurse's Kneepads": {
       "slot": "Knieschoner",

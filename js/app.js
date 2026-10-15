@@ -1145,7 +1145,7 @@
         const WEAPON_CORE2_MAX = {
             'AR':      21.0,  // Lebenspunktschaden (DTH)
             'MP':      21.0,  // Kritische Trefferchance (CHC)
-            'Rifle':   17.0,  // Kritischer Trefferschaden (CHD)
+            'Rifle':   34.0,  // Kritischer Trefferschaden (CHD) – Y8S3.2: 17% -> 34%; Prototypen 51% (34 × 1,5)
             'MMR':     111.0, // Kopfschussschaden (HSD)
             'Shotgun': 12.0,  // Rüstungsschaden (DTA)
             'LMG':     12.0   // Schaden gg. ungedeckte Ziele (DTToOC)

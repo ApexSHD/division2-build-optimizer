@@ -6866,7 +6866,7 @@
                 "Modded Sustain DPS": 472553.7202,
                 "Optimal Range": 45,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -6891,7 +6891,7 @@
                 "Modded Sustain DPS": 472553.7202,
                 "Optimal Range": 45,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -6931,7 +6931,7 @@
                 "Modded Sustain DPS": 498068.1818,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 60
+                "HSD": 80
             },
             "exotic": {
                 "talent": {
@@ -6941,7 +6941,7 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "accuracy",
+                        "attr": "chc",
                         "value": 15,
                         "unit": "%"
                     },
@@ -6988,7 +6988,7 @@
                 "Modded Sustain DPS": 498068.1818,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 60
+                "HSD": 80
             },
             "exotic": {
                 "talent": {
@@ -6998,7 +6998,7 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "accuracy",
+                        "attr": "chc",
                         "value": 15,
                         "unit": "%"
                     },
@@ -7045,7 +7045,7 @@
                 "Modded Sustain DPS": 528165.8468,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7070,7 +7070,7 @@
                 "Modded Sustain DPS": 538083.501,
                 "Optimal Range": 50,
                 "Mod Slots": "3#",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7095,7 +7095,7 @@
                 "Modded Sustain DPS": 538083.501,
                 "Optimal Range": 50,
                 "Mod Slots": "3#",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7120,7 +7120,7 @@
                 "Modded Sustain DPS": 538083.501,
                 "Optimal Range": 50,
                 "Mod Slots": "3#",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7160,7 +7160,7 @@
                 "Modded Sustain DPS": 456603.9474,
                 "Optimal Range": 60,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7185,7 +7185,7 @@
                 "Modded Sustain DPS": 377535.3142,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7210,7 +7210,7 @@
                 "Modded Sustain DPS": 377535.3142,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7235,7 +7235,7 @@
                 "Modded Sustain DPS": 377535.3142,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7260,7 +7260,7 @@
                 "Modded Sustain DPS": 441500,
                 "Optimal Range": 60,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7275,6 +7275,46 @@
                     "condition": null,
                     "estimated": false,
                     "description": "Magazin +30%; Fehlschüsse aus Deckung: 100% Chance zurück ins Magazin."
+                }
+            }
+        },
+        {
+            "name": "Lichtenberg (Classic M1A)",
+            "type": "Gewehr",
+            "rarity": "named",
+            "is_exotic": false,
+            "is_named": true,
+            "replica": false,
+            "source": "json_only (Y8S3.2 Red Moon Unleashed Event, Gear Cache)",
+            "table_name": "Lichtenberg",
+            "note": "Named Classic M1A (Y8S3.2 Event-Waffe) - Basiswerte wie Classic M1A; HSD 80% (Rifle-Buff Y8S3.2)",
+            "stats": {
+                "RPM": 180,
+                "Base Mag Size": 10,
+                "Modded Mag Size": 15,
+                "Empty Reload (secs)": 2.6,
+                "Level 40 Damage": 231346,
+                "DPS (rps*dmg)": 694038,
+                "Sustain DPS (dmg/time)": 389908.9888,
+                "Total Mag": 2313460,
+                "Modded Sustain DPS": 456603.9474,
+                "Optimal Range": 60,
+                "Mod Slots": "3!\\",
+                "HSD": 80
+            },
+            "named": {
+                "talent": {
+                    "name": "Run and Gun",
+                    "label": "Run and Gun (Event: Lichtenberg)",
+                    "key": "run_and_gun",
+                    "category": "utility",
+                    "kategorie": "Utility - kein Schadenswert",
+                    "value": null,
+                    "unit": "%",
+                    "conditional": true,
+                    "condition": "bei vollen 100 Stacks (in Bewegung)",
+                    "estimated": false,
+                    "description": "In Bewegung: 5 Stacks/s, max. 100 Stacks. Kopfschuesse gewaehren 15 Stacks und +20% Bewegungsgeschwindigkeit fuer 5s. Bei maximalen Stacks verbraucht der naechste Schuss alle Stacks, verursacht +200% Bonusschaden und schockt das Ziel 2s (PvE; PvP: 10 Stacks/Kopfschuss, +10% MS 3s, +70% Bonusschaden, Schock 1s)."
                 }
             }
         },
@@ -7300,7 +7340,7 @@
                 "Modded Sustain DPS": 377535.3142,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7378,14 +7418,14 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "hsd",
-                        "value": 5,
+                        "attr": "chc",
+                        "value": 15,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
                         "attr": "hsd",
-                        "value": 5,
+                        "value": 10,
                         "unit": "%"
                     },
                     {
@@ -7419,12 +7459,12 @@
                 "Modded Sustain DPS": 325800.7566,
                 "Optimal Range": 60,
                 "Mod Slots": "N/A",
-                "HSD": 60
+                "HSD": 80
             },
             "exotic": {
                 "talent": {
                     "name": "Doctor Home",
-                    "description": "Doctor Home\nShooting an enemy with this weapon will apply a mark for 5 seconds.\nIf a marked target is killed it will give a 10% armor repair kit which applies to the whole party.\nThe kit will not give bonus armor."
+                    "description": "Doctor Home\nShooting an enemy with this weapon will apply a mark for 5 seconds.\nIf a marked target is killed it will give a 50% armor repair kit which applies to the whole party.\nThe kit will not give bonus armor.\n\nYou will now be able to switch between scope-in and ADS."
                 },
                 "fixedMods": [
                     {
@@ -7476,7 +7516,7 @@
                 "Modded Sustain DPS": 517487.9382,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7501,7 +7541,7 @@
                 "Modded Sustain DPS": 504349.1452,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7526,7 +7566,7 @@
                 "Modded Sustain DPS": 504349.1452,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7551,7 +7591,7 @@
                 "Modded Sustain DPS": 504349.1452,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7591,7 +7631,7 @@
                 "Modded Sustain DPS": 449366.638,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7616,7 +7656,7 @@
                 "Modded Sustain DPS": 449366.638,
                 "Optimal Range": 60,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7639,7 +7679,7 @@
                 "Modded Sustain DPS": 372142.9658,
                 "Optimal Range": 60,
                 "Mod Slots": "N/A",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7664,7 +7704,7 @@
                 "Modded Sustain DPS": 486412.3295,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7689,7 +7729,7 @@
                 "Modded Sustain DPS": 486412.3295,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7714,7 +7754,7 @@
                 "Modded Sustain DPS": 486412.3295,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7739,7 +7779,7 @@
                 "Modded Sustain DPS": 486412.3295,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7779,7 +7819,7 @@
                 "Modded Sustain DPS": 476455.7957,
                 "Optimal Range": 45,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7804,7 +7844,7 @@
                 "Modded Sustain DPS": 476455.7957,
                 "Optimal Range": 45,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7829,7 +7869,7 @@
                 "Modded Sustain DPS": 496999.0128,
                 "Optimal Range": 45,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7854,7 +7894,7 @@
                 "Modded Sustain DPS": 496999.0128,
                 "Optimal Range": 45,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -7894,7 +7934,7 @@
                 "Modded Sustain DPS": 469790.2098,
                 "Optimal Range": 50,
                 "Mod Slots": "N/A",
-                "HSD": 60,
+                "HSD": 80,
                 "Pellets": "2 × 67,180"
             },
             "exotic": {
@@ -7906,7 +7946,7 @@
                     {
                         "slot": "optic",
                         "attr": "chc",
-                        "value": 5,
+                        "value": 15,
                         "unit": "%"
                     },
                     {
@@ -7952,7 +7992,7 @@
                 "Modded Sustain DPS": 454920.8777,
                 "Optimal Range": 55,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -7977,7 +8017,7 @@
                 "Modded Sustain DPS": 454920.8777,
                 "Optimal Range": 55,
                 "Mod Slots": "3!\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -8042,7 +8082,7 @@
                 "Modded Sustain DPS": 523036.0134,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -8067,7 +8107,7 @@
                 "Modded Sustain DPS": 523036.0134,
                 "Optimal Range": 55,
                 "Mod Slots": "4\\",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -8107,7 +8147,7 @@
                 "Modded Sustain DPS": null,
                 "Optimal Range": 35,
                 "Mod Slots": "1&!#",
-                "HSD": 60
+                "HSD": 80
             }
         },
         {
@@ -8132,7 +8172,7 @@
                 "Modded Sustain DPS": null,
                 "Optimal Range": 35,
                 "Mod Slots": "1&!#",
-                "HSD": 60
+                "HSD": 80
             },
             "named": {
                 "talent": {
@@ -8172,7 +8212,7 @@
                 "Modded Sustain DPS": 362094.9708,
                 "Optimal Range": 35,
                 "Mod Slots": "N/A",
-                "HSD": 60
+                "HSD": 80
             },
             "exotic": {
                 "talent": {
@@ -8182,8 +8222,8 @@
                 "fixedMods": [
                     {
                         "slot": "optic",
-                        "attr": "accuracy",
-                        "value": 10,
+                        "attr": "chd",
+                        "value": 15,
                         "unit": "%"
                     },
                     {
@@ -8662,8 +8702,8 @@
                     },
                     {
                         "slot": "muzzle",
-                        "attr": "hsd",
-                        "value": 20,
+                        "attr": "handling",
+                        "value": 10,
                         "unit": "%"
                     },
                     {
@@ -8836,26 +8876,26 @@
                     {
                         "slot": "optic",
                         "attr": "hsd",
-                        "value": 40,
+                        "value": 45,
                         "unit": "%"
                     },
                     {
                         "slot": "muzzle",
                         "attr": "chc",
-                        "value": 10,
+                        "value": 15,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
-                        "attr": "stability",
-                        "value": 10,
+                        "attr": "handling",
+                        "value": 15,
                         "unit": "%"
                     },
                     {
                         "slot": "magazine",
-                        "attr": "handling",
-                        "value": 15,
-                        "unit": "%"
+                        "attr": "capacity",
+                        "value": 5,
+                        "unit": "rounds"
                     }
                 ]
             }
@@ -9002,31 +9042,31 @@
             "exotic": {
                 "talent": {
                     "name": "In Plain Sight",
-                    "description": "In Plain Sight\nYour scoped view displays additional information about enemies not targetting you. \n\nHeadshot and weakpoint damage against enemies not targetting you is amplified by 50%.\n\nHeadshot kills reset the cooldown of your Decoy Skill. This bonus will wait until the Decoy goes on cooldown if currently active.\n\nEditor's note: 1.5x amplifier excludes Headhunter bonus, for more details read Headhunter Synergy Guide."
+                    "description": "In Plain Sight\nYour scoped view displays additional information about enemies not targetting you. \n\nHeadshot and weakpoint damage against enemies not targetting you is amplified by 65%.\n\nHeadshot kills reset the cooldown of your Decoy Skill. This bonus will wait until the Decoy goes on cooldown if currently active.\n\nEditor's note: 1.5x amplifier excludes Headhunter bonus, for more details read Headhunter Synergy Guide."
                 },
                 "fixedMods": [
                     {
                         "slot": "optic",
                         "attr": "hsd",
-                        "value": 40,
+                        "value": 45,
                         "unit": "%"
                     },
                     {
                         "slot": "muzzle",
-                        "attr": "chc",
+                        "attr": "handling",
                         "value": 5,
                         "unit": "%"
                     },
                     {
                         "slot": "underbarrel",
-                        "attr": "stability",
-                        "value": 10,
+                        "attr": "handling",
+                        "value": 5,
                         "unit": "%"
                     },
                     {
                         "slot": "magazine",
                         "attr": "reloadSpeed",
-                        "value": 10,
+                        "value": 20,
                         "unit": "%"
                     }
                 ]
@@ -9491,7 +9531,7 @@
                     },
                     {
                         "slot": "muzzle",
-                        "attr": "chd",
+                        "attr": "handling",
                         "value": 5,
                         "unit": "%"
                     },
@@ -9504,7 +9544,7 @@
                     {
                         "slot": "magazine",
                         "attr": "reloadSpeed",
-                        "value": 10,
+                        "value": 20,
                         "unit": "%"
                     }
                 ]
@@ -10974,7 +11014,7 @@
             "exotic": {
                 "talent": {
                     "name": "You can look... but you can't touch.",
-                    "description": "You can look...\nWhen out of combat, receive 10 stacks (PvP: 5 stacks). This weapon deals +12.5% Amplified Damage (PvP: +12% Amplified Damage) per stack.\n\n...but you can't touch.\n1 stack is automatically consumed to fully repair one instance of damage you receive. 1 stack replenishes every 3s (PvP: 8s)."
+                    "description": "You can look...\nWhen out of combat, receive 10 stacks (PvP: 5 stacks). This weapon deals +11% Amplified Damage (PvP: +12% Amplified Damage) per stack.\n\n...but you can't touch.\n1 stack is automatically consumed to fully repair one instance of damage you receive. 1 stack replenishes every 3s (PvP: 8s)."
                 },
                 "fixedMods": [
                     {
@@ -11492,7 +11532,8 @@
             "named.talent: eindeutig definierte Talente; value=null = Utility/situativ (kein numerischer Schadenswert)",
             "estimated=true = Wert ist eine Annahme (im Spiel pruefen): Perfect Frenzy, Perfect Overwhelm, Perfect Pumped Up, Perfect Brazen, Perfect Rifleman, Perfect Ranger (Bezugsdistanz 20m)",
             "todo-Block: Talent dieser Waffe ist noch unbekannt (im Spiel ablesen)",
-            "Rarity-Korrektur: 8 Waffen von 'standard' auf 'named' korrigiert"
+            "Rarity-Korrektur: 8 Waffen von 'standard' auf 'named' korrigiert",
+            "Y8S3.2-Update integriert: Gewehr-Basis-HSD 60% -> 80%, Exotic-Fixed-Mods (Ruthless/Merciless, The Ravenous, Bittersweet, Diamondback, Nemesis, Shroud, Mantis, Dread Edict), Doctor Home 50% Repair Kit, Prima Donna +11%/Stack, Mantis 65% Amplifier, neue Named-Waffe Lichtenberg"
         ]
     }
 }
